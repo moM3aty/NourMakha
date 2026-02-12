@@ -5,7 +5,7 @@
 
     // 🖼️ صور Placeholder من Unsplash - يمكنك استبدالها بصورك
     // ============================================
-    var heroImage = "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80"; // زجاجة عطر أنيقة
+
     var categoryMen = "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&q=80"; // عطر رجالي
     var categoryWomen = "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=400&q=80"; // عطر نسائي
     var categoryUnisex = "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&q=80"; // عطر للجنسين
@@ -55,8 +55,7 @@
         <div class="hero-image animate-fade-left">
             <div class="hero-image-wrapper">
                 <div class="hero-glow"></div>
-                <!-- 🖼️ صورة Hero الرئيسية - استبدلها بصورتك -->
-                <img src="@heroImage" alt="Luxury Perfume" />
+                <img src="~/images/5.jpg" alt="Luxury Perfume" />
             </div>
         </div>
     </div>
@@ -395,8 +394,8 @@
 
 <style>
     /* ============================================
-       الصور Placeholder - استبدلها بصورك الخاصة
-       ============================================ */
+           الصور Placeholder - استبدلها بصورك الخاصة
+           ============================================ */
 
     /* Category Cards with Images */
     .category-image {
@@ -546,11 +545,11 @@
         transition: all var(--transition-base);
     }
 
-    .testimonial-card:hover {
-        border-color: var(--border-hover);
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
+        .testimonial-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
 
     .testimonial-rating {
         color: var(--primary);
@@ -570,22 +569,22 @@
         gap: var(--space-md);
     }
 
-    .testimonial-author img {
-        width: 50px;
-        height: 50px;
-        border-radius: var(--radius-full);
-        border: 2px solid var(--primary);
-    }
+        .testimonial-author img {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-full);
+            border: 2px solid var(--primary);
+        }
 
-    .testimonial-author strong {
-        display: block;
-        font-size: 0.95rem;
-    }
+        .testimonial-author strong {
+            display: block;
+            font-size: 0.95rem;
+        }
 
-    .testimonial-author span {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-    }
+        .testimonial-author span {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
 
     /* Section Light Header */
     .section-header.light .section-title {

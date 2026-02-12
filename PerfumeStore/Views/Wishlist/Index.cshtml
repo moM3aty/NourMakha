@@ -1,0 +1,96 @@
+﻿@model List<PerfumeStore.Models.Product>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "قائمة المفضلة" : "My Wishlist";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+}
+
+<div class="page-header-premium">
+    <div class="container">
+        <h1 class="animate-fade-up">@ViewData["Title"]</h1>
+        <div class="breadcrumb animate-fade-up delay-1">
+            <a href="/">@(isArabic ? "الرئيسية" : "Home")</a>
+            <span class="separator">/</span>
+            <span class="current">@ViewData["Title"]</span>
+        </div>
+    </div>
+</div>
+
+<section class="wishlist-section container">
+    @if (Model.Any())
+    {
+        <div class="products-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card animate-fade-up" id="product-card-@product.Id">
+                    <div class="product-image">
+                        <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic ? product.NameAr : product.Name)" />
+                        <div class="product-actions">
+                            <button class="action-btn remove-wishlist" onclick="toggleWishlist(@product.Id, true)" title="@(isArabic ? "حذف" : "Remove")">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <a href="/Products/Details/@product.Id" class="action-btn">
+                                <i class="far fa-eye"></i>
+                            </a>
+                            <button class="action-btn add-to-cart-btn" onclick="addToCart(@product.Id)">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-brand">@(isArabic ? product.BrandAr : product.Brand)</span>
+                        <h3 class="product-name">
+                            <a href="/Products/Details/@product.Id">@(isArabic ? product.NameAr : product.Name)</a>
+                        </h3>
+                        <div class="product-price">
+                            <span class="current-price">$@product.Price</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state-premium">
+            <div class="empty-icon"><i class="far fa-heart"></i></div>
+            <h3>@(isArabic ? "قائمة المفضلة فارغة" : "Your wishlist is empty")</h3>
+            <p>@(isArabic ? "تصفح المنتجات وأضف ما يعجبك هنا" : "Browse products and add your favorites here")</p>
+            <a href="/Products" class="btn-premium mt-4">@(isArabic ? "ابدأ التسوق" : "Start Shopping")</a>
+        </div>
+    }
+</section>
+
+<style>
+    .wishlist-section { padding: 4rem 0; min-height: 50vh; }
+    .remove-wishlist { background: #e74c3c !important; color: white !important; border-color: #e74c3c !important; }
+    .remove-wishlist:hover { background: #c0392b !important; }
+</style>
+
+<script>
+    // Overriding the global toggleWishlist for this page to remove items instantly
+    function toggleWishlist(productId, isRemove) {
+        if(!isRemove) return;
+        
+        fetch('/Wishlist/Toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `productId=${productId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove element from DOM
+                const card = document.getElementById(`product-card-${productId}`);
+                if(card) {
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        // Check if empty
+                        if(document.querySelectorAll('.product-card').length === 0) location.reload(); 
+                    }, 300);
+                }
+                showToast('success', data.message);
+            }
+        });
+    }
+</script>

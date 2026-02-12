@@ -2,17 +2,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PerfumeStore.Data;
 using PerfumeStore.Models;
+using PerfumeStore.Services;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using System.Diagnostics;
 
 namespace PerfumeStore.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
+
+        private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
 
         public async Task<IActionResult> Index()
         {
@@ -48,6 +56,18 @@ namespace PerfumeStore.Controllers
         {
             return View();
         }
+        public IActionResult Terms()
+        {
+            return View();
+        }
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+        public IActionResult Returns()
+        {
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -58,19 +78,49 @@ namespace PerfumeStore.Controllers
                 model.CreatedAt = DateTime.Now;
                 _context.ContactMessages.Add(model);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Thank you for your message! We will get back to you soon.";
+
+                TempData["Success"] = IsArabic 
+                    ? "تم إرسال رسالتك بنجاح! سنقوم بالرد عليك قريباً." 
+                    : "Thank you for your message! We will get back to you soon.";
+
                 return RedirectToAction(nameof(Contact));
             }
             return View(model);
         }
 
-        public IActionResult SetLanguage(string culture, string returnUrl)
+        [HttpGet]
+        public IActionResult SetLanguage(string culture, string? returnUrl)
         {
-            Response.Cookies.Append("Culture", culture, new CookieOptions
+            if (string.IsNullOrEmpty(culture) || (culture != "ar" && culture != "en"))
             {
-                Expires = DateTimeOffset.UtcNow.AddYears(1)
-            });
+                culture = "ar";
+            }
+
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions
+                {
+                    Expires = DateTimeOffset.UtcNow.AddYears(1),
+                    HttpOnly = true,
+                    IsEssential = true,
+                    Path = "/",
+                    SameSite = SameSiteMode.Lax
+                }
+            );
+
+            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            {
+                returnUrl = "/";
+            }
+
             return LocalRedirect(returnUrl);
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 

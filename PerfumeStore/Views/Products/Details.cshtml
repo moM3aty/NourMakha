@@ -1,4 +1,4 @@
-@model PerfumeStore.Controllers.ProductDetailsViewModel
+@model ProductDetailsViewModel
 @{
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? Model.Product.NameAr : Model.Product.Name;
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
@@ -11,7 +11,7 @@
             <!-- Product Images -->
             <div class="product-gallery">
                 <div class="main-image">
-                    <img src="@(Model.Product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic ? Model.Product.NameAr : Model.Product.Name)" id="mainImage" />
+                    <img src="@(Model.Product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic? Model.Product.NameAr : Model.Product.Name)" id="mainImage" />
                 </div>
                 <div class="thumbnail-images">
                     @if (Model.Product.Images?.Any() == true)
@@ -23,7 +23,7 @@
                     }
                 </div>
             </div>
-            
+
             <!-- Product Info -->
             <div class="product-info-details">
                 <nav class="breadcrumb">
@@ -31,17 +31,17 @@
                     <span>/</span>
                     <a href="/Products">@(isArabic ? "المنتجات" : "Products")</a>
                     <span>/</span>
-                    <span>@(isArabic ? Model.Product.NameAr : Model.Product.Name)</span>
+                    <span>@(isArabic? Model.Product.NameAr : Model.Product.Name)</span>
                 </nav>
-                
-                <h1 class="product-title">@(isArabic ? Model.Product.NameAr : Model.Product.Name)</h1>
-                
+
+                <h1 class="product-title">@(isArabic? Model.Product.NameAr : Model.Product.Name)</h1>
+
                 <div class="product-meta">
-                    <span class="brand">@(isArabic ? Model.Product.BrandAr : Model.Product.Brand)</span>
+                    <span class="brand">@(isArabic? Model.Product.BrandAr : Model.Product.Brand)</span>
                     <span class="divider">|</span>
-                    <span class="category">@(isArabic ? Model.Product.Category?.NameAr : Model.Product.Category?.Name)</span>
+                    <span class="category">@(isArabic? Model.Product.Category?.NameAr : Model.Product.Category?.Name)</span>
                 </div>
-                
+
                 <div class="product-rating-large">
                     <div class="stars">
                         @for (int i = 1; i <= 5; i++)
@@ -51,7 +51,7 @@
                     </div>
                     <span class="rating-text">(@Model.TotalReviews @(isArabic ? "تقييم" : "Reviews"))</span>
                 </div>
-                
+
                 <div class="product-price-large">
                     <span class="current-price">$@Model.Product.Price</span>
                     @if (Model.Product.OldPrice.HasValue && Model.Product.OldPrice > Model.Product.Price)
@@ -61,18 +61,18 @@
                         <span class="discount-badge">-@discount%</span>
                     }
                 </div>
-                
+
                 <div class="product-description">
                     <h3>@(isArabic ? "الوصف" : "Description")</h3>
-                    <p>@(isArabic ? Model.Product.DescriptionAr : Model.Product.Description)</p>
+                    <p>@(isArabic? Model.Product.DescriptionAr : Model.Product.Description)</p>
                 </div>
-                
+
                 <div class="product-attributes">
                     @if (!string.IsNullOrEmpty(Model.Product.ScentFamily))
                     {
                         <div class="attribute">
                             <span class="label">@(isArabic ? "عائلة الرائحة" : "Scent Family"):</span>
-                            <span class="value">@(isArabic ? Model.Product.ScentFamilyAr : Model.Product.ScentFamily)</span>
+                            <span class="value">@(isArabic? Model.Product.ScentFamilyAr : Model.Product.ScentFamily)</span>
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Product.Size))
@@ -92,13 +92,13 @@
                     <div class="attribute">
                         <span class="label">@(isArabic ? "المخزون" : "Stock"):</span>
                         <span class="value @(Model.Product.StockQuantity > 0 ? "in-stock" : "out-of-stock")">
-                            @(Model.Product.StockQuantity > 0 
-                                ? (isArabic ? $"متوفر ({Model.Product.StockQuantity})" : $"In Stock ({Model.Product.StockQuantity})")
-                                : (isArabic ? "غير متوفر" : "Out of Stock"))
+                            @(Model.Product.StockQuantity > 0
+                                                        ? (isArabic ? $"متوفر ({Model.Product.StockQuantity})" : $"In Stock ({Model.Product.StockQuantity})")
+                                                        : (isArabic ? "غير متوفر" : "Out of Stock"))
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="product-actions-large">
                     <div class="quantity-selector">
                         <button onclick="decreaseQty()">-</button>
@@ -113,7 +113,7 @@
                         <i class="far fa-heart"></i>
                     </button>
                 </div>
-                
+
                 <div class="product-features">
                     <div class="feature">
                         <i class="fas fa-truck"></i>
@@ -130,20 +130,20 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Product Tabs -->
         <div class="product-tabs">
             <div class="tabs-header">
                 <button class="tab-btn active" data-tab="description">@(isArabic ? "الوصف" : "Description")</button>
                 <button class="tab-btn" data-tab="reviews">@(isArabic ? "التقييمات" : "Reviews") (@Model.TotalReviews)</button>
             </div>
-            
+
             <div class="tab-content active" id="description">
                 <div class="description-content">
-                    <p>@(isArabic ? Model.Product.DescriptionAr : Model.Product.Description)</p>
+                    <p>@(isArabic? Model.Product.DescriptionAr : Model.Product.Description)</p>
                 </div>
             </div>
-            
+
             <div class="tab-content" id="reviews">
                 <!-- Add Review Form -->
                 @if (User.Identity?.IsAuthenticated ?? false)
@@ -171,7 +171,7 @@
                 {
                     <p><a href="/Account/Login">@(isArabic ? "سجل دخولك" : "Login")</a> @(isArabic ? "لكتابة تقييم" : "to write a review")</p>
                 }
-                
+
                 <!-- Reviews List -->
                 <div class="reviews-list">
                     @if (Model.Product.Reviews?.Any() == true)
@@ -194,7 +194,7 @@
                                         }
                                     </div>
                                 </div>
-                                <p class="review-comment">@(isArabic ? review.CommentAr : review.Comment)</p>
+                                <p class="review-comment">@(isArabic? review.CommentAr: review.Comment)</p>
                             </div>
                         }
                     }
@@ -205,7 +205,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Related Products -->
         @if (Model.RelatedProducts.Any())
         {
@@ -216,7 +216,7 @@
                     {
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic ? product.NameAr : product.Name)" />
+                                <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic? product.NameAr: product.Name)" />
                                 <div class="product-actions">
                                     <a href="/Products/Details/@product.Id" class="action-btn">
                                         <i class="far fa-eye"></i>
@@ -227,9 +227,9 @@
                                 </div>
                             </div>
                             <div class="product-info">
-                                <span class="product-brand">@(isArabic ? product.BrandAr : product.Brand)</span>
+                                <span class="product-brand">@(isArabic? product.BrandAr: product.Brand)</span>
                                 <h3 class="product-name">
-                                    <a href="/Products/Details/@product.Id">@(isArabic ? product.NameAr : product.Name)</a>
+                                    <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
                                 </h3>
                                 <div class="product-price">
                                     <span class="current-price">$@product.Price</span>
@@ -244,395 +244,395 @@
 </section>
 
 <style>
-.product-details {
-    padding: 6rem 0;
-    margin-top: 80px;
-}
-
-.product-details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    margin-bottom: 4rem;
-}
-
-.product-gallery .main-image {
-    background: rgba(26, 26, 46, 0.5);
-    border-radius: 20px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-}
-
-.product-gallery .main-image img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-}
-
-.thumbnail-images {
-    display: flex;
-    gap: 1rem;
-}
-
-.thumbnail-images img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-}
-
-.thumbnail-images img:hover,
-.thumbnail-images img.active {
-    border-color: #d4af37;
-}
-
-.breadcrumb {
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #6c6c7c;
-    margin-bottom: 1rem;
-}
-
-.breadcrumb a {
-    color: #b8b8c8;
-}
-
-.breadcrumb a:hover {
-    color: #d4af37;
-}
-
-.product-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.product-meta {
-    display: flex;
-    gap: 0.5rem;
-    color: #b8b8c8;
-    margin-bottom: 1rem;
-}
-
-.product-rating-large {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.product-rating-large .stars {
-    color: #d4af37;
-}
-
-.product-price-large {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.product-price-large .current-price {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #d4af37;
-}
-
-.product-price-large .old-price {
-    font-size: 1.25rem;
-    color: #6c6c7c;
-    text-decoration: line-through;
-}
-
-.discount-badge {
-    background: #e74c3c;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-}
-
-.product-description {
-    margin-bottom: 1.5rem;
-}
-
-.product-description h3 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-    color: #d4af37;
-}
-
-.product-description p {
-    color: #b8b8c8;
-    line-height: 1.8;
-}
-
-.product-attributes {
-    background: rgba(26, 26, 46, 0.5);
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.product-attributes .attribute {
-    display: flex;
-    gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-}
-
-.product-attributes .attribute:last-child {
-    border-bottom: none;
-}
-
-.product-attributes .label {
-    color: #6c6c7c;
-    min-width: 120px;
-}
-
-.product-attributes .value {
-    color: #fff;
-}
-
-.product-attributes .in-stock {
-    color: #2ecc71;
-}
-
-.product-attributes .out-of-stock {
-    color: #e74c3c;
-}
-
-.product-actions-large {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.quantity-selector {
-    display: flex;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.quantity-selector button {
-    width: 50px;
-    background: rgba(212, 175, 55, 0.1);
-    border: none;
-    color: #d4af37;
-    font-size: 1.25rem;
-    cursor: pointer;
-}
-
-.quantity-selector input {
-    width: 60px;
-    text-align: center;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 1rem;
-}
-
-.add-cart-btn {
-    flex: 1;
-}
-
-.product-features {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-}
-
-.product-features .feature {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #b8b8c8;
-    font-size: 0.875rem;
-}
-
-.product-features .feature i {
-    color: #d4af37;
-}
-
-/* Tabs */
-.product-tabs {
-    margin-top: 3rem;
-}
-
-.tabs-header {
-    display: flex;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    margin-bottom: 2rem;
-}
-
-.tab-btn {
-    padding: 1rem 2rem;
-    background: transparent;
-    border: none;
-    color: #b8b8c8;
-    font-size: 1rem;
-    cursor: pointer;
-    position: relative;
-}
-
-.tab-btn.active {
-    color: #d4af37;
-}
-
-.tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #d4af37;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Reviews */
-.review-form {
-    background: rgba(26, 26, 46, 0.5);
-    padding: 2rem;
-    border-radius: 15px;
-    margin-bottom: 2rem;
-}
-
-.review-form h4 {
-    margin-bottom: 1rem;
-}
-
-.star-rating {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 0.25rem;
-}
-
-.star-rating input {
-    display: none;
-}
-
-.star-rating label {
-    cursor: pointer;
-    color: #6c6c7c;
-    font-size: 1.5rem;
-}
-
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-    color: #d4af37;
-}
-
-.review-item {
-    padding: 1.5rem;
-    background: rgba(26, 26, 46, 0.5);
-    border-radius: 15px;
-    margin-bottom: 1rem;
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.reviewer {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.reviewer-avatar {
-    width: 50px;
-    height: 50px;
-    background: #d4af37;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #0f0f1a;
-    font-weight: 700;
-}
-
-.reviewer-info strong {
-    display: block;
-}
-
-.review-date {
-    font-size: 0.875rem;
-    color: #6c6c7c;
-}
-
-.review-rating {
-    color: #d4af37;
-}
-
-.review-comment {
-    color: #b8b8c8;
-    line-height: 1.8;
-}
-
-/* Related Products */
-.related-products {
-    margin-top: 4rem;
-}
-
-.related-products h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    margin-bottom: 2rem;
-}
-
-@@media (max-width: 992px) {
-    .product-details-grid {
-        grid-template-columns: 1fr;
+    .product-details {
+        padding: 6rem 0;
+        margin-top: 80px;
     }
-}
+
+    .product-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        margin-bottom: 4rem;
+    }
+
+    .product-gallery .main-image {
+        background: rgba(26, 26, 46, 0.5);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+        .product-gallery .main-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+
+    .thumbnail-images {
+        display: flex;
+        gap: 1rem;
+    }
+
+        .thumbnail-images img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+            .thumbnail-images img:hover,
+            .thumbnail-images img.active {
+                border-color: #d4af37;
+            }
+
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #6c6c7c;
+        margin-bottom: 1rem;
+    }
+
+        .breadcrumb a {
+            color: #b8b8c8;
+        }
+
+            .breadcrumb a:hover {
+                color: #d4af37;
+            }
+
+    .product-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .product-meta {
+        display: flex;
+        gap: 0.5rem;
+        color: #b8b8c8;
+        margin-bottom: 1rem;
+    }
+
+    .product-rating-large {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .product-rating-large .stars {
+            color: #d4af37;
+        }
+
+    .product-price-large {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .product-price-large .current-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #d4af37;
+        }
+
+        .product-price-large .old-price {
+            font-size: 1.25rem;
+            color: #6c6c7c;
+            text-decoration: line-through;
+        }
+
+    .discount-badge {
+        background: #e74c3c;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .product-description {
+        margin-bottom: 1.5rem;
+    }
+
+        .product-description h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #d4af37;
+        }
+
+        .product-description p {
+            color: #b8b8c8;
+            line-height: 1.8;
+        }
+
+    .product-attributes {
+        background: rgba(26, 26, 46, 0.5);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .product-attributes .attribute {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+            .product-attributes .attribute:last-child {
+                border-bottom: none;
+            }
+
+        .product-attributes .label {
+            color: #6c6c7c;
+            min-width: 120px;
+        }
+
+        .product-attributes .value {
+            color: #fff;
+        }
+
+        .product-attributes .in-stock {
+            color: #2ecc71;
+        }
+
+        .product-attributes .out-of-stock {
+            color: #e74c3c;
+        }
+
+    .product-actions-large {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quantity-selector {
+        display: flex;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        .quantity-selector button {
+            width: 50px;
+            background: rgba(212, 175, 55, 0.1);
+            border: none;
+            color: #d4af37;
+            font-size: 1.25rem;
+            cursor: pointer;
+        }
+
+        .quantity-selector input {
+            width: 60px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+    .add-cart-btn {
+        flex: 1;
+    }
+
+    .product-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+        .product-features .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #b8b8c8;
+            font-size: 0.875rem;
+        }
+
+            .product-features .feature i {
+                color: #d4af37;
+            }
+
+    /* Tabs */
+    .product-tabs {
+        margin-top: 3rem;
+    }
+
+    .tabs-header {
+        display: flex;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+        padding: 1rem 2rem;
+        background: transparent;
+        border: none;
+        color: #b8b8c8;
+        font-size: 1rem;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .tab-btn.active {
+            color: #d4af37;
+        }
+
+            .tab-btn.active::after {
+                content: '';
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: #d4af37;
+            }
+
+    .tab-content {
+        display: none;
+    }
+
+        .tab-content.active {
+            display: block;
+        }
+
+    /* Reviews */
+    .review-form {
+        background: rgba(26, 26, 46, 0.5);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+        .review-form h4 {
+            margin-bottom: 1rem;
+        }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 0.25rem;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            color: #6c6c7c;
+            font-size: 1.5rem;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: #d4af37;
+            }
+
+    .review-item {
+        padding: 1.5rem;
+        background: rgba(26, 26, 46, 0.5);
+        border-radius: 15px;
+        margin-bottom: 1rem;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .reviewer {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .reviewer-avatar {
+        width: 50px;
+        height: 50px;
+        background: #d4af37;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f0f1a;
+        font-weight: 700;
+    }
+
+    .reviewer-info strong {
+        display: block;
+    }
+
+    .review-date {
+        font-size: 0.875rem;
+        color: #6c6c7c;
+    }
+
+    .review-rating {
+        color: #d4af37;
+    }
+
+    .review-comment {
+        color: #b8b8c8;
+        line-height: 1.8;
+    }
+
+    /* Related Products */
+    .related-products {
+        margin-top: 4rem;
+    }
+
+        .related-products h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+    @@media (max-width: 992px) {
+        .product-details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <script>
-function changeImage(src) {
-    document.getElementById('mainImage').src = src;
-}
+    function changeImage(src) {
+        document.getElementById('mainImage').src = src;
+    }
 
-function decreaseQty() {
-    const input = document.getElementById('quantity');
-    if (input.value > 1) input.value = parseInt(input.value) - 1;
-}
+    function decreaseQty() {
+        const input = document.getElementById('quantity');
+        if (input.value > 1) input.value = parseInt(input.value) - 1;
+    }
 
-function increaseQty() {
-    const input = document.getElementById('quantity');
-    const max = parseInt(input.max);
-    if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
-}
+    function increaseQty() {
+        const input = document.getElementById('quantity');
+        const max = parseInt(input.max);
+        if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
+    }
 
-function addToCartWithQty(productId) {
-    const qty = document.getElementById('quantity').value;
-    // Add to cart logic with quantity
-}
+    function addToCartWithQty(productId) {
+        const qty = document.getElementById('quantity').value;
+        // Add to cart logic with quantity
+    }
 
-// Tab functionality
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        this.classList.add('active');
-        document.getElementById(this.dataset.tab).classList.add('active');
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            this.classList.add('active');
+            document.getElementById(this.dataset.tab).classList.add('active');
+        });
     });
-});
 </script>

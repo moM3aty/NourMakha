@@ -4,7 +4,6 @@ namespace PerfumeStore.Models
 {
     public class ContactMessage
     {
-        [Key]
         public int Id { get; set; }
 
         [Required]
@@ -13,7 +12,7 @@ namespace PerfumeStore.Models
 
         [Required]
         [EmailAddress]
-        [StringLength(100)]
+        [StringLength(200)]
         public string Email { get; set; } = string.Empty;
 
         [StringLength(20)]
@@ -28,7 +27,6 @@ namespace PerfumeStore.Models
         public string Message { get; set; } = string.Empty;
 
         public bool IsRead { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

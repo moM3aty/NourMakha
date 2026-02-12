@@ -1,127 +1,68 @@
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
+@{
+    // التصحيح هنا: استخدام StartsWith بدلاً من المطابقة الكاملة
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+    var isArabic = currentCulture.StartsWith("ar");
+}
+<html lang="@currentCulture" dir="@(isArabic ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Perfume Store</title>
+    <title>@ViewData["Title"] - نور للعود والعطور</title>
     <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
-    <!-- Preloader -->
-    <div id="preloader" class="preloader">
-        <div class="loader">
-            <div class="perfume-bottle">
-                <div class="bottle-body"></div>
-                <div class="bottle-cap"></div>
-            </div>
-        </div>
-    </div>
-
+<body class="@(isArabic ? "rtl" : "ltr")">
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
             <div class="container nav-container">
-                <!-- Logo -->
                 <a href="/" class="logo">
-                    <span class="logo-text">Perfume</span>
-                    <span class="logo-accent">Store</span>
+                    <img style="padding:10px;width:100px;" src="~/images/logo.png" />
                 </a>
 
-                <!-- Mobile Menu Toggle -->
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
                     <i class="fas fa-bars"></i>
                 </button>
 
-                <!-- Navigation -->
                 <div class="nav-menu" id="navMenu">
                     <ul class="nav-list">
-                        <li><a href="/" class="nav-link active">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الرئيسية" : "Home")</a></li>
-                        <li class="dropdown">
-                            <a href="/Products" class="nav-link">
-                                @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "المنتجات" : "Products")
-                                <i class="fas fa-chevron-down"></i>
-                            </a>
-                            <ul class="dropdown-menu">
-                                @foreach (var category in ViewBag.Categories ?? new List<PerfumeStore.Models.Category>())
-                                {
-                                    <li><a href="/Products/Category/@category.Id">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? category.NameAr : category.Name)</a></li>
-                                }
-                            </ul>
-                        </li>
-                        <li><a href="/Home/About" class="nav-link">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "من نحن" : "About")</a></li>
-                        <li><a href="/Home/Contact" class="nav-link">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تواصل معنا" : "Contact")</a></li>
+                        <li><a href="/" class="nav-link active">@(isArabic ? "الرئيسية" : "Home")</a></li>
+                        <li><a href="/Products" class="nav-link">@(isArabic ? "المنتجات" : "Products")</a></li>
+                        <li><a href="/Home/About" class="nav-link">@(isArabic ? "من نحن" : "About")</a></li>
+                        <li><a href="/Home/Contact" class="nav-link">@(isArabic ? "تواصل معنا" : "Contact")</a></li>
                     </ul>
                 </div>
 
-                <!-- Right Nav -->
                 <div class="nav-right">
-                    <!-- Language Switcher -->
                     <div class="language-switcher">
-                        <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "active" : "")">AR</a>
+                        <!-- استخدام نفس المنطق في الأزرار -->
+                        <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(isArabic ? "active" : "")">AR</a>
                         <span class="lang-divider">|</span>
-                        <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "active" : "")">EN</a>
+                        <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(!isArabic ? "active" : "")">EN</a>
                     </div>
 
-                    <!-- Search -->
-                    <button class="nav-icon-btn" id="searchBtn">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                    <!-- Cart -->
                     <a href="/Cart" class="nav-icon-btn cart-btn">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="cart-count" id="cartCount">0</span>
                     </a>
 
-                    <!-- User -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <div class="user-dropdown">
-                            <button class="nav-icon-btn">
-                                <i class="fas fa-user"></i>
-                            </button>
-                            <ul class="dropdown-menu user-menu">
-                                <li><a href="/Account/Profile"><i class="fas fa-user-circle"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الملف الشخصي" : "Profile")</a></li>
-                                <li><a href="/Account/Profile"><i class="fas fa-box"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "طلباتي" : "My Orders")</a></li>
-                                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
-                                {
-                                    <li><a href="/Admin"><i class="fas fa-cog"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "لوحة التحكم" : "Admin Panel")</a></li>
-                                }
-                                <li class="divider"></li>
-                                <li>
-                                    <form action="/Account/Logout" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تسجيل الخروج" : "Logout")
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
+                            <a href="/Account/Profile" class="nav-icon-btn"><i class="fas fa-user"></i></a>
                         </div>
                     }
                     else
                     {
-                        <a href="/Account/Login" class="nav-icon-btn">
-                            <i class="fas fa-user"></i>
-                        </a>
+                        <a href="/Account/Login" class="nav-icon-btn"><i class="fas fa-user"></i></a>
                     }
                 </div>
             </div>
         </nav>
-
-        <!-- Search Overlay -->
-        <div class="search-overlay" id="searchOverlay">
-            <div class="search-container">
-                <form action="/Products" method="get">
-                    <input type="text" name="searchTerm" placeholder="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "ابحث عن عطرك المفضل..." : "Search for your favorite perfume...")" class="search-input" />
-                    <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
-                </form>
-                <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
     </header>
 
     <!-- Main Content -->
@@ -135,73 +76,62 @@
             <div class="footer-grid">
                 <!-- Brand -->
                 <div class="footer-brand">
-                    <a href="/" class="logo">
-                        <span class="logo-text">Perfume</span>
-                        <span class="logo-accent">Store</span>
+                    <a href="/" class="logo" >
+                        <img style="padding:10px;width:150px;" src="~/images/logo.png" />
                     </a>
                     <p class="footer-desc">
-                        @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar"
-                            ? "اكتشف عالم العطور الفاخرة معنا. نقدم لك أرقى الماركات العالمية بجودة عالية وأسعار منافسة."
-                            : "Discover the world of luxury perfumes with us. We offer you the finest international brands with high quality and competitive prices.")
+                        @(isArabic
+                                                ? "نور للعود والعطور، علامة تجارية عمانية رائدة في مجال العود والبخور والعطور الفرنسية."
+                                                : "Nour Oud & Perfumes, a leading Omani brand in Oud, Incense, and French Perfumes.")
                     </p>
                     <div class="social-links">
-                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://instagram.com/nourperfumes.om" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/96898185589" class="social-link"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
 
-                <!-- Quick Links -->
+                <!-- Policies -->
                 <div class="footer-links">
-                    <h4>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "روابط سريعة" : "Quick Links")</h4>
+                    <h4>@(isArabic ? "السياسات" : "Policies")</h4>
                     <ul>
-                        <li><a href="/">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الرئيسية" : "Home")</a></li>
-                        <li><a href="/Products">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "المنتجات" : "Products")</a></li>
-                        <li><a href="/Home/About">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "من نحن" : "About Us")</a></li>
-                        <li><a href="/Home/Contact">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تواصل معنا" : "Contact")</a></li>
+                        <li><a href="/Home/Terms">@(isArabic ? "الشروط والأحكام" : "Terms & Conditions")</a></li>
+                        <li><a href="/Home/Privacy">@(isArabic ? "سياسة الخصوصية" : "Privacy Policy")</a></li>
+                        <li><a href="/Home/Returns">@(isArabic ? "سياسة الاسترجاع" : "Return Policy")</a></li>
                     </ul>
                 </div>
 
-                <!-- Categories -->
+                <!-- Branches -->
                 <div class="footer-links">
-                    <h4>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الفئات" : "Categories")</h4>
+                    <h4>@(isArabic ? "الفروع" : "Branches")</h4>
                     <ul>
-                        <li><a href="/Products?gender=Men">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "عطور رجالية" : "Men's Perfumes")</a></li>
-                        <li><a href="/Products?gender=Women">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "عطور نسائية" : "Women's Perfumes")</a></li>
-                        <li><a href="/Products?gender=Unisex">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "عطور للجنسين" : "Unisex Perfumes")</a></li>
-                        <li><a href="/Products?categoryId=5">@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "هدايا" : "Gift Sets")</a></li>
+                        <li><i class="fas fa-map-marker-alt" style="color: #d4af37; margin-left:5px;"></i> @(isArabic ? "الموالح" : "Al Mawaleh")</li>
+                        <li><i class="fas fa-map-marker-alt" style="color: #d4af37; margin-left:5px;"></i> @(isArabic ? "صور" : "Sur")</li>
                     </ul>
                 </div>
 
                 <!-- Contact -->
                 <div class="footer-contact">
-                    <h4>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تواصل معنا" : "Contact Us")</h4>
+                    <h4>@(isArabic ? "تواصل معنا" : "Contact")</h4>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "القاهرة، مصر" : "Cairo, Egypt")</li>
-                        <li><i class="fas fa-phone"></i> +20 123 456 789</li>
-                        <li><i class="fas fa-envelope"></i> info@perfumestore.com</li>
-                        <li><i class="fas fa-clock"></i> @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "السبت - الخميس: 9 ص - 10 م" : "Sat - Thu: 9AM - 10PM")</li>
+                        <li><i class="fas fa-phone"></i> 98185589 | 96366332</li>
+                        <li><i class="fas fa-envelope"></i> info@nourperfumes.com</li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2024 Perfume Store. @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "جميع الحقوق محفوظة" : "All rights reserved.")</p>
+                <p>&copy; @DateTime.Now.Year Nour Perfumes. @(isArabic ? "جميع الحقوق محفوظة" : "All rights reserved.")</p>
                 <div class="payment-methods">
                     <i class="fab fa-cc-visa"></i>
                     <i class="fab fa-cc-mastercard"></i>
-                    <i class="fab fa-cc-paypal"></i>
-                    <i class="fab fa-cc-apple-pay"></i>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Toast Notifications -->
-    <div class="toast-container" id="toastContainer"></div>
-
     <script src="~/js/main.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+

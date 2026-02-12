@@ -164,20 +164,17 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Country")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -191,16 +188,17 @@ namespace PerfumeStore.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsEmailVerified")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -226,8 +224,7 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("PostalCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -264,7 +261,6 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SessionId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -275,7 +271,9 @@ namespace PerfumeStore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Carts");
                 });
@@ -287,6 +285,9 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("CartId")
                         .HasColumnType("int");
@@ -317,6 +318,9 @@ namespace PerfumeStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -341,12 +345,8 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("NameAr")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -356,6 +356,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 1,
+                            CreatedAt = new DateTime(2026, 2, 12, 21, 0, 23, 796, DateTimeKind.Local).AddTicks(6303),
                             Description = "Premium men's fragrances",
                             DescriptionAr = "عطور رجالية فاخرة",
                             DisplayOrder = 1,
@@ -366,6 +367,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 2,
+                            CreatedAt = new DateTime(2026, 2, 12, 21, 0, 23, 796, DateTimeKind.Local).AddTicks(6356),
                             Description = "Elegant women's fragrances",
                             DescriptionAr = "عطور نسائية راقية",
                             DisplayOrder = 2,
@@ -376,6 +378,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 3,
+                            CreatedAt = new DateTime(2026, 2, 12, 21, 0, 23, 796, DateTimeKind.Local).AddTicks(6359),
                             Description = "Versatile unisex fragrances",
                             DescriptionAr = "عطور متنوعة للجنسين",
                             DisplayOrder = 3,
@@ -386,6 +389,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 4,
+                            CreatedAt = new DateTime(2026, 2, 12, 21, 0, 23, 796, DateTimeKind.Local).AddTicks(6362),
                             Description = "Exclusive luxury perfume collections",
                             DescriptionAr = "مجموعات عطور فاخرة حصرية",
                             DisplayOrder = 4,
@@ -396,6 +400,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 5,
+                            CreatedAt = new DateTime(2026, 2, 12, 21, 0, 23, 796, DateTimeKind.Local).AddTicks(6365),
                             Description = "Perfect gift sets for loved ones",
                             DescriptionAr = "مجموعات هدايا مثالية لأحبائك",
                             DisplayOrder = 5,
@@ -418,8 +423,8 @@ namespace PerfumeStore.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -464,6 +469,14 @@ namespace PerfumeStore.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("DiscountType")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -478,14 +491,23 @@ namespace PerfumeStore.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<decimal?>("MaxDiscount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("MaximumDiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinOrderAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("MinimumOrderAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("UsageCount")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UsageLimit")
                         .HasColumnType("int");
@@ -506,21 +528,18 @@ namespace PerfumeStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Attempts")
-                        .HasColumnType("int");
-
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
@@ -530,8 +549,8 @@ namespace PerfumeStore.Migrations
 
                     b.Property<string>("Purpose")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -547,14 +566,17 @@ namespace PerfumeStore.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CouponCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeliveredAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
@@ -566,13 +588,15 @@ namespace PerfumeStore.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("PaymentMethod")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("PaymentStatus")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("ShippedAt")
                         .HasColumnType("datetime2");
@@ -594,6 +618,11 @@ namespace PerfumeStore.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ShippingEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ShippingFirstName")
                         .IsRequired()
@@ -619,21 +648,26 @@ namespace PerfumeStore.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TaxAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("TransactionId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderNumber");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("UserId");
 
@@ -651,7 +685,7 @@ namespace PerfumeStore.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductImage")
@@ -660,7 +694,8 @@ namespace PerfumeStore.Migrations
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -694,7 +729,6 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("BrandAr")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -739,7 +773,6 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NameAr")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -769,7 +802,11 @@ namespace PerfumeStore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Brand");
+
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("Products");
                 });
@@ -782,17 +819,12 @@ namespace PerfumeStore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AltText")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsMain")
                         .HasColumnType("bit");
@@ -846,6 +878,33 @@ namespace PerfumeStore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("PerfumeStore.Models.WishlistItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WishlistItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -902,8 +961,9 @@ namespace PerfumeStore.Migrations
             modelBuilder.Entity("PerfumeStore.Models.Cart", b =>
                 {
                     b.HasOne("PerfumeStore.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Cart")
+                        .HasForeignKey("PerfumeStore.Models.Cart", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -911,13 +971,13 @@ namespace PerfumeStore.Migrations
             modelBuilder.Entity("PerfumeStore.Models.CartItem", b =>
                 {
                     b.HasOne("PerfumeStore.Models.Cart", "Cart")
-                        .WithMany("CartItems")
+                        .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PerfumeStore.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("CartItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -932,8 +992,7 @@ namespace PerfumeStore.Migrations
                     b.HasOne("PerfumeStore.Models.ApplicationUser", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });
@@ -949,8 +1008,7 @@ namespace PerfumeStore.Migrations
                     b.HasOne("PerfumeStore.Models.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Order");
 
@@ -998,16 +1056,39 @@ namespace PerfumeStore.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PerfumeStore.Models.WishlistItem", b =>
+                {
+                    b.HasOne("PerfumeStore.Models.Product", "Product")
+                        .WithMany("WishlistItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PerfumeStore.Models.ApplicationUser", "User")
+                        .WithMany("WishlistItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PerfumeStore.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Cart");
+
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("WishlistItems");
                 });
 
             modelBuilder.Entity("PerfumeStore.Models.Cart", b =>
                 {
-                    b.Navigation("CartItems");
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("PerfumeStore.Models.Category", b =>
@@ -1022,11 +1103,15 @@ namespace PerfumeStore.Migrations
 
             modelBuilder.Entity("PerfumeStore.Models.Product", b =>
                 {
+                    b.Navigation("CartItems");
+
                     b.Navigation("Images");
 
                     b.Navigation("OrderItems");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("WishlistItems");
                 });
 #pragma warning restore 612, 618
         }

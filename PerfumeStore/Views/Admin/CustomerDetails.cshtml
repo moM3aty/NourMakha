@@ -1,0 +1,355 @@
+@model PerfumeStore.Models.ApplicationUser
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تفاصيل العميل" : "Customer Details";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header animate-fade-up">
+    <div class="header-left">
+        <h1>@ViewData["Title"]</h1>
+        <p>@(isArabic ? "ملف العميل وسجل الطلبات" : "Customer profile and order history")</p>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/Customers" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i>
+            @(isArabic ? "العودة للقائمة" : "Back to List")
+        </a>
+    </div>
+</div>
+
+<div class="customer-details-grid animate-fade-up delay-1">
+    <!-- Customer Profile Side -->
+    <div class="card profile-card">
+        <div class="card-body">
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <div class="avatar-ring"></div>
+                    <img src="https://ui-avatars.com/api/?name=@Model.FirstName+@Model.LastName&background=0f0f1a&color=d4af37&size=128&font-size=0.4" alt="@Model.FirstName" class="profile-avatar" />
+                    <div class="status-indicator active"></div>
+                </div>
+                <h2>@Model.FirstName @Model.LastName</h2>
+                <span class="join-date">
+                    <i class="far fa-calendar-alt"></i>
+                    @(isArabic ? "انضم في" : "Joined") @Model.CreatedAt.ToString("MMM dd, yyyy")
+                </span>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="value">@Model.Orders.Count</span>
+                    <span class="label">@(isArabic ? "الطلبات" : "Orders")</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="value gold">$@Model.Orders.Sum(o => o.GrandTotal).ToString("N0")</span>
+                    <span class="label">@(isArabic ? "المشتريات" : "Spent")</span>
+                </div>
+            </div>
+
+            <div class="contact-info-list">
+                <div class="info-group">
+                    <label>@(isArabic ? "معلومات التواصل" : "Contact Info")</label>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                        <div class="info-content">
+                            <span>@(isArabic ? "البريد الإلكتروني" : "Email")</span>
+                            <strong>@Model.Email</strong>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-phone"></i></div>
+                        <div class="info-content">
+                            <span>@(isArabic ? "رقم الهاتف" : "Phone")</span>
+                            <strong>@(string.IsNullOrEmpty(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <div class="info-group">
+                        <label>@(isArabic ? "العنوان" : "Address")</label>
+                        <div class="info-row">
+                            <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="info-content">
+                                <span>@(isArabic ? "الموقع" : "Location")</span>
+                                <strong>@Model.Address, @Model.City</strong>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders History Side -->
+    <div class="orders-history">
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-history"></i>
+                    @(isArabic ? "سجل الطلبات" : "Order History")
+                </h3>
+            </div>
+            <div class="card-body">
+                @if (Model.Orders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>@(isArabic ? "رقم الطلب" : "Order ID")</th>
+                                    <th>@(isArabic ? "التاريخ" : "Date")</th>
+                                    <th>@(isArabic ? "الحالة" : "Status")</th>
+                                    <th>@(isArabic ? "الإجمالي" : "Total")</th>
+                                    <th>@(isArabic ? "الإجراء" : "Action")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Orders.OrderByDescending(o => o.CreatedAt))
+                                {
+                                    <tr>
+                                        <td><span class="coupon-code">#@order.Id</span></td>
+                                        <td style="color: var(--text-secondary);">@order.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <span class="status-badge @order.Status.ToLower()">@order.Status</span>
+                                        </td>
+                                        <td style="font-weight: 700; color: var(--text-primary);">$@order.GrandTotal.ToString("N2")</td>
+                                        <td>
+                                            <a href="/Admin/OrderDetails/@order.Id" class="action-btn view" title="@(isArabic ? "عرض التفاصيل" : "View Details")">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h3>@(isArabic ? "لا توجد طلبات" : "No Orders Yet")</h3>
+                        <p>@(isArabic ? "لم يقم هذا العميل بإجراء أي طلبات حتى الآن" : "This customer hasn't placed any orders yet")</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Styles for Customer Details Page */
+    .customer-details-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Profile Card Styling */
+    .profile-card .card-body {
+        padding: 0;
+    }
+
+    .profile-header {
+        background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+        padding: 3rem 2rem 2rem;
+        text-align: center;
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid var(--gold-primary);
+        padding: 3px;
+        background: var(--bg-surface);
+    }
+
+    .avatar-ring {
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        border: 1px dashed rgba(212, 175, 55, 0.3);
+        animation: spin 20s linear infinite;
+    }
+
+    @@keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .status-indicator {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 15px;
+        height: 15px;
+        background: #2ecc71;
+        border: 2px solid var(--bg-surface);
+        border-radius: 50%;
+    }
+
+    .profile-header h2 {
+        font-family: 'Playfair Display', serif;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .join-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Stats */
+    .profile-stats {
+        display: flex;
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .stat-divider {
+        width: 1px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-item .value {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 700;
+        font-family: 'Playfair Display', serif;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+
+        .stat-item .value.gold {
+            color: var(--gold-primary);
+        }
+
+    .stat-item .label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Contact List */
+    .contact-info-list {
+        padding: 2rem;
+    }
+
+    .info-group label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--gold-primary);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        transition: 0.3s;
+    }
+
+        .info-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateX(5px);
+        }
+
+    .icon-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(212, 175, 55, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-primary);
+    }
+
+    .info-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .info-content span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .info-content strong {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: var(--text-secondary);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+
+    .empty-state h3 {
+        font-family: 'Playfair Display', serif;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+    }
+
+    @@media (max-width: 992px) {
+        .customer-details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

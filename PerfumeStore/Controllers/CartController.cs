@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using PerfumeStore.Services;
 using PerfumeStore.ViewModels;
+using PerfumeStore.Data;
+using PerfumeStore.Models;
+using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 
 namespace PerfumeStore.Controllers
 {
@@ -8,41 +12,50 @@ namespace PerfumeStore.Controllers
     {
         private readonly ICartService _cartService;
         private readonly IOrderService _orderService;
+        private readonly ApplicationDbContext _context;
 
-        public CartController(ICartService cartService, IOrderService orderService)
+        public CartController(ICartService cartService, IOrderService orderService, ApplicationDbContext context)
         {
             _cartService = cartService;
             _orderService = orderService;
+            _context = context;
+        }
+
+        private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+
+        private string? GetUserId()
+        {
+            return User.Identity?.IsAuthenticated ?? false 
+                ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                : null;
         }
 
         public async Task<IActionResult> Index()
         {
-            var userId = User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
+            var userId = GetUserId();
             var sessionId = HttpContext.Session.Id;
 
             var cart = await _cartService.GetOrCreateCartAsync(userId, sessionId);
             var total = await _cartService.GetCartTotalAsync(userId, sessionId);
 
-            var viewModel = new CartIndexViewModel
-            {
-                Cart = cart,
-                Total = total
-            };
-
-            return View(viewModel);
+            return View(new CartIndexViewModel { Cart = cart, Subtotal = cart.Subtotal, Total = total });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(int productId, int quantity = 1)
+        public async Task<IActionResult> Add([FromBody] CartAddRequest request)
         {
             try
             {
-                var userId = User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
+                if (request == null || request.ProductId <= 0)
+                    return Json(new { success = false, message = IsArabic ? "بيانات غير صالحة" : "Invalid data" });
+
+                var userId = GetUserId();
                 var sessionId = HttpContext.Session.Id;
 
-                await _cartService.AddToCartAsync(userId, sessionId, productId, quantity);
+                await _cartService.AddToCartAsync(userId, sessionId, request.ProductId, request.Quantity <= 0 ? 1 : request.Quantity);
+                var count = await _cartService.GetCartItemCountAsync(userId, sessionId);
 
-                return Json(new { success = true, count = await _cartService.GetCartItemCountAsync(userId, sessionId) });
+                return Json(new { success = true, count = count });
             }
             catch (Exception ex)
             {
@@ -53,42 +66,61 @@ namespace PerfumeStore.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(int cartItemId, int quantity)
         {
-            var userId = User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
+            var userId = GetUserId();
             var sessionId = HttpContext.Session.Id;
-
             await _cartService.UpdateCartItemAsync(userId, sessionId, cartItemId, quantity);
-
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public async Task<IActionResult> Remove(int cartItemId)
         {
-            var userId = User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
+            var userId = GetUserId();
             var sessionId = HttpContext.Session.Id;
-
             await _cartService.RemoveFromCartAsync(userId, sessionId, cartItemId);
-
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> GetCartCount()
+        {
+            var userId = GetUserId();
+            var sessionId = HttpContext.Session.Id;
+            var count = await _cartService.GetCartItemCountAsync(userId, sessionId);
+            return Json(new { count });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Checkout()
         {
-            if (!User.Identity?.IsAuthenticated ?? true)
-                return RedirectToAction("Login", "Account", new { returnUrl = "/Cart/Checkout" });
-
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = GetUserId();
             var sessionId = HttpContext.Session.Id;
 
             var cart = await _cartService.GetOrCreateCartAsync(userId, sessionId);
-
-            if (!cart.CartItems.Any())
+            if (!cart.Items.Any())
             {
-                TempData["Error"] = "Your cart is empty";
+                TempData["Error"] = IsArabic ? "السلة فارغة" : "Cart is empty";
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(new CheckoutViewModel());
+            var model = new CheckoutViewModel();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    model.UserId = userId;
+                    model.FirstName = user.FirstName;
+                    model.LastName = user.LastName;
+                    model.Email = user.Email ?? "";
+                    model.Phone = user.PhoneNumber ?? "";
+                    model.Address = user.Address ?? "";
+                    model.City = user.City ?? "";
+                    model.PostalCode = user.PostalCode;
+                    model.Country = user.Country ?? "Oman";
+                }
+            }
+
+            return View(model);
         }
 
         [HttpPost]
@@ -98,38 +130,31 @@ namespace PerfumeStore.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
-                return RedirectToAction("Login", "Account");
+            var userId = GetUserId();
+            var sessionId = HttpContext.Session.Id;
+
+            model.UserId = userId;
 
             try
             {
-                var order = await _orderService.CreateOrderAsync(userId, model.CouponCode);
-
-                // Update shipping info if provided
-                order.ShippingFirstName = model.FirstName;
-                order.ShippingLastName = model.LastName;
-                order.ShippingAddress = model.Address;
-                order.ShippingCity = model.City;
-                order.ShippingPostalCode = model.PostalCode;
-                order.ShippingCountry = model.Country;
-                order.ShippingPhone = model.Phone;
-                order.Notes = model.Notes;
-                order.PaymentMethod = model.PaymentMethod;
-
-                TempData["Success"] = "Order placed successfully!";
-                return RedirectToAction("OrderConfirmation", new { orderId = order.Id });
+                var order = await _orderService.CreateOrderAsync(userId, sessionId, model);
+                return RedirectToAction("OrderConfirmation", new { id = order.Id });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ModelState.AddModelError("", ex.Message);
+                ModelState.AddModelError("", IsArabic ? "حدث خطأ أثناء معالجة الطلب" : "An error occurred while processing your order");
                 return View(model);
             }
         }
 
-        public async Task<IActionResult> OrderConfirmation(int orderId)
+        public async Task<IActionResult> OrderConfirmation(int id)
         {
-            var order = await _orderService.GetOrderByIdAsync(orderId);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
             if (order == null)
                 return NotFound();
 
@@ -139,23 +164,33 @@ namespace PerfumeStore.Controllers
         [HttpPost]
         public async Task<IActionResult> ValidateCoupon(string code)
         {
-            // Implementation for coupon validation
-            return Json(new { valid = true, discount = 20, message = "Coupon applied successfully!" });
-        }
+            if (string.IsNullOrEmpty(code))
+                return Json(new { valid = false, message = IsArabic ? "يرجى إدخال كود الخصم" : "Please enter coupon code" });
 
-        public async Task<IActionResult> GetCartCount()
-        {
-            var userId = User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
-            var sessionId = HttpContext.Session.Id;
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == code.ToUpper() && c.IsActive);
 
-            var count = await _cartService.GetCartItemCountAsync(userId, sessionId);
-            return Json(new { count });
+            if (coupon == null)
+            {
+                return Json(new { valid = false, message = IsArabic ? "كود الخصم غير صالح" : "Invalid coupon code" });
+            }
+
+            if (!coupon.IsValid)
+            {
+                return Json(new { valid = false, message = IsArabic ? "كود الخصم منتهي الصلاحية" : "Coupon expired" });
+            }
+
+            var message = coupon.DiscountType == "Percentage"
+                ? (IsArabic ? $"خصم {coupon.DiscountValue}%" : $"{coupon.DiscountValue}% discount")
+                : (IsArabic ? $"خصم {coupon.DiscountValue} ريال" : $"{coupon.DiscountValue} OMR discount");
+
+            return Json(new { valid = true, message = message });
         }
     }
 
-    public class CartIndexViewModel
+    public class CartAddRequest
     {
-        public PerfumeStore.Models.Cart Cart { get; set; } = new();
-        public decimal Total { get; set; }
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
     }
 }

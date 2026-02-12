@@ -1,0 +1,159 @@
+@using System.Globalization
+@using PerfumeStore.Models
+@model Product
+@{
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="product-card">
+    <div class="product-image">
+        @if (Model.IsNewArrival)
+        {
+            <span class="badge bg-success position-absolute top-0 start-0 m-2">@(isArabic ? "جديد" : "New")</span>
+        }
+        @if (Model.DiscountPercentage.HasValue)
+        {
+            <span class="badge bg-danger position-absolute top-0 end-0 m-2">-@Model.DiscountPercentage%</span>
+        }
+        <a href="@Url.Action("Details", "Products", new { id = Model.Id })">
+            <img src="@Model.ImageUrl" alt="@Model.GetLocalizedName(isArabic)" class="img-fluid">
+        </a>
+        <div class="product-actions">
+            <button class="btn btn-sm btn-gold add-to-cart-btn" data-product-id="@Model.Id" title="@(isArabic ? "أضف للسلة" : "Add to Cart")">
+                <i class="fas fa-shopping-cart"></i>
+            </button>
+        </div>
+    </div>
+    <div class="product-info">
+        <span class="product-brand">@Model.GetLocalizedBrand(isArabic)</span>
+        <h5 class="product-name">
+            <a href="@Url.Action("Details", "Products", new { id = Model.Id })">@Model.GetLocalizedName(isArabic)</a>
+        </h5>
+        <div class="product-price">
+            @if (Model.OldPrice.HasValue)
+            {
+                <span class="old-price">@Model.OldPrice.Value.ToString("N2") @(isArabic ? "ر.ع" : "OMR")</span>
+            }
+            <span class="current-price">@Model.Price.ToString("N2") @(isArabic ? "ر.ع" : "OMR")</span>
+        </div>
+        @if (!Model.IsInStock)
+        {
+            <span class="text-danger small">@(isArabic ? "غير متوفر" : "Out of Stock")</span>
+        }
+    </div>
+</div>
+
+<style>
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+    .product-image {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: #f8f8f8;
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-actions {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .product-card:hover .product-actions {
+        opacity: 1;
+    }
+
+    .btn-gold {
+        background: linear-gradient(135deg, #d4af37, #b8960c);
+        border: none;
+        color: white;
+    }
+
+    .product-info {
+        padding: 1rem;
+    }
+
+    .product-brand {
+        color: #888;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .product-name {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+    }
+
+        .product-name a {
+            color: #1a1a2e;
+            text-decoration: none;
+        }
+
+            .product-name a:hover {
+                color: #d4af37;
+            }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .old-price {
+        text-decoration: line-through;
+        color: #888;
+        font-size: 0.875rem;
+    }
+
+    .current-price {
+        font-weight: 700;
+        color: #d4af37;
+    }
+</style>
+
+<script>
+    document.querySelector('.add-to-cart-btn')?.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
+        try {
+            const response = await fetch('/Cart/Add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: parseInt(productId), quantity: 1 })
+            });
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('cartCount').textContent = result.count;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+</script>

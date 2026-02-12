@@ -5,6 +5,8 @@ using PerfumeStore.Data;
 using PerfumeStore.Models;
 using PerfumeStore.Services;
 using PerfumeStore.ViewModels;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace PerfumeStore.Controllers
 {
@@ -12,20 +14,25 @@ namespace PerfumeStore.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmailService _emailService;
         private readonly IOTPService _otpService;
         private readonly ApplicationDbContext _context;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            IEmailService emailService,
             IOTPService otpService,
             ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
             _otpService = otpService;
             _context = context;
         }
+
+        private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
 
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
@@ -35,7 +42,7 @@ namespace PerfumeStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -43,82 +50,23 @@ namespace PerfumeStore.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                ModelState.AddModelError("", IsArabic ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Invalid email or password");
                 return View(model);
             }
 
-            // Generate and send OTP
-            await _otpService.GenerateOTPAsync(model.Email, "Login");
-
-            return RedirectToAction(nameof(VerifyOTP), new { email = model.Email, purpose = "Login", returnUrl = returnUrl ?? model.ReturnUrl });
-        }
-
-        [HttpGet]
-        public IActionResult VerifyOTP(string email, string purpose, string? returnUrl = null)
-        {
-            return View(new OTPVerificationViewModel
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
             {
-                Email = email,
-                Purpose = purpose,
-                ReturnUrl = returnUrl
-            });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> VerifyOTP(OTPVerificationViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var isValid = await _otpService.VerifyOTPAsync(model.Email, model.OTPCode, model.Purpose);
-            if (!isValid)
-            {
-                ModelState.AddModelError("OTPCode", "Invalid or expired OTP code");
-                return View(model);
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found");
-                return View(model);
-            }
-
-            if (model.Purpose == "Login")
-            {
-                await _signInManager.SignInAsync(user, false);
-                user.IsEmailVerified = true;
+                user.LastLoginAt = DateTime.Now;
                 await _userManager.UpdateAsync(user);
 
-                if (!string.IsNullOrEmpty(model.ReturnUrl))
-                    return Redirect(model.ReturnUrl);
-
+                if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                    return LocalRedirect(model.ReturnUrl);
                 return RedirectToAction("Index", "Home");
             }
 
-            if (model.Purpose == "Register")
-            {
-                user.EmailConfirmed = true;
-                user.IsEmailVerified = true;
-                await _userManager.UpdateAsync(user);
-                await _signInManager.SignInAsync(user, false);
-                return RedirectToAction("Index", "Home");
-            }
-
-            if (model.Purpose == "ResetPassword")
-            {
-                return RedirectToAction(nameof(ResetPassword), new { email = model.Email, code = model.OTPCode });
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ResendOTP(string email, string purpose)
-        {
-            await _otpService.GenerateOTPAsync(email, purpose);
-            return Json(new { success = true, message = "OTP sent successfully" });
+            ModelState.AddModelError("", IsArabic ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Invalid email or password");
+            return View(model);
         }
 
         [HttpGet]
@@ -126,132 +74,6 @@ namespace PerfumeStore.Controllers
         {
             return View();
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var existingUser = await _userManager.FindByEmailAsync(model.Email);
-            if (existingUser != null)
-            {
-                ModelState.AddModelError("Email", "Email is already registered");
-                return View(model);
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                PhoneNumber = model.PhoneNumber,
-                CreatedAt = DateTime.Now
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                return View(model);
-            }
-
-            await _userManager.AddToRoleAsync(user, "Customer");
-
-            // Generate and send OTP
-            await _otpService.GenerateOTPAsync(model.Email, "Register");
-
-            return RedirectToAction(nameof(VerifyOTP), new { email = model.Email, purpose = "Register" });
-        }
-
-        [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                // Don't reveal that the user does not exist
-                return RedirectToAction(nameof(ForgotPasswordConfirmation));
-            }
-
-            await _otpService.GenerateOTPAsync(model.Email, "ResetPassword");
-            return RedirectToAction(nameof(VerifyOTP), new { email = model.Email, purpose = "ResetPassword" });
-        }
-
-        public IActionResult ForgotPasswordConfirmation()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult ResetPassword(string email, string code)
-        {
-            return View(new ResetPasswordViewModel { Email = email, OTPCode = code });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-            {
-                return RedirectToAction(nameof(ResetPasswordConfirmation));
-            }
-
-            var isValid = await _otpService.VerifyOTPAsync(model.Email, model.OTPCode, "ResetPassword");
-            if (!isValid)
-            {
-                ModelState.AddModelError("OTPCode", "Invalid or expired OTP code");
-                return View(model);
-            }
-
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
-
-            if (result.Succeeded)
-            {
-                return RedirectToAction(nameof(ResetPasswordConfirmation));
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-            return View(model);
-        }
-
-        public IActionResult ResetPasswordConfirmation()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
-        }
-
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
@@ -276,22 +98,156 @@ namespace PerfumeStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ApplicationUser model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return NotFound();
+            if (!ModelState.IsValid)
+                return View(model);
 
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.Address = model.Address;
-            user.City = model.City;
-            user.PostalCode = model.PostalCode;
-            user.Country = model.Country;
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", IsArabic ? "البريد الإلكتروني مستخدم بالفعل" : "Email is already in use");
+                return View(model);
+            }
 
-            await _userManager.UpdateAsync(user);
-            TempData["Success"] = "Profile updated successfully";
-            return RedirectToAction(nameof(Profile));
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber,
+                CreatedAt = DateTime.Now
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "Customer");
+                
+                // Generate and send OTP
+                var otp = await _otpService.GenerateOTPAsync(model.Email, "Register");
+                await _emailService.SendOtpEmailAsync(model.Email, otp, "Register");
+
+                return RedirectToAction("VerifyOTP", new { email = model.Email, purpose = "Register" });
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
         }
+
+        [HttpGet]
+        public IActionResult VerifyOTP(string email, string purpose)
+        {
+            return View(new OTPVerificationViewModel { Email = email, Purpose = purpose });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOTP(OTPVerificationViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var isValid = await _otpService.VerifyOTPAsync(model.Email, model.OTPCode, model.Purpose);
+            if (!isValid)
+            {
+                ModelState.AddModelError("OTPCode", IsArabic ? "الكود غير صحيح أو منتهي الصلاحية" : "Invalid or expired code");
+                return View(model);
+            }
+
+            if (model.Purpose == "Register")
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    user.EmailConfirmed = true;
+                    user.IsEmailVerified = true;
+                    await _userManager.UpdateAsync(user);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                }
+                return RedirectToAction("Index", "Home");
+            }
+
+            return RedirectToAction("ResetPassword", new { email = model.Email });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var otp = await _otpService.GenerateOTPAsync(email, "ResetPassword");
+                await _emailService.SendOtpEmailAsync(email, otp, "ResetPassword");
+            }
+            return RedirectToAction("VerifyOTP", new { email = email, purpose = "ResetPassword" });
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email)
+        {
+            return View(new ResetPasswordViewModel { Email = email });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View(model);
+        }
+    }
+
+    public class ResetPasswordViewModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "New password is required")]
+        [StringLength(100, MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PerfumeStore.Data;
 using PerfumeStore.Models;
 using PerfumeStore.ViewModels;
+using System.Globalization;
 
 namespace PerfumeStore.Controllers
 {
@@ -15,19 +16,21 @@ namespace PerfumeStore.Controllers
             _context = context;
         }
 
+        private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+
         public async Task<IActionResult> Index(ProductFilterViewModel filter)
         {
             var query = _context.Products
                 .Include(p => p.Category)
                 .Where(p => p.IsActive);
 
-            // Apply filters
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
-                query = query.Where(p => p.Name.Contains(filter.SearchTerm) ||
-                                         p.NameAr.Contains(filter.SearchTerm) ||
-                                         p.Brand.Contains(filter.SearchTerm) ||
-                                         p.BrandAr.Contains(filter.SearchTerm));
+                query = query.Where(p => 
+                    p.Name.Contains(filter.SearchTerm) ||
+                    p.NameAr!.Contains(filter.SearchTerm) ||
+                    p.Brand.Contains(filter.SearchTerm) ||
+                    p.BrandAr!.Contains(filter.SearchTerm));
             }
 
             if (filter.CategoryId.HasValue)
@@ -55,7 +58,6 @@ namespace PerfumeStore.Controllers
                 query = query.Where(p => p.ScentFamily == filter.ScentFamily || p.ScentFamilyAr == filter.ScentFamily);
             }
 
-            // Apply sorting
             query = filter.SortBy switch
             {
                 "price-low" => query.OrderBy(p => p.Price),
@@ -76,8 +78,9 @@ namespace PerfumeStore.Controllers
                 Products = products,
                 Filter = filter,
                 Categories = await _context.Categories.Where(c => c.IsActive).ToListAsync(),
-                TotalItems = totalItems,
-                TotalPages = (int)Math.Ceiling(totalItems / (double)filter.PageSize)
+                TotalCount = totalItems,
+                CurrentPage = filter.Page,
+                PageSize = filter.PageSize
             };
 
             return View(viewModel);
@@ -95,7 +98,6 @@ namespace PerfumeStore.Controllers
             if (product == null)
                 return NotFound();
 
-            // Get related products
             var relatedProducts = await _context.Products
                 .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.IsActive)
                 .Take(4)
@@ -104,9 +106,10 @@ namespace PerfumeStore.Controllers
             var viewModel = new ProductDetailsViewModel
             {
                 Product = product,
+                Reviews = product.Reviews.ToList(),
                 RelatedProducts = relatedProducts,
-                AverageRating = product.Reviews.Any() ? product.Reviews.Average(r => r.Rating) : 0,
-                TotalReviews = product.Reviews.Count
+                AverageRating = product.Reviews.Any() ? (int)Math.Round(product.Reviews.Average(r => r.Rating)) : 0,
+                ReviewCount = product.Reviews.Count
             };
 
             return View(viewModel);
@@ -130,7 +133,7 @@ namespace PerfumeStore.Controllers
 
             if (existingReview != null)
             {
-                TempData["Error"] = "You have already reviewed this product";
+                TempData["Error"] = IsArabic ? "لقد قمت بتقييم هذا المنتج من قبل" : "You have already reviewed this product";
                 return RedirectToAction(nameof(Details), new { id = productId });
             }
 
@@ -146,7 +149,7 @@ namespace PerfumeStore.Controllers
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Thank you for your review!";
+            TempData["Success"] = IsArabic ? "شكراً لتقييمك!" : "Thank you for your review!";
             return RedirectToAction(nameof(Details), new { id = productId });
         }
 
@@ -164,22 +167,5 @@ namespace PerfumeStore.Controllers
             ViewBag.Category = category;
             return View(products);
         }
-    }
-
-    public class ProductListViewModel
-    {
-        public List<Product> Products { get; set; } = new();
-        public ProductFilterViewModel Filter { get; set; } = new();
-        public List<Category> Categories { get; set; } = new();
-        public int TotalItems { get; set; }
-        public int TotalPages { get; set; }
-    }
-
-    public class ProductDetailsViewModel
-    {
-        public Product Product { get; set; } = new();
-        public List<Product> RelatedProducts { get; set; } = new();
-        public double AverageRating { get; set; }
-        public int TotalReviews { get; set; }
     }
 }

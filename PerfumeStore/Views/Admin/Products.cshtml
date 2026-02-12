@@ -43,12 +43,12 @@
                             </td>
                             <td>
                                 <div class="product-name-cell">
-                                    <strong>@(isArabic ? product.NameAr : product.Name)</strong>
-                                    <small>@(isArabic ? product.Name : product.NameAr)</small>
+                                    <strong>@(isArabic? product.NameAr: product.Name)</strong>
+                                    <small>@(isArabic? product.Name: product.NameAr)</small>
                                 </div>
                             </td>
-                            <td>@(isArabic ? product.BrandAr : product.Brand)</td>
-                            <td>@(isArabic ? product.Category?.NameAr : product.Category?.Name)</td>
+                            <td>@(isArabic? product.BrandAr: product.Brand)</td>
+                            <td>@(isArabic? product.Category?.NameAr : product.Category?.Name)</td>
                             <td>
                                 <div class="price-cell">
                                     <span class="current-price">$@product.Price</span>

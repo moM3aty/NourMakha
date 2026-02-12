@@ -1,11 +1,13 @@
+using Microsoft.EntityFrameworkCore;
 using PerfumeStore.Data;
 using PerfumeStore.Models;
-using Microsoft.EntityFrameworkCore;
+using PerfumeStore.ViewModels;
 
 namespace PerfumeStore.Services
 {
     public interface ICartService
     {
+        Task<Cart?> GetCartAsync(string? userId, string sessionId);
         Task<Cart> GetOrCreateCartAsync(string? userId, string sessionId);
         Task AddToCartAsync(string? userId, string sessionId, int productId, int quantity);
         Task UpdateCartItemAsync(string? userId, string sessionId, int cartItemId, int quantity);
@@ -13,6 +15,7 @@ namespace PerfumeStore.Services
         Task ClearCartAsync(string? userId, string sessionId);
         Task<decimal> GetCartTotalAsync(string? userId, string sessionId);
         Task<int> GetCartItemCountAsync(string? userId, string sessionId);
+        Task<(decimal discount, string? error)> ValidateCouponAsync(string code, decimal subtotal);
     }
 
     public class CartService : ICartService
@@ -31,7 +34,7 @@ namespace PerfumeStore.Services
             if (!string.IsNullOrEmpty(userId))
             {
                 cart = await _context.Carts
-                    .Include(c => c.CartItems)
+                    .Include(c => c.Items)
                     .ThenInclude(ci => ci.Product)
                     .FirstOrDefaultAsync(c => c.UserId == userId);
             }
@@ -39,7 +42,7 @@ namespace PerfumeStore.Services
             if (cart == null)
             {
                 cart = await _context.Carts
-                    .Include(c => c.CartItems)
+                    .Include(c => c.Items)
                     .ThenInclude(ci => ci.Product)
                     .FirstOrDefaultAsync(c => c.SessionId == sessionId);
             }
@@ -55,6 +58,11 @@ namespace PerfumeStore.Services
                 _context.Carts.Add(cart);
                 await _context.SaveChangesAsync();
             }
+            else if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.UserId))
+            {
+                cart.UserId = userId;
+                await _context.SaveChangesAsync();
+            }
 
             return cart;
         }
@@ -64,10 +72,13 @@ namespace PerfumeStore.Services
             var cart = await GetOrCreateCartAsync(userId, sessionId);
             var product = await _context.Products.FindAsync(productId);
 
-            if (product == null || !product.IsActive || product.StockQuantity < quantity)
+            if (product == null || !product.IsActive)
                 throw new Exception("Product not available");
 
-            var existingItem = cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+            if (product.StockQuantity < quantity)
+                throw new Exception("Insufficient stock");
+
+            var existingItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
 
             if (existingItem != null)
             {
@@ -93,7 +104,7 @@ namespace PerfumeStore.Services
         public async Task UpdateCartItemAsync(string? userId, string sessionId, int cartItemId, int quantity)
         {
             var cart = await GetOrCreateCartAsync(userId, sessionId);
-            var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == cartItemId);
+            var cartItem = cart.Items.FirstOrDefault(ci => ci.Id == cartItemId);
 
             if (cartItem != null)
             {
@@ -103,6 +114,10 @@ namespace PerfumeStore.Services
                 }
                 else
                 {
+                    if (cartItem.Product != null && cartItem.Product.StockQuantity < quantity)
+                    {
+                        quantity = cartItem.Product.StockQuantity;
+                    }
                     cartItem.Quantity = quantity;
                 }
 
@@ -114,7 +129,7 @@ namespace PerfumeStore.Services
         public async Task RemoveFromCartAsync(string? userId, string sessionId, int cartItemId)
         {
             var cart = await GetOrCreateCartAsync(userId, sessionId);
-            var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == cartItemId);
+            var cartItem = cart.Items.FirstOrDefault(ci => ci.Id == cartItemId);
 
             if (cartItem != null)
             {
@@ -127,21 +142,71 @@ namespace PerfumeStore.Services
         public async Task ClearCartAsync(string? userId, string sessionId)
         {
             var cart = await GetOrCreateCartAsync(userId, sessionId);
-            _context.CartItems.RemoveRange(cart.CartItems);
-            cart.UpdatedAt = DateTime.Now;
-            await _context.SaveChangesAsync();
+            if (cart.Items.Any())
+            {
+                _context.CartItems.RemoveRange(cart.Items);
+                cart.UpdatedAt = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<decimal> GetCartTotalAsync(string? userId, string sessionId)
         {
             var cart = await GetOrCreateCartAsync(userId, sessionId);
-            return cart.CartItems.Sum(ci => ci.Quantity * ci.UnitPrice);
+            return cart.Items.Sum(ci => ci.Quantity * ci.UnitPrice);
         }
 
         public async Task<int> GetCartItemCountAsync(string? userId, string sessionId)
         {
             var cart = await GetOrCreateCartAsync(userId, sessionId);
-            return cart.CartItems.Sum(ci => ci.Quantity);
+            return cart.Items.Sum(ci => ci.Quantity);
+        }
+
+        public async Task<Cart?> GetCartAsync(string? userId, string sessionId)
+        {
+            Cart? cart = null;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                cart = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(ci => ci.Product)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+            }
+
+            if (cart == null)
+            {
+                cart = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(ci => ci.Product)
+                    .FirstOrDefaultAsync(c => c.SessionId == sessionId);
+            }
+
+            return cart;
+        }
+
+        public async Task<(decimal discount, string? error)> ValidateCouponAsync(string code, decimal subtotal)
+        {
+            var coupon = await _context.Coupons
+                .FirstOrDefaultAsync(c => c.Code == code.ToUpper());
+
+            if (coupon == null)
+                return (0, "Invalid coupon code");
+
+            if (!coupon.IsValid)
+                return (0, "Coupon has expired");
+
+            if (coupon.MinOrderAmount.HasValue && subtotal < coupon.MinOrderAmount.Value)
+                return (0, $"Minimum order amount is {coupon.MinOrderAmount.Value} OMR");
+
+            decimal discount = coupon.DiscountType == "Percentage" 
+                ? subtotal * coupon.DiscountValue / 100 
+                : coupon.DiscountValue;
+
+            if (coupon.MaxDiscount.HasValue && discount > coupon.MaxDiscount.Value)
+                discount = coupon.MaxDiscount.Value;
+
+            return (discount, null);
         }
     }
 }

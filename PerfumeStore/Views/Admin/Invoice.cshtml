@@ -16,13 +16,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #f5f5f5;
             padding: 2rem;
         }
-        
+
         .invoice {
             max-width: 800px;
             margin: 0 auto;
@@ -31,7 +31,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
-        
+
         .invoice-header {
             display: flex;
             justify-content: space-between;
@@ -40,107 +40,107 @@
             padding-bottom: 2rem;
             border-bottom: 2px solid #d4af37;
         }
-        
+
         .company-info h1 {
             font-size: 2rem;
             color: #1a1a2e;
             margin-bottom: 0.5rem;
         }
-        
+
         .company-info p {
             color: #666;
             font-size: 0.875rem;
         }
-        
+
         .invoice-info {
             text-align: right;
         }
-        
-        .invoice-info h2 {
-            color: #d4af37;
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .invoice-info p {
-            color: #666;
-            font-size: 0.875rem;
-        }
-        
+
+            .invoice-info h2 {
+                color: #d4af37;
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .invoice-info p {
+                color: #666;
+                font-size: 0.875rem;
+            }
+
         .customer-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
-        
+
         .info-box h3 {
             font-size: 0.875rem;
             color: #999;
             text-transform: uppercase;
             margin-bottom: 0.75rem;
         }
-        
+
         .info-box p {
             color: #333;
             margin-bottom: 0.25rem;
         }
-        
+
         .items-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 2rem;
         }
-        
-        .items-table th {
-            background: #f8f8f8;
-            padding: 1rem;
-            text-align: left;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: #666;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .items-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            color: #333;
-        }
-        
-        .items-table .product-cell {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .items-table .product-cell img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        
+
+            .items-table th {
+                background: #f8f8f8;
+                padding: 1rem;
+                text-align: left;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                color: #666;
+                border-bottom: 2px solid #eee;
+            }
+
+            .items-table td {
+                padding: 1rem;
+                border-bottom: 1px solid #eee;
+                color: #333;
+            }
+
+            .items-table .product-cell {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+                .items-table .product-cell img {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 8px;
+                    object-fit: cover;
+                }
+
         .totals {
             max-width: 300px;
             margin-left: auto;
         }
-        
+
         .totals-row {
             display: flex;
             justify-content: space-between;
             padding: 0.75rem 0;
             border-bottom: 1px solid #eee;
         }
-        
-        .totals-row span:first-child {
-            color: #666;
-        }
-        
-        .totals-row span:last-child {
-            font-weight: 500;
-        }
-        
+
+            .totals-row span:first-child {
+                color: #666;
+            }
+
+            .totals-row span:last-child {
+                font-weight: 500;
+            }
+
         .totals-total {
             display: flex;
             justify-content: space-between;
@@ -149,24 +149,24 @@
             font-weight: 700;
             border-bottom: none;
         }
-        
-        .totals-total span:last-child {
-            color: #d4af37;
-        }
-        
+
+            .totals-total span:last-child {
+                color: #d4af37;
+            }
+
         .footer {
             margin-top: 3rem;
             padding-top: 2rem;
             border-top: 1px solid #eee;
             text-align: center;
         }
-        
-        .footer p {
-            color: #666;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-        }
-        
+
+            .footer p {
+                color: #666;
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+
         .status-badge {
             display: inline-block;
             padding: 0.25rem 0.75rem;
@@ -174,18 +174,18 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
-        .status-@Model.Status.ToLower() {
+
+        .status- @Model.Status.ToLower() {
             background: #f1c40f20;
             color: #f1c40f;
         }
-        
+
         @@media print {
             body {
                 background: white;
                 padding: 0;
             }
-            
+
             .invoice {
                 box-shadow: none;
             }
@@ -208,7 +208,7 @@
                 <span class="status-badge status-@Model.Status.ToLower()">@Model.Status</span>
             </div>
         </div>
-        
+
         <div class="customer-info">
             <div class="info-box">
                 <h3>@(isArabic ? "معلومات العميل" : "Customer Information")</h3>
@@ -223,7 +223,7 @@
                 <p>@Model.ShippingCountry</p>
             </div>
         </div>
-        
+
         <table class="items-table">
             <thead>
                 <tr>
@@ -248,7 +248,7 @@
                 }
             </tbody>
         </table>
-        
+
         <div class="totals">
             <div class="totals-row">
                 <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
@@ -271,13 +271,13 @@
                 <span>$@Model.GrandTotal</span>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>@(isArabic ? "شكراً لتسوقكم معنا!" : "Thank you for shopping with us!")</p>
             <p>@(isArabic ? "للاستفسارات، يرجى التواصل على info@perfumestore.com" : "For inquiries, please contact info@perfumestore.com")</p>
         </div>
     </div>
-    
+
     <script>
         window.onload = function() {
             window.print();

@@ -15,11 +15,11 @@
     <form method="get" class="date-filter">
         <div class="filter-group">
             <label>@(isArabic ? "من تاريخ" : "From Date")</label>
-            <input type="date" name="startDate" value="DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")" />
+            <input type="date" name="startDate" value="DateTime.Today.AddMonths(-1).ToString(" yyyy-MM-dd")" />
         </div>
         <div class="filter-group">
             <label>@(isArabic ? "إلى تاريخ" : "To Date")</label>
-            <input type="date" name="endDate" value="DateTime.Today.ToString("yyyy-MM-dd")" />
+            <input type="date" name="endDate" value="DateTime.Today.ToString(" yyyy-MM-dd")" />
         </div>
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-filter"></i>
@@ -40,7 +40,7 @@
             <span class="stat-change positive">+12.5%</span>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon orders">
             <i class="fas fa-shopping-cart"></i>
@@ -51,7 +51,7 @@
             <span class="stat-change positive">+8.2%</span>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon products">
             <i class="fas fa-box"></i>
@@ -62,7 +62,7 @@
             <span class="stat-change positive">+15.3%</span>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon customers">
             <i class="fas fa-users"></i>
@@ -85,7 +85,7 @@
             <canvas id="salesChart" height="300"></canvas>
         </div>
     </div>
-    
+
     <!-- Orders by Status -->
     <div class="card">
         <div class="card-header">
@@ -95,7 +95,7 @@
             <canvas id="statusChart" height="300"></canvas>
         </div>
     </div>
-    
+
     <!-- Sales by Category -->
     <div class="card">
         <div class="card-header">
@@ -105,7 +105,7 @@
             <canvas id="categoryChart" height="300"></canvas>
         </div>
     </div>
-    
+
     <!-- Top Products -->
     <div class="card">
         <div class="card-header">
@@ -144,90 +144,90 @@
 </div>
 
 <style>
-.filter-card {
-    margin-bottom: 1.5rem;
-}
+    .filter-card {
+        margin-bottom: 1.5rem;
+    }
 
-.date-filter {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.filter-group label {
-    font-size: 0.875rem;
-    color: #6c6c7c;
-}
-
-.filter-group input {
-    padding: 0.75rem;
-    background: rgba(15, 15, 26, 0.8);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 8px;
-    color: #fff;
-}
-
-.reports-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.chart-card {
-    grid-column: 1 / -1;
-}
-
-.top-products-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.top-product-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px;
-}
-
-.top-product-item .rank {
-    width: 30px;
-    height: 30px;
-    background: rgba(212, 175, 55, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: #d4af37;
-}
-
-.top-product-item .name {
-    flex: 1;
-}
-
-.top-product-item .sales {
-    font-weight: 600;
-    color: #d4af37;
-}
-
-@@media (max-width: 992px) {
     .date-filter {
-        flex-wrap: wrap;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
     }
-    
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            color: #6c6c7c;
+        }
+
+        .filter-group input {
+            padding: 0.75rem;
+            background: rgba(15, 15, 26, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            color: #fff;
+        }
+
     .reports-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
     }
-}
+
+    .chart-card {
+        grid-column: 1 / -1;
+    }
+
+    .top-products-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .top-product-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+    }
+
+        .top-product-item .rank {
+            width: 30px;
+            height: 30px;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #d4af37;
+        }
+
+        .top-product-item .name {
+            flex: 1;
+        }
+
+        .top-product-item .sales {
+            font-weight: 600;
+            color: #d4af37;
+        }
+
+    @@media (max-width: 992px) {
+        .date-filter {
+            flex-wrap: wrap;
+        }
+
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 @section Scripts {
@@ -256,7 +256,7 @@
                 }
             }
         });
-        
+
         // Status Chart
         new Chart(document.getElementById('statusChart'), {
             type: 'doughnut',
@@ -275,7 +275,7 @@
                 }
             }
         });
-        
+
         // Category Chart
         new Chart(document.getElementById('categoryChart'), {
             type: 'bar',

@@ -1,6 +1,52 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "سياسة الخصوصية" : "Privacy Policy";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container" style="padding: 120px 20px 60px;">
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 15px; padding: 2rem;">
+        <h1 class="page-title" style="margin-bottom: 2rem; text-align: center; color: var(--primary);">@ViewData["Title"]</h1>
+        
+        <div class="policy-content" style="line-height: 1.8; color: var(--text-secondary);">
+            @if (isArabic)
+            {
+                <p>توضح سياسة الخصوصية كيفية جمع واستخدام بياناتك الشخصية (تحت ظروف معينة). كما تذكر أيضًا الإجراءات المتبعة لضمان خصوصية معلوماتك. وأخيرًا، تحدد هذه السياسة الخيارات المتاحة لك فيما يتعلق بجمع البيانات الشخصية واستخدامها والكشف عنها. ومن خلال زيارتك للموقع مباشرة أو عبر موقع آخر، أنت توافق على التطبيقات المفصلة في هذه السياسة.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">حماية البيانات</h3>
+                <p>إن حماية بياناتك أمر بالغ الأهمية بالنسبة لنا. لذلك، يتم استخدام اسمك وغيره من المعلومات المتعلقة بك وفقًا للنهج المبيّن في سياسة الخصوصية. سنقوم بجمع المعلومات عند الضرورة أو إذا كانت ذات صلة مباشرة بمعاملاتنا معك. وسنحتفظ ببياناتك إذا طلب منا ذلك بموجب القانون أو لاستخدامها للأغراض التي جمعت من أجلها.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">بطاقات الائتمان</h3>
+                <p>جميع المعلومات المتعلقة ببطاقات الائتمان لا يتم تخزينها أو بيعها أو تأجيرها لأي أطراف ثالثة.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">تحديث السياسات</h3>
+                <p>جميع الشروط والأحكام وسياسة الخصوصية تحدث بشكل مستمر على الموقع وفقًا لأحدث المعايير القياسية، لذلك يُنصح جميع العملاء بمراجعة الصفحات بشكل دوري لأنها تصبح نافذة فور نشرها.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">أطراف ثالثة وإعلانات</h3>
+                <p>يتم اختيار بعض الإعلانات التي تظهر على الموقع وتقديمها من قبل جهات خارجية مثل شبكات الإعلانات ووكالات الإعلان والمعلنين ومزودي شرائح الجمهور. قد تقوم هذه الجهات الخارجية بجمع معلومات عنك وعن أنشطتك عبر الإنترنت، سواء على الموقع أو على مواقع ويب أخرى، من خلال ملفات تعريف الارتباط، ومنارات الويب، وتقنيات أخرى في محاولة لفهم اهتماماتك وتقديم إعلانات مخصصة لمصالحك. يرجى ملاحظة أننا لا نملك إمكانية الوصول إلى المعلومات التي قد تجمعها هذه الأطراف الخارجية أو السيطرة عليها. سياسة الخصوصية هذه لا تشمل ممارسات المعلومات الخاصة بهذه الأطراف الثالثة.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">تصفح مجهول</h3>
+                <p>يمكنك تصفح الموقع دون الحاجة إلى تقديم أي بيانات شخصية. تظل هويتك الشخصية مجهولة خلال زيارتك للموقع ولا يتم الكشف عنها إلا إذا كان لديك حساب إلكتروني خاص على الموقع تقوم بتسجيل الدخول إليه باستخدام اسم المستخدم وكلمة المرور.</p>
+            }
+            else
+            {
+                <p>The Privacy Policy explains how we collect and use your personal data (under certain circumstances). It also outlines the procedures used to ensure the privacy of your information. Finally, this policy sets out the options available to you regarding the collection, use, and disclosure of personal data. By visiting the Site directly or through another site, you agree to the practices detailed in this policy.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Data Protection</h3>
+                <p>Protecting your data is critical to us. Therefore, your name and other information relating to you will be used in accordance with the manner set out in the Privacy Policy. We will collect information only where necessary or if it is directly relevant to our dealings with you. We will retain your data if required by law or to use it for the purposes for which it was collected.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Credit Cards</h3>
+                <p>All credit/debit cards details and personally identifiable information will NOT be stored, sold, shared, rented or leased to any third parties.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Policy Updates</h3>
+                <p>The Website Policies and Terms & Conditions may be changed or updated occasionally to meet the requirements and standards. Therefore, the Customers’ are encouraged to frequently visit these sections to be updated about the changes on the website. Modifications will be effective on the day they are posted.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Third Parties & Ads</h3>
+                <p>Some of the advertisements you see on the Site are selected and delivered by third parties, such as ad networks, advertising agencies, advertisers, and audience segment providers. These third parties may collect information about you and your online activities, either on the Site or on other websites, through cookies, web beacons, and other technologies in an effort to understand your interests and deliver to you advertisements that are tailored to your interests. Please remember that we do not have access to, or control over, the information these third parties may collect. The information practices of these third parties are not covered by this privacy policy.</p>
+                
+                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Anonymous Browsing</h3>
+                <p>You can browse the site without having to provide any personal data. Your personal identity remains anonymous during your visit to the site and is not revealed unless you have a specific online account on the site that you log into using a username and password.</p>
+            }
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,135 @@
+﻿@using System.Globalization
+@using PerfumeStore.Models
+@model Order
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "تأكيد الطلب" : "Order Confirmation";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<section class="order-confirmation py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="success-icon mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>@(isArabic ? "تم تأكيد طلبك بنجاح!" : "Your Order Has Been Confirmed!")</h2>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="mb-1">@(isArabic ? "رقم الطلب" : "Order Number")</h4>
+                                <span class="order-number">@Model.OrderNumber</span>
+                            </div>
+                            <div class="text-end">
+                                <h4 class="mb-1">@(isArabic ? "التاريخ" : "Date")</h4>
+                                <span>@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mb-3">@(isArabic ? "المنتجات" : "Products")</h5>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@item.ProductImage" style="width:60px;height:60px;object-fit:cover;border-radius:8px;" class="me-3">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">@item.ProductName</h6>
+                                    <small class="text-muted">@(isArabic ? "الكمية" : "Qty"): @item.Quantity</small>
+                                </div>
+                                <span class="fw-bold">@item.TotalPrice.ToString("N2") OMR</span>
+                            </div>
+                        }
+
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">@(isArabic ? "عنوان الشحن" : "Shipping Address")</h5>
+                                <p class="mb-1">@Model.ShippingFirstName @Model.ShippingLastName</p>
+                                <p class="mb-1">@Model.ShippingAddress</p>
+                                <p class="mb-0">@Model.ShippingCity, @Model.ShippingCountry</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-3">@(isArabic ? "ملخص الدفع" : "Payment Summary")</h5>
+                                <p class="d-flex justify-content-between mb-1">
+                                    <span>@(isArabic ? "المجموع الفرعي" : "Subtotal"):</span>
+                                    <span>@Model.Subtotal.ToString("N2") OMR</span>
+                                </p>
+                                @if (Model.Discount > 0)
+                                {
+                                    <p class="d-flex justify-content-between mb-1 text-success">
+                                        <span>@(isArabic ? "الخصم" : "Discount"):</span>
+                                        <span>-@Model.Discount.ToString("N2") OMR</span>
+                                    </p>
+                                }
+                                <hr>
+                                <p class="d-flex justify-content-between fs-5">
+                                    <strong>@(isArabic ? "الإجمالي" : "Total"):</strong>
+                                    <strong class="text-gold">@Model.GrandTotal.ToString("N2") OMR</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="/" class="btn btn-gold btn-lg">
+                        <i class="fas fa-home me-2"></i>@(isArabic ? "العودة للرئيسية" : "Back to Home")
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #27ae60, #229954);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+        .success-icon i {
+            font-size: 3rem;
+            color: white;
+        }
+
+    .order-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #d4af37;
+    }
+
+    .btn-gold {
+        background: linear-gradient(135deg, #d4af37, #b8960c);
+        border: none;
+        color: white;
+        font-weight: 600;
+    }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #b8960c, #9a7b0a);
+            color: white;
+        }
+
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .text-gold {
+        color: #d4af37;
+    }
+</style>

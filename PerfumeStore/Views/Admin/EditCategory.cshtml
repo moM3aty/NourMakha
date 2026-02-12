@@ -1,0 +1,77 @@
+@model PerfumeStore.Models.Category
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "تعديل قسم" : "Edit Category";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header animate-fade-up">
+    <div class="header-left">
+        <h1>@ViewData["Title"]</h1>
+        <p>@(isArabic ? $"تعديل بيانات القسم: {Model.NameAr}" : $"Edit category: {Model.Name}")</p>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/Categories" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i>
+            @(isArabic ? "عودة للقائمة" : "Back to List")
+        </a>
+    </div>
+</div>
+
+<div class="card animate-fade-up delay-1" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-body" style="padding: 2.5rem;">
+        <form asp-action="EditCategory" method="post" class="premium-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label>@(isArabic ? "اسم القسم (عربي)" : "Category Name (Arabic)") *</label>
+                <input asp-for="NameAr" required dir="rtl" />
+            </div>
+
+            <div class="form-group">
+                <label>@(isArabic ? "اسم القسم (إنجليزي)" : "Category Name (English)") *</label>
+                <input asp-for="Name" required />
+            </div>
+
+            <div class="row-grid-2">
+                <div class="form-group">
+                    <label>@(isArabic ? "ترتيب العرض" : "Display Order")</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.5rem;">
+                    <label class="checkbox-label">
+                        <input asp-for="IsActive" />
+                        <span>@(isArabic ? "نشط" : "Active")</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>@(isArabic ? "الوصف (اختياري)" : "Description (Optional)")</label>
+                <textarea asp-for="DescriptionAr" rows="3" dir="rtl" placeholder="وصف القسم بالعربي..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i>
+                    @(isArabic ? "حفظ التعديلات" : "Save Changes")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .row-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 600px) {
+        .row-grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

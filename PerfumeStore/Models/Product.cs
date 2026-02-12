@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PerfumeStore.Models
 {
     public class Product
     {
-        [Key]
         public int Id { get; set; }
 
         [Required]
@@ -13,20 +11,20 @@ namespace PerfumeStore.Models
         public string Name { get; set; } = string.Empty;
 
         [StringLength(200)]
-        public string NameAr { get; set; } = string.Empty;
+        public string? NameAr { get; set; }
 
         [Required]
         [StringLength(100)]
         public string Brand { get; set; } = string.Empty;
 
         [StringLength(100)]
-        public string BrandAr { get; set; } = string.Empty;
+        public string? BrandAr { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
+        [Range(0.01, double.MaxValue)]
         public decimal Price { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Range(0, double.MaxValue)]
         public decimal? OldPrice { get; set; }
 
         [StringLength(2000)]
@@ -45,31 +43,42 @@ namespace PerfumeStore.Models
         public string? ScentFamilyAr { get; set; }
 
         [StringLength(50)]
-        public string? Size { get; set; } // 50ml, 100ml, etc.
+        public string? Size { get; set; }
 
         [StringLength(30)]
         public string? Gender { get; set; } // Men, Women, Unisex
 
         [StringLength(50)]
-        public string? Concentration { get; set; } // EDP, EDT, Parfum
+        public string? Concentration { get; set; } // EDP, EDT, Parfum, etc.
 
+        [Required]
+        [Range(0, int.MaxValue)]
         public int StockQuantity { get; set; }
 
         public int CategoryId { get; set; }
-
-        [ForeignKey("CategoryId")]
-        public Category? Category { get; set; }
-
         public bool IsActive { get; set; } = true;
         public bool IsFeatured { get; set; }
         public bool IsNewArrival { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation Properties
+        public Category? Category { get; set; }
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public ICollection<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
+
+        // Helper properties
+        public bool IsInStock => StockQuantity > 0;
+        public int? DiscountPercentage => OldPrice.HasValue && OldPrice > Price 
+            ? (int)Math.Round((1 - Price / OldPrice.Value) * 100) 
+            : null;
+
+        public string GetLocalizedName(bool isArabic) => isArabic && !string.IsNullOrEmpty(NameAr) ? NameAr : Name;
+        public string GetLocalizedBrand(bool isArabic) => isArabic && !string.IsNullOrEmpty(BrandAr) ? BrandAr : Brand;
+        public string GetLocalizedDescription(bool isArabic) => isArabic && !string.IsNullOrEmpty(DescriptionAr) ? DescriptionAr : Description ?? "";
+        public string GetLocalizedScentFamily(bool isArabic) => isArabic && !string.IsNullOrEmpty(ScentFamilyAr) ? ScentFamilyAr : ScentFamily ?? "";
     }
 }

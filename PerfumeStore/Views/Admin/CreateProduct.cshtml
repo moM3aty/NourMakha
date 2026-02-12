@@ -1,97 +1,113 @@
 @model PerfumeStore.ViewModels.ProductViewModel
 @{
-    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إضافة منتج جديد" : "Add New Product";
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إضافة منتج" : "Add Product";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
     Layout = "_AdminLayout";
 }
 
-<div class="page-header">
+<div class="page-header animate-fade-up">
     <div class="header-left">
-        <h1>@(isArabic ? "إضافة منتج جديد" : "Add New Product")</h1>
+        <h1>@ViewData["Title"]</h1>
+        <p>@(isArabic ? "إضافة منتج جديد للمتجر" : "Add a new product to the store")</p>
     </div>
     <div class="header-right">
         <a href="/Admin/Products" class="btn btn-outline">
             <i class="fas fa-arrow-left"></i>
-            @(isArabic ? "العودة" : "Back")
+            @(isArabic ? "العودة للقائمة" : "Back to List")
         </a>
     </div>
 </div>
 
-<form asp-action="CreateProduct" method="post" enctype="multipart/form-data" class="product-form">
+<form asp-action="CreateProduct" method="post" enctype="multipart/form-data" class="product-form animate-fade-up delay-1">
     @Html.AntiForgeryToken()
-    
-    <div class="form-grid">
-        <!-- Basic Info -->
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-info-circle"></i> @(isArabic ? "معلومات أساسية" : "Basic Information")</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label asp-for="Name">@(isArabic ? "اسم المنتج (إنجليزي)" : "Product Name (English)") *</label>
-                    <input asp-for="Name" required />
+
+    <div class="product-layout-grid">
+        <!-- Main Content (Left) -->
+        <div class="layout-main">
+            <!-- Basic Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> @(isArabic ? "البيانات الأساسية" : "Basic Information")</h3>
                 </div>
-                
-                <div class="form-group">
-                    <label asp-for="NameAr">@(isArabic ? "اسم المنتج (عربي)" : "Product Name (Arabic)")</label>
-                    <input asp-for="NameAr" dir="rtl" />
-                </div>
-                
-                <div class="form-row">
+                <div class="card-body" style="padding: 2rem;">
                     <div class="form-group">
-                        <label asp-for="Brand">@(isArabic ? "الماركة (إنجليزي)" : "Brand (English)") *</label>
-                        <input asp-for="Brand" required />
+                        <label asp-for="Name">@(isArabic ? "اسم المنتج (إنجليزي)" : "Product Name (English)") <span class="required">*</span></label>
+                        <input asp-for="Name" placeholder="e.g. Royal Oud" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="NameAr">@(isArabic ? "اسم المنتج (عربي)" : "Product Name (Arabic)")</label>
+                        <input asp-for="NameAr" dir="rtl" placeholder="مثال: عود ملكي" />
+                        <span asp-validation-for="NameAr" class="text-danger"></span>
+                    </div>
+
+                    <div class="row-grid-2">
+                        <div class="form-group">
+                            <label asp-for="Brand">@(isArabic ? "الماركة (إنجليزي)" : "Brand (English)") <span class="required">*</span></label>
+                            <input asp-for="Brand" required />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="BrandAr">@(isArabic ? "الماركة (عربي)" : "Brand (Arabic)")</label>
+                            <input asp-for="BrandAr" dir="rtl" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CategoryId">@(isArabic ? "الفئة" : "Category") <span class="required">*</span></label>
+                        <select asp-for="CategoryId" class="form-select" required>
+                            <option value="">@(isArabic ? "-- اختر الفئة --" : "-- Select Category --")</option>
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id">@(isArabic? category.NameAr: category.Name)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description">@(isArabic ? "الوصف (إنجليزي)" : "Description (English)")</label>
+                        <textarea asp-for="Description" rows="4"></textarea>
                     </div>
                     <div class="form-group">
-                        <label asp-for="BrandAr">@(isArabic ? "الماركة (عربي)" : "Brand (Arabic)")</label>
-                        <input asp-for="BrandAr" dir="rtl" />
+                        <label asp-for="DescriptionAr">@(isArabic ? "الوصف (عربي)" : "Description (Arabic)")</label>
+                        <textarea asp-for="DescriptionAr" rows="4" dir="rtl"></textarea>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label asp-for="CategoryId">@(isArabic ? "الفئة" : "Category") *</label>
-                    <select asp-for="CategoryId" required>
-                        <option value="">@(isArabic ? "اختر الفئة" : "Select Category")</option>
-                        @foreach (var category in ViewBag.Categories)
-                        {
-                            <option value="@category.Id">@category.Name</option>
-                        }
-                    </select>
                 </div>
             </div>
         </div>
 
-        <!-- Pricing & Stock -->
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-dollar-sign"></i> @(isArabic ? "السعر والمخزون" : "Pricing & Stock")</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-row">
+        <!-- Sidebar (Right) -->
+        <div class="layout-sidebar">
+            <!-- Pricing & Stock -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-tag"></i> @(isArabic ? "السعر والمخزون" : "Pricing & Stock")</h3>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
                     <div class="form-group">
-                        <label asp-for="Price">@(isArabic ? "السعر" : "Price") *</label>
-                        <input asp-for="Price" type="number" step="0.01" required />
+                        <label asp-for="Price">@(isArabic ? "السعر (OMR)" : "Price (OMR)") <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <input asp-for="Price" type="number" step="0.01" required style="font-weight: bold; color: var(--gold-primary);" />
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label asp-for="OldPrice">@(isArabic ? "السعر القديم" : "Old Price")</label>
+                        <label asp-for="OldPrice">@(isArabic ? "السعر القديم (اختياري)" : "Old Price (Optional)")</label>
                         <input asp-for="OldPrice" type="number" step="0.01" />
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label asp-for="StockQuantity">@(isArabic ? "الكمية المتوفرة" : "Stock Quantity") *</label>
-                    <input asp-for="StockQuantity" type="number" required />
+                    <div class="form-group">
+                        <label asp-for="StockQuantity">@(isArabic ? "الكمية" : "Quantity") <span class="required">*</span></label>
+                        <input asp-for="StockQuantity" type="number" required />
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Product Details -->
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-cog"></i> @(isArabic ? "تفاصيل المنتج" : "Product Details")</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-row">
+            <!-- Attributes -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-sliders-h"></i> @(isArabic ? "الخصائص" : "Attributes")</h3>
+                </div>
+                <div class="card-body" style="padding: 2rem;">
                     <div class="form-group">
                         <label asp-for="Size">@(isArabic ? "الحجم" : "Size")</label>
                         <select asp-for="Size">
@@ -113,104 +129,77 @@
                             <option value="Unisex">@(isArabic ? "للجنسين" : "Unisex")</option>
                         </select>
                     </div>
-                </div>
-                
-                <div class="form-row">
                     <div class="form-group">
                         <label asp-for="Concentration">@(isArabic ? "التركيز" : "Concentration")</label>
                         <select asp-for="Concentration">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Parfum">Parfum</option>
-                            <option value="EDP">EDP (Eau de Parfum)</option>
-                            <option value="EDT">EDT (Eau de Toilette)</option>
-                            <option value="EDC">EDC (Eau de Cologne)</option>
+                            <option value="EDP">EDP</option>
+                            <option value="EDT">EDT</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ScentFamily">@(isArabic ? "عائلة الرائحة" : "Scent Family")</label>
+                        <label asp-for="ScentFamily">@(isArabic ? "العائلة العطرية" : "Scent Family")</label>
                         <select asp-for="ScentFamily">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
-                            <option value="Oud">@(isArabic ? "عود" : "Oud")</option>
-                            <option value="Floral">@(isArabic ? "زهر" : "Floral")</option>
-                            <option value="Woody">@(isArabic ? "خشبي" : "Woody")</option>
-                            <option value="Oriental">@(isArabic ? "شرقي" : "Oriental")</option>
-                            <option value="Fresh">@(isArabic ? "منعش" : "Fresh")</option>
-                            <option value="Citrus">@(isArabic ? "حمضيات" : "Citrus")</option>
-                            <option value="Aquatic">@(isArabic ? "مائي" : "Aquatic")</option>
-                            <option value="Leather">@(isArabic ? "جلد" : "Leather")</option>
-                            <option value="Amber">@(isArabic ? "عنبر" : "Amber")</option>
+                            <option value="Oud">Oud (عود)</option>
+                            <option value="Floral">Floral (زهري)</option>
+                            <option value="Woody">Woody (خشبي)</option>
+                            <option value="Fresh">Fresh (منعش)</option>
+                            <option value="Oriental">Oriental (شرقي)</option>
                         </select>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Description -->
-        <div class="card full-width">
-            <div class="card-header">
-                <h3><i class="fas fa-align-left"></i> @(isArabic ? "الوصف" : "Description")</h3>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label asp-for="Description">@(isArabic ? "الوصف (إنجليزي)" : "Description (English)")</label>
-                    <textarea asp-for="Description" rows="4"></textarea>
+            <!-- Image Upload -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-image"></i> @(isArabic ? "صورة المنتج" : "Product Image")</h3>
                 </div>
-                <div class="form-group">
-                    <label asp-for="DescriptionAr">@(isArabic ? "الوصف (عربي)" : "Description (Arabic)")</label>
-                    <textarea asp-for="DescriptionAr" rows="4" dir="rtl"></textarea>
+                <div class="card-body" style="padding: 2rem;">
+                    <div class="image-upload-area">
+                        <input type="file" name="image" id="imageInput" accept="image/*" class="file-input" />
+                        <div class="upload-label">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <span class="upload-text">@(isArabic ? "اضغط لرفع صورة" : "Click to upload image")</span>
+                        </div>
+                        <div id="imagePreview" class="preview-container"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Image & Status -->
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-image"></i> @(isArabic ? "صورة المنتج" : "Product Image")</h3>
-            </div>
-            <div class="card-body">
-                <div class="image-upload">
-                    <input type="file" name="image" id="imageInput" accept="image/*" />
-                    <label for="imageInput" class="upload-label">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span>@(isArabic ? "اختر صورة أو اسحبها هنا" : "Choose image or drag here")</span>
-                    </label>
-                    <div id="imagePreview" class="image-preview"></div>
+            <!-- Status -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-toggle-on"></i> @(isArabic ? "الحالة" : "Status")</h3>
                 </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-toggle-on"></i> @(isArabic ? "الحالة" : "Status")</h3>
-            </div>
-            <div class="card-body">
-                <div class="checkbox-group">
-                    <label class="checkbox-label">
-                        <input asp-for="IsActive" checked />
-                        <span class="checkmark"></span>
-                        @(isArabic ? "نشط" : "Active")
-                    </label>
-                </div>
-                <div class="checkbox-group">
-                    <label class="checkbox-label">
-                        <input asp-for="IsFeatured" />
-                        <span class="checkmark"></span>
-                        @(isArabic ? "مميز" : "Featured")
-                    </label>
-                </div>
-                <div class="checkbox-group">
-                    <label class="checkbox-label">
-                        <input asp-for="IsNewArrival" />
-                        <span class="checkmark"></span>
-                        @(isArabic ? "وصل حديثاً" : "New Arrival")
-                    </label>
+                <div class="card-body" style="padding: 2rem;">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input asp-for="IsActive" checked />
+                            <span>@(isArabic ? "نشط (معروض)" : "Active")</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input asp-for="IsFeatured" />
+                            <span>@(isArabic ? "منتج مميز" : "Featured")</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input asp-for="IsNewArrival" />
+                            <span>@(isArabic ? "وصل حديثاً" : "New Arrival")</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-lg">
+        <button type="submit" class="btn btn-primary btn-lg action-save">
             <i class="fas fa-save"></i>
             @(isArabic ? "حفظ المنتج" : "Save Product")
         </button>
@@ -218,146 +207,99 @@
 </form>
 
 <style>
-.product-form {
-    max-width: 1200px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.card.full-width {
-    grid-column: 1 / -1;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.75rem;
-    background: rgba(15, 15, 26, 0.8);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 1rem;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #d4af37;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.image-upload {
-    position: relative;
-}
-
-.image-upload input[type="file"] {
-    position: absolute;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-}
-
-.upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 2rem;
-    background: rgba(15, 15, 26, 0.8);
-    border: 2px dashed rgba(212, 175, 55, 0.3);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.upload-label:hover {
-    border-color: #d4af37;
-    background: rgba(212, 175, 55, 0.05);
-}
-
-.upload-label i {
-    font-size: 2rem;
-    color: #d4af37;
-}
-
-.image-preview {
-    margin-top: 1rem;
-}
-
-.image-preview img {
-    max-width: 200px;
-    border-radius: 8px;
-}
-
-.checkbox-group {
-    margin-bottom: 0.75rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-}
-
-.checkbox-label input {
-    width: 18px;
-    height: 18px;
-    accent-color: #d4af37;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-}
-
-@@media (max-width: 992px) {
-    .form-grid {
-        grid-template-columns: 1fr;
+    /* Page Specific Styles */
+    .product-layout-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        align-items: start;
     }
-    
-    .form-row {
-        grid-template-columns: 1fr;
+
+    .required {
+        color: var(--gold-primary);
+        margin-left: 3px;
     }
-}
+
+    .row-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .input-icon-wrapper {
+        position: relative;
+    }
+
+        .input-icon-wrapper input {
+            padding-left: 3rem;
+        }
+
+    body.rtl .input-icon-wrapper input {
+        padding-left: 1.2rem;
+        padding-right: 3rem;
+    }
+
+    .input-icon-wrapper i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gold-primary);
+        opacity: 0.7;
+    }
+
+    body.rtl .input-icon-wrapper i {
+        left: auto;
+        right: 1rem;
+    }
+
+    .file-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .preview-container {
+        margin-top: 1rem;
+        text-align: center;
+    }
+
+        .preview-container img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--gold-primary);
+        }
+
+    .action-save {
+        min-width: 200px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+
+    @@media (max-width: 1200px) {
+        .product-layout-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <script>
-document.getElementById('imageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('imagePreview');
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
-        };
-        reader.readAsDataURL(file);
-    }
-});
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
+                // Visual feedback for upload area
+                document.querySelector('.upload-label').style.borderColor = '#2ecc71';
+                document.querySelector('.upload-icon').className = 'fas fa-check-circle upload-icon';
+                document.querySelector('.upload-icon').style.color = '#2ecc71';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 </script>
