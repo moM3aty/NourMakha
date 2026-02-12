@@ -1,0 +1,628 @@
+@model PerfumeStore.Controllers.HomeViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الرئيسية" : "Home";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+
+    // 🖼️ صور Placeholder من Unsplash - يمكنك استبدالها بصورك
+    // ============================================
+    var heroImage = "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80"; // زجاجة عطر أنيقة
+    var categoryMen = "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&q=80"; // عطر رجالي
+    var categoryWomen = "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=400&q=80"; // عطر نسائي
+    var categoryUnisex = "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&q=80"; // عطر للجنسين
+    var categoryLuxury = "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=400&q=80"; // عطر فاخر
+    var categoryGifts = "https://images.unsplash.com/photo-1608528577891-eb055944f2e7?w=400&q=80"; // هدايا
+
+    // صور المنتجات
+    var productImages = new[] {
+        "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&q=80", // عطر ذهبي
+        "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=600&q=80", // عطر وردي
+        "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&q=80", // عطر أزرق
+        "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=600&q=80", // عطر أسود
+        "https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80", // عطر كريستال
+        "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=600&q=80", // عطر بني
+        "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=600&q=80", // عطر أبيض
+        "https://images.unsplash.com/photo-1590736704728-f4730bb30770?w=600&q=80"  // عطر بنفسجي
+    };
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg">
+        <div class="hero-particles" id="particles"></div>
+    </div>
+    <div class="container hero-content">
+        <div class="hero-text">
+            <h1 class="hero-title animate-fade-up">
+                <span class="title-line">@(isArabic ? "اكتشف سحر" : "Discover the Magic")</span>
+                <span class="title-line accent">@(isArabic ? "العطور الفاخرة" : "of Luxury Perfumes")</span>
+            </h1>
+            <p class="hero-subtitle animate-fade-up delay-1">
+                @(isArabic
+                                ? "رحلة فريدة في عالم العطور الراقية. اختر من بين أرقى الماركات العالمية واستمتع بتجربة تسوق استثنائية."
+                                : "A unique journey into the world of luxury perfumes. Choose from the finest international brands and enjoy an exceptional shopping experience.")
+            </p>
+            <div class="hero-buttons animate-fade-up delay-2">
+                <a href="/Products" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag"></i>
+                    @(isArabic ? "تسوق الآن" : "Shop Now")
+                </a>
+                <a href="/Products?featured=true" class="btn btn-outline btn-lg">
+                    <i class="fas fa-star"></i>
+                    @(isArabic ? "العروض المميزة" : "Featured Deals")
+                </a>
+            </div>
+        </div>
+        <div class="hero-image animate-fade-left">
+            <div class="hero-image-wrapper">
+                <div class="hero-glow"></div>
+                <!-- 🖼️ صورة Hero الرئيسية - استبدلها بصورتك -->
+                <img src="@heroImage" alt="Luxury Perfume" />
+            </div>
+        </div>
+    </div>
+    <div class="hero-scroll">
+        <a href="#categories" class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </a>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section" id="categories">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">@(isArabic ? "تصفح حسب الفئة" : "Browse by Category")</h2>
+            <p class="section-subtitle">@(isArabic ? "اكتشف مجموعتنا المتنوعة من العطور" : "Discover our diverse collection of perfumes")</p>
+        </div>
+        <div class="categories-grid">
+            <!-- 🖼️ صورة عطور رجالية -->
+            <a href="/Products?gender=Men" class="category-card">
+                <div class="category-image" style="background-image: url('@categoryMen');">
+                    <div class="category-overlay">
+                        <div class="category-icon">
+                            <i class="fas fa-mars"></i>
+                        </div>
+                        <h3 class="category-name">@(isArabic ? "عطور رجالية" : "Men's Perfumes")</h3>
+                        <p class="category-count">@(isArabic ? "استكشف المجموعة" : "Explore Collection")</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 🖼️ صورة عطور نسائية -->
+            <a href="/Products?gender=Women" class="category-card">
+                <div class="category-image" style="background-image: url('@categoryWomen');">
+                    <div class="category-overlay">
+                        <div class="category-icon">
+                            <i class="fas fa-venus"></i>
+                        </div>
+                        <h3 class="category-name">@(isArabic ? "عطور نسائية" : "Women's Perfumes")</h3>
+                        <p class="category-count">@(isArabic ? "استكشف المجموعة" : "Explore Collection")</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 🖼️ صورة عطور للجنسين -->
+            <a href="/Products?gender=Unisex" class="category-card">
+                <div class="category-image" style="background-image: url('@categoryUnisex');">
+                    <div class="category-overlay">
+                        <div class="category-icon">
+                            <i class="fas fa-venus-mars"></i>
+                        </div>
+                        <h3 class="category-name">@(isArabic ? "عطور للجنسين" : "Unisex Perfumes")</h3>
+                        <p class="category-count">@(isArabic ? "استكشف المجموعة" : "Explore Collection")</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 🖼️ صورة مجموعات فاخرة -->
+            <a href="/Products?categoryId=4" class="category-card">
+                <div class="category-image" style="background-image: url('@categoryLuxury');">
+                    <div class="category-overlay">
+                        <div class="category-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3 class="category-name">@(isArabic ? "مجموعات فاخرة" : "Luxury Collections")</h3>
+                        <p class="category-count">@(isArabic ? "استكشف المجموعة" : "Explore Collection")</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 🖼️ صورة هدايا -->
+            <a href="/Products?categoryId=5" class="category-card">
+                <div class="category-image" style="background-image: url('@categoryGifts');">
+                    <div class="category-overlay">
+                        <div class="category-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3 class="category-name">@(isArabic ? "هدايا مميزة" : "Gift Sets")</h3>
+                        <p class="category-count">@(isArabic ? "استكشف المجموعة" : "Explore Collection")</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">@(isArabic ? "المنتجات المميزة" : "Featured Products")</h2>
+            <a href="/Products?featured=true" class="view-all">@(isArabic ? "عرض الكل" : "View All") <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="products-grid">
+            @{
+                var featuredProducts = Model.FeaturedProducts.Take(4).ToList();
+                for (int i = 0; i < featuredProducts.Count; i++)
+                {
+                    var product = featuredProducts[i];
+                    <div class="product-card">
+                        <div class="product-image">
+                            <!-- 🖼️ صورة المنتج - استبدلها بصورتك -->
+                            <img src="@(product.ImageUrl ?? productImages[i % productImages.Length])" alt="@(isArabic? product.NameAr: product.Name)" loading="lazy" />
+                            @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+                            {
+                                var discount = Math.Round((1 - (product.Price / product.OldPrice.Value)) * 100);
+                                <span class="product-badge sale">-@discount%</span>
+                            }
+                            @if (product.IsNewArrival)
+                            {
+                                <span class="product-badge new">@(isArabic ? "جديد" : "New")</span>
+                            }
+                            <div class="product-actions">
+                                <button class="action-btn wishlist-btn" data-product-id="@product.Id">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                                <button class="action-btn quick-view-btn" onclick="location.href='/Products/Details/@product.Id'">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <button class="action-btn add-to-cart-btn" data-product-id="@product.Id">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-brand">@(isArabic? product.BrandAr: product.Brand)</span>
+                            <h3 class="product-name">
+                                <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
+                            </h3>
+                            <div class="product-price">
+                                <span class="current-price">$@product.Price</span>
+                                @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+                                {
+                                    <span class="old-price">$@product.OldPrice</span>
+                                }
+                            </div>
+                            <div class="product-rating">
+                                @for (int j = 1; j <= 5; j++)
+                                {
+                                    <i class="@(j <= 4 ? "fas" : "far") fa-star"></i>
+                                }
+                                <span>(@(product.Reviews?.Count ?? 0))</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Banner Section -->
+<section class="banner-section">
+    <div class="container">
+        <div class="banner-grid">
+            <!-- 🖼️ صورة بانر عرض خاص -->
+            <div class="banner-card banner-large">
+                <div class="banner-image" style="background-image: url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1000&q=80');">
+                    <div class="banner-content">
+                        <span class="banner-label">@(isArabic ? "عرض خاص" : "Special Offer")</span>
+                        <h3 class="banner-title">@(isArabic ? "خصم 30% على العطور الشرقية" : "30% Off Oriental Perfumes")</h3>
+                        <p class="banner-text">@(isArabic ? "استمتع بروائح الشرق الأصيلة" : "Experience authentic oriental fragrances")</p>
+                        <a href="/Products?categoryId=4" class="btn btn-primary">@(isArabic ? "تسوق الآن" : "Shop Now")</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🖼️ صورة بانر وصل حديثاً -->
+            <div class="banner-card">
+                <div class="banner-image" style="background-image: url('https://images.unsplash.com/photo-1590736704728-f4730bb30770?w=600&q=80');">
+                    <div class="banner-content">
+                        <span class="banner-label">@(isArabic ? "وصل حديثاً" : "New Arrival")</span>
+                        <h3 class="banner-title">@(isArabic ? "مجموعة 2024" : "2024 Collection")</h3>
+                        <a href="/Products?new=true" class="btn btn-outline">@(isArabic ? "اكتشف" : "Discover")</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🖼️ صورة بانر هدايا -->
+            <div class="banner-card">
+                <div class="banner-image" style="background-image: url('https://images.unsplash.com/photo-1608528577891-eb055944f2e7?w=600&q=80');">
+                    <div class="banner-content">
+                        <span class="banner-label">@(isArabic ? "هدايا" : "Gifts")</span>
+                        <h3 class="banner-title">@(isArabic ? "تغليف فاخر" : "Premium Wrapping")</h3>
+                        <a href="/Products?categoryId=5" class="btn btn-outline">@(isArabic ? "تسوق" : "Shop")</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="products-section bg-dark">
+    <div class="container">
+        <div class="section-header light">
+            <h2 class="section-title">@(isArabic ? "وصل حديثاً" : "New Arrivals")</h2>
+            <a href="/Products?new=true" class="view-all">@(isArabic ? "عرض الكل" : "View All") <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="products-grid">
+            @{
+                var newArrivals = Model.NewArrivals.Take(4).ToList();
+                for (int i = 0; i < newArrivals.Count; i++)
+                {
+                    var product = newArrivals[i];
+                    <div class="product-card">
+                        <div class="product-image">
+                            <!-- 🖼️ صورة المنتج الجديد -->
+                            <img src="@(product.ImageUrl ?? productImages[(i + 4) % productImages.Length])" alt="@(isArabic? product.NameAr: product.Name)" loading="lazy" />
+                            <span class="product-badge new">@(isArabic ? "جديد" : "New")</span>
+                            <div class="product-actions">
+                                <button class="action-btn add-to-cart-btn" data-product-id="@product.Id">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-brand">@(isArabic? product.BrandAr: product.Brand)</span>
+                            <h3 class="product-name">
+                                <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
+                            </h3>
+                            <div class="product-price">
+                                <span class="current-price">$@product.Price</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>@(isArabic ? "توصيل مجاني" : "Free Shipping")</h3>
+                <p>@(isArabic ? "توصيل مجاني للطلبات فوق $200" : "Free shipping on orders over $200")</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>@(isArabic ? "ضمان الجودة" : "Quality Guarantee")</h3>
+                <p>@(isArabic ? "منتجات أصلية 100%" : "100% authentic products")</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <h3>@(isArabic ? "استرجاع سهل" : "Easy Returns")</h3>
+                <p>@(isArabic ? "استرجاع خلال 30 يوم" : "30-day return policy")</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>@(isArabic ? "دعم 24/7" : "24/7 Support")</h3>
+                <p>@(isArabic ? "فريق دعم متاح دائماً" : "Always available support team")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">@(isArabic ? "آراء عملائنا" : "Customer Reviews")</h2>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">@(isArabic ? "أفضل متجر عطور تعاملت معه. جودة ممتازة وتوصيل سريع." : "Best perfume store I've dealt with. Excellent quality and fast delivery.")</p>
+                <div class="testimonial-author">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Customer" />
+                    <div>
+                        <strong>@(isArabic ? "أحمد محمد" : "Ahmed Mohamed")</strong>
+                        <span>@(isArabic ? "السعودية" : "Saudi Arabia")</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">@(isArabic ? "عطور أصلية 100% وأسعار منافسة. أنصح الجميع بالتعامل معهم." : "100% original perfumes at competitive prices. I recommend everyone to deal with them.")</p>
+                <div class="testimonial-author">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Customer" />
+                    <div>
+                        <strong>@(isArabic ? "سارة أحمد" : "Sara Ahmed")</strong>
+                        <span>@(isArabic ? "الإمارات" : "UAE")</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                </div>
+                <p class="testimonial-text">@(isArabic ? "تجربة تسوق رائعة وتغليف فاخر. سأتكرر بالتأكيد." : "Amazing shopping experience with premium packaging. Will definitely order again.")</p>
+                <div class="testimonial-author">
+                    <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Customer" />
+                    <div>
+                        <strong>@(isArabic ? "خالد العلي" : "Khaled Ali")</strong>
+                        <span>@(isArabic ? "قطر" : "Qatar")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <div class="newsletter-text">
+                <h2>@(isArabic ? "اشترك في نشرتنا البريدية" : "Subscribe to Our Newsletter")</h2>
+                <p>@(isArabic ? "احصل على أحدث العروض والخصومات الحصرية" : "Get the latest offers and exclusive discounts")</p>
+            </div>
+            <form class="newsletter-form">
+                <input type="email" placeholder="@(isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email")" required />
+                <button type="submit" class="btn btn-primary">
+                    @(isArabic ? "اشتراك" : "Subscribe")
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* ============================================
+       الصور Placeholder - استبدلها بصورك الخاصة
+       ============================================ */
+
+    /* Category Cards with Images */
+    .category-image {
+        position: relative;
+        height: 280px;
+        background-size: cover;
+        background-position: center;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .category-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding: var(--space-xl);
+        transition: all var(--transition-base);
+    }
+
+    .category-card:hover .category-overlay {
+        background: linear-gradient(180deg, rgba(212, 175, 55, 0.2) 0%, rgba(0,0,0,0.8) 100%);
+    }
+
+    .category-image .category-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--bg-dark);
+        margin-bottom: var(--space-md);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all var(--transition-base);
+    }
+
+    .category-card:hover .category-icon {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .category-image .category-name {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: var(--space-xs);
+    }
+
+    .category-image .category-count {
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+
+    /* Banner Section */
+    .banner-section {
+        padding: var(--space-3xl) 0;
+    }
+
+    .banner-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: repeat(2, 200px);
+        gap: var(--space-lg);
+    }
+
+    .banner-card {
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .banner-large {
+        grid-row: span 2;
+    }
+
+    .banner-image {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .banner-content {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+        padding: var(--space-xl);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .banner-label {
+        display: inline-block;
+        background: var(--primary);
+        color: var(--bg-dark);
+        padding: var(--space-xs) var(--space-md);
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: var(--space-sm);
+        width: fit-content;
+    }
+
+    .banner-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        margin-bottom: var(--space-sm);
+        color: white;
+    }
+
+    .banner-large .banner-title {
+        font-size: 2rem;
+    }
+
+    .banner-text {
+        color: var(--text-secondary);
+        margin-bottom: var(--space-md);
+    }
+
+    /* Testimonials */
+    .testimonials-section {
+        padding: var(--space-4xl) 0;
+        background: var(--bg-darker);
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: var(--space-xl);
+    }
+
+    .testimonial-card {
+        background: var(--gradient-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
+        transition: all var(--transition-base);
+    }
+
+    .testimonial-card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .testimonial-rating {
+        color: var(--primary);
+        margin-bottom: var(--space-md);
+    }
+
+    .testimonial-text {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.8;
+        margin-bottom: var(--space-lg);
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+    }
+
+    .testimonial-author img {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--radius-full);
+        border: 2px solid var(--primary);
+    }
+
+    .testimonial-author strong {
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .testimonial-author span {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    /* Section Light Header */
+    .section-header.light .section-title {
+        color: white;
+    }
+
+    .section-header.light .section-subtitle {
+        color: var(--text-secondary);
+    }
+
+    .section-header.light .view-all {
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .banner-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+        }
+
+        .banner-large {
+            grid-row: span 1;
+        }
+
+        .banner-image {
+            min-height: 250px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .category-image {
+            height: 220px;
+        }
+
+        .testimonials-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

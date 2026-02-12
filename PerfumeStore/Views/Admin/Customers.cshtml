@@ -1,0 +1,87 @@
+@model List<PerfumeStore.Models.ApplicationUser>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "العملاء" : "Customers";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? "إدارة العملاء" : "Customers Management")</h1>
+    </div>
+    <div class="header-right">
+        <input type="text" placeholder="@(isArabic ? "بحث عن عميل..." : "Search customer...")" class="search-input" />
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>@(isArabic ? "العميل" : "Customer")</th>
+                    <th>@(isArabic ? "البريد الإلكتروني" : "Email")</th>
+                    <th>@(isArabic ? "الهاتف" : "Phone")</th>
+                    <th>@(isArabic ? "الطلبات" : "Orders")</th>
+                    <th>@(isArabic ? "إجمالي المشتريات" : "Total Spent")</th>
+                    <th>@(isArabic ? "تاريخ التسجيل" : "Joined")</th>
+                    <th>@(isArabic ? "الإجراءات" : "Actions")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="customer-cell">
+                                <img src="https://ui-avatars.com/api/?name=@customer.FirstName@customer.LastName&background=d4af37&color=fff" alt="@customer.FirstName" class="customer-avatar" />
+                                <div>
+                                    <strong>@customer.FirstName @customer.LastName</strong>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@customer.Email</td>
+                        <td>@customer.PhoneNumber</td>
+                        <td>@customer.Orders.Count</td>
+                        <td><strong class="text-gold">$@customer.Orders.Sum(o => o.GrandTotal).ToString("F2")</strong></td>
+                        <td>@customer.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="/Admin/CustomerDetails/@customer.Id" class="action-btn view">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.customer-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.search-input {
+    padding: 0.75rem 1rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    width: 250px;
+}
+
+.text-gold {
+    color: #d4af37;
+}
+</style>

@@ -1,0 +1,77 @@
+@model List<PerfumeStore.Models.Order>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الطلبات" : "Orders";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? "إدارة الطلبات" : "Orders Management")</h1>
+    </div>
+    <div class="header-right">
+        <div class="filter-group">
+            <select class="filter-select" id="statusFilter">
+                <option value="">@(isArabic ? "جميع الحالات" : "All Status")</option>
+                <option value="Pending">@(isArabic ? "قيد الانتظار" : "Pending")</option>
+                <option value="Confirmed">@(isArabic ? "مؤكد" : "Confirmed")</option>
+                <option value="Processing">@(isArabic ? "قيد المعالجة" : "Processing")</option>
+                <option value="Shipped">@(isArabic ? "تم الشحن" : "Shipped")</option>
+                <option value="Delivered">@(isArabic ? "تم التسليم" : "Delivered")</option>
+                <option value="Cancelled">@(isArabic ? "ملغي" : "Cancelled")</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@(isArabic ? "العميل" : "Customer")</th>
+                        <th>@(isArabic ? "المنتجات" : "Items")</th>
+                        <th>@(isArabic ? "المبلغ" : "Amount")</th>
+                        <th>@(isArabic ? "الحالة" : "Status")</th>
+                        <th>@(isArabic ? "التاريخ" : "Date")</th>
+                        <th>@(isArabic ? "الإجراءات" : "Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td><strong>#@order.Id</strong></td>
+                            <td>
+                                <div class="customer-cell">
+                                    <span class="customer-name">@order.ShippingFirstName @order.ShippingLastName</span>
+                                    <small class="customer-email">@order.User?.Email</small>
+                                </div>
+                            </td>
+                            <td>@order.OrderItems.Sum(oi => oi.Quantity) @(isArabic ? "منتج" : "items")</td>
+                            <td><strong>$@order.GrandTotal.ToString("N2")</strong></td>
+                            <td>
+                                <span class="order-status @order.Status.ToLower()">
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td>@order.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/Admin/OrderDetails/@order.Id" class="action-btn view" title="@(isArabic ? "التفاصيل" : "Details")">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/Admin/Invoice/@order.Id" class="action-btn print" title="@(isArabic ? "الفاتورة" : "Invoice")" target="_blank">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

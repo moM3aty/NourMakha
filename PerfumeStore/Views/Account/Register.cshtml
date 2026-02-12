@@ -1,0 +1,322 @@
+@model PerfumeStore.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إنشاء حساب" : "Create Account";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(isArabic ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Perfume Store</title>
+    <link rel="stylesheet" href="~/css/auth.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <!-- Left Side - Visual -->
+        <div class="auth-left">
+            <div class="auth-brand">
+                <a href="/" class="logo">
+                    <span class="logo-text">Perfume</span>
+                    <span class="logo-accent">Store</span>
+                </a>
+            </div>
+
+            <div class="auth-illustration">
+                <div class="perfume-scene">
+                    <div class="floating-bottle">
+                        <div class="reflection"></div>
+                    </div>
+                    <div class="sparkles"></div>
+                </div>
+            </div>
+
+            <div class="auth-features">
+                <div class="feature">
+                    <i class="fas fa-gift"></i>
+                    <span>@(isArabic ? "خصم 15% لأول طلب" : "15% off first order")</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-crown"></i>
+                    <span>@(isArabic ? "نقاط مكافآت حصرية" : "Exclusive rewards")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Form -->
+        <div class="auth-right">
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <div class="otp-badge">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h1>@(isArabic ? "إنشاء حساب جديد" : "Create Account")</h1>
+                    <p>@(isArabic ? "انضم إلينا واستمتع بعالم العطور الفاخرة" : "Join us and explore luxury perfumes")</p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>@TempData["Error"]</span>
+                    </div>
+                }
+
+                <form asp-action="Register" method="post" class="auth-form" id="registerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="FirstName">@(isArabic ? "الاسم الأول" : "First Name")</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input asp-for="FirstName" placeholder="@(isArabic ? "أحمد" : "John")" required autocomplete="given-name" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName">@(isArabic ? "الاسم الأخير" : "Last Name")</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input asp-for="LastName" placeholder="@(isArabic ? "محمد" : "Doe")" required autocomplete="family-name" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email">@(isArabic ? "البريد الإلكتروني" : "Email Address")</label>
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input asp-for="Email" type="email" placeholder="example@email.com" required autocomplete="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PhoneNumber">@(isArabic ? "رقم الهاتف" : "Phone Number")</label>
+                        <div class="input-group">
+                            <i class="fas fa-phone"></i>
+                            <input asp-for="PhoneNumber" type="tel" placeholder="@(isArabic ? "+966 5X XXX XXXX" : "+1 XXX XXX XXXX")" required autocomplete="tel" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Password">@(isArabic ? "كلمة المرور" : "Password")</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input asp-for="Password" type="password" placeholder="••••••••" required autocomplete="new-password" />
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword">@(isArabic ? "تأكيد كلمة المرور" : "Confirm Password")</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input asp-for="ConfirmPassword" type="password" placeholder="••••••••" required autocomplete="new-password" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="error-message"></span>
+                    </div>
+
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-text" id="strengthText">@(isArabic ? "قوة كلمة المرور" : "Password strength")</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>@(isArabic ? "إنشاء الحساب" : "Create Account")</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>@(isArabic ? "أو" : "or")</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn google" onclick="alert('Google registration coming soon!')">
+                        <i class="fab fa-google"></i>
+                        <span>@(isArabic ? "التسجيل بـ Google" : "Sign up with Google")</span>
+                    </button>
+                </div>
+
+                <div class="auth-footer">
+                    <p>
+                        @(isArabic ? "لديك حساب بالفعل؟" : "Already have an account?")
+                        <a href="/Account/Login">@(isArabic ? "تسجيل الدخول" : "Sign In")</a>
+                    </p>
+                </div>
+
+                <div class="language-toggle">
+                    <a href="/Home/SetLanguage?culture=ar&returnUrl=/Account/Register" class="@(isArabic ? "active" : "")">العربية</a>
+                    <span>|</span>
+                    <a href="/Home/SetLanguage?culture=en&returnUrl=/Account/Register" class="@(!isArabic ? "active" : "")">English</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .password-strength {
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .strength-weak .strength-fill {
+            width: 33%;
+            background: #f87171;
+        }
+
+        .strength-medium .strength-fill {
+            width: 66%;
+            background: #fbbf24;
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: #4ade80;
+        }
+    </style>
+
+    <script>
+        // Toggle Password Visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // Password Strength Checker
+        const passwordInput = document.querySelector('input[name="Password"]');
+        const strengthContainer = document.getElementById('passwordStrength');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const isArabic = '@isArabic' === 'True';
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+
+                if (password.length >= 8) strength++;
+                if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+                if (password.match(/[0-9]/)) strength++;
+                if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+                strengthContainer.className = 'password-strength';
+
+                if (password.length === 0) {
+                    strengthText.textContent = isArabic ? 'قوة كلمة المرور' : 'Password strength';
+                } else if (strength <= 1) {
+                    strengthContainer.classList.add('strength-weak');
+                    strengthText.textContent = isArabic ? 'ضعيفة' : 'Weak';
+                } else if (strength <= 2) {
+                    strengthContainer.classList.add('strength-medium');
+                    strengthText.textContent = isArabic ? 'متوسطة' : 'Medium';
+                } else {
+                    strengthContainer.classList.add('strength-strong');
+                    strengthText.textContent = isArabic ? 'قوية' : 'Strong';
+                }
+            });
+        }
+
+        // Form Submit Animation
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-primary');
+            btn.classList.add('loading');
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn, .social-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255,255,255,0.3);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    width: 100px;
+                    height: 100px;
+                    left: ${x - 50}px;
+                    top: ${y - 50}px;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                `;
+
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

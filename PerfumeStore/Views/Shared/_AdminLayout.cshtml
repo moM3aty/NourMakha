@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="~/css/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/Admin" class="admin-logo">
+                    <i class="fas fa-spray-can"></i>
+                    <span>Perfume<span class="accent">Admin</span></span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/Admin" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "لوحة التحكم" : "Dashboard")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Products" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Product") ?? false ? "active" : "")">
+                            <i class="fas fa-box"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "المنتجات" : "Products")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Orders" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Order") ?? false ? "active" : "")">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الطلبات" : "Orders")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Customers" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Customer") ?? false ? "active" : "")">
+                            <i class="fas fa-users"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "العملاء" : "Customers")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Coupons" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Coupon") ?? false ? "active" : "")">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الكوبونات" : "Coupons")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Reports" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Report") ?? false ? "active" : "")">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "التقارير" : "Reports")</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="nav-divider"></div>
+
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/" target="_blank" class="nav-link">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "عرض الموقع" : "View Site")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Account/Logout" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>@(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تسجيل الخروج" : "Logout")</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Top Bar -->
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">@ViewData["Title"]</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="language-switcher">
+                        <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "active" : "")">AR</a>
+                        <span>|</span>
+                        <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(System.Globalization.CultureInfo.CurrentCulture.Name == "en" ? "active" : "")">EN</a>
+                    </div>
+                    <div class="user-menu">
+                        <button class="user-btn">
+                            <img src="https://ui-avatars.com/api/?name=@(User.Identity?.Name)&background=d4af37&color=fff" alt="User" class="user-avatar" />
+                            <span>@User.Identity?.Name</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="admin-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="~/js/admin.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

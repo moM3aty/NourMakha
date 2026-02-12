@@ -1,0 +1,153 @@
+@model PerfumeStore.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "لوحة التحكم" : "Dashboard";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="dashboard">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon sales">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@(isArabic ? "إجمالي المبيعات" : "Total Sales")</h3>
+                <p class="stat-value">$@Model.TotalSales.ToString("N0")</p>
+                <span class="stat-change positive">+12.5%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orders">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@(isArabic ? "الطلبات" : "Orders")</h3>
+                <p class="stat-value">@Model.TotalOrders</p>
+                <span class="stat-change positive">+8.2%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon products">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@(isArabic ? "المنتجات" : "Products")</h3>
+                <p class="stat-value">@Model.TotalProducts</p>
+                <span class="stat-change neutral">0</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon customers">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@(isArabic ? "العملاء" : "Customers")</h3>
+                <p class="stat-value">@Model.TotalCustomers</p>
+                <span class="stat-change positive">+15.3%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Sales Chart -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h3>@(isArabic ? "المبيعات الشهرية" : "Monthly Sales")</h3>
+                <select class="chart-filter" id="chartFilter">
+                    <option value="7">@(isArabic ? "آخر 7 أيام" : "Last 7 days")</option>
+                    <option value="30" selected>@(isArabic ? "آخر 30 يوم" : "Last 30 days")</option>
+                    <option value="90">@(isArabic ? "آخر 90 يوم" : "Last 90 days")</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="orders-card">
+            <div class="card-header">
+                <h3>@(isArabic ? "أحدث الطلبات" : "Recent Orders")</h3>
+                <a href="/Admin/Orders" class="view-all">@(isArabic ? "عرض الكل" : "View All")</a>
+            </div>
+            <div class="orders-list">
+                @foreach (var order in Model.RecentOrders)
+                {
+                    <div class="order-item">
+                        <div class="order-info">
+                            <span class="order-id">#@order.Id</span>
+                            <span class="order-customer">@order.CustomerName</span>
+                        </div>
+                        <div class="order-meta">
+                            <span class="order-total">$@order.Total.ToString("N2")</span>
+                            <span class="order-status @order.Status.ToLower()">@order.Status</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="products-card">
+            <div class="card-header">
+                <h3>@(isArabic ? "أفضل المنتجات" : "Top Products")</h3>
+                <a href="/Admin/Products" class="view-all">@(isArabic ? "عرض الكل" : "View All")</a>
+            </div>
+            <div class="products-list">
+                @foreach (var product in Model.TopProducts)
+                {
+                    <div class="product-item">
+                        <img src="@(product.Image ?? "/images/placeholder.jpg")" alt="@product.Name" class="product-img" />
+                        <div class="product-info">
+                            <span class="product-name">@product.Name</span>
+                            <span class="product-sales">@product.SalesCount @(isArabic ? "مبيعة" : "sold")</span>
+                        </div>
+                        <span class="product-revenue">$@product.Revenue.ToString("N2")</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sales Chart
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => $"'{s.Date}'")))],
+                datasets: [{
+                    label: '@(isArabic ? "المبيعات" : "Sales")',
+                    data: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => s.Sales)))],
+                    borderColor: '#d4af37',
+                    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+}

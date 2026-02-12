@@ -1,0 +1,287 @@
+@model PerfumeStore.Models.Order
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? $"فاتورة #{Model.Id}" : $"Invoice #{Model.Id}";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(isArabic ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+        
+        .invoice {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        .company-info h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .company-info p {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        .invoice-info {
+            text-align: right;
+        }
+        
+        .invoice-info h2 {
+            color: #d4af37;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .invoice-info p {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        .customer-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box h3 {
+            font-size: 0.875rem;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-box p {
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        
+        .items-table th {
+            background: #f8f8f8;
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .items-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        .items-table .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .items-table .product-cell img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .totals {
+            max-width: 300px;
+            margin-left: auto;
+        }
+        
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .totals-row span:first-child {
+            color: #666;
+        }
+        
+        .totals-row span:last-child {
+            font-weight: 500;
+        }
+        
+        .totals-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: none;
+        }
+        
+        .totals-total span:last-child {
+            color: #d4af37;
+        }
+        
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-@Model.Status.ToLower() {
+            background: #f1c40f20;
+            color: #f1c40f;
+        }
+        
+        @@media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .invoice {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <div class="invoice-header">
+            <div class="company-info">
+                <h1>Perfume Store</h1>
+                <p>@(isArabic ? "شارع الملك فهد، الرياض، السعودية" : "King Fahd Road, Riyadh, Saudi Arabia")</p>
+                <p>@(isArabic ? "هاتف: +966 50 123 4567" : "Phone: +966 50 123 4567")</p>
+                <p>Email: info@perfumestore.com</p>
+            </div>
+            <div class="invoice-info">
+                <h2>@(isArabic ? "فاتورة" : "INVOICE")</h2>
+                <p><strong>#@Model.Id</strong></p>
+                <p>@(isArabic ? "التاريخ:" : "Date:") @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                <span class="status-badge status-@Model.Status.ToLower()">@Model.Status</span>
+            </div>
+        </div>
+        
+        <div class="customer-info">
+            <div class="info-box">
+                <h3>@(isArabic ? "معلومات العميل" : "Customer Information")</h3>
+                <p><strong>@Model.ShippingFirstName @Model.ShippingLastName</strong></p>
+                <p>@Model.User?.Email</p>
+                <p>@Model.ShippingPhone</p>
+            </div>
+            <div class="info-box">
+                <h3>@(isArabic ? "عنوان الشحن" : "Shipping Address")</h3>
+                <p>@Model.ShippingAddress</p>
+                <p>@Model.ShippingCity, @Model.ShippingPostalCode</p>
+                <p>@Model.ShippingCountry</p>
+            </div>
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>@(isArabic ? "المنتج" : "Product")</th>
+                    <th>@(isArabic ? "السعر" : "Price")</th>
+                    <th>@(isArabic ? "الكمية" : "Qty")</th>
+                    <th>@(isArabic ? "الإجمالي" : "Total")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td class="product-cell">
+                            <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" />
+                            <span>@item.ProductName</span>
+                        </td>
+                        <td>$@item.UnitPrice</td>
+                        <td>@item.Quantity</td>
+                        <td><strong>$@item.TotalPrice</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        
+        <div class="totals">
+            <div class="totals-row">
+                <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                <span>$@Model.TotalAmount</span>
+            </div>
+            <div class="totals-row">
+                <span>@(isArabic ? "الخصم" : "Discount")</span>
+                <span>$@Model.DiscountAmount</span>
+            </div>
+            <div class="totals-row">
+                <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                <span>$@Model.ShippingCost</span>
+            </div>
+            <div class="totals-row">
+                <span>@(isArabic ? "الضريبة" : "Tax")</span>
+                <span>$@Model.TaxAmount</span>
+            </div>
+            <div class="totals-total">
+                <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                <span>$@Model.GrandTotal</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>@(isArabic ? "شكراً لتسوقكم معنا!" : "Thank you for shopping with us!")</p>
+            <p>@(isArabic ? "للاستفسارات، يرجى التواصل على info@perfumestore.com" : "For inquiries, please contact info@perfumestore.com")</p>
+        </div>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+@model PerfumeStore.Controllers.CartIndexViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "سلة التسوق" : "Shopping Cart";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+}
+
+<section class="cart-section">
+    <div class="container">
+        <h1 class="page-title">@(isArabic ? "سلة التسوق" : "Shopping Cart")</h1>
+        
+        @if (Model.Cart.CartItems?.Any() == true)
+        {
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items">
+                    <div class="cart-header">
+                        <span class="col-product">@(isArabic ? "المنتج" : "Product")</span>
+                        <span class="col-price">@(isArabic ? "السعر" : "Price")</span>
+                        <span class="col-quantity">@(isArabic ? "الكمية" : "Quantity")</span>
+                        <span class="col-total">@(isArabic ? "الإجمالي" : "Total")</span>
+                        <span class="col-action"></span>
+                    </div>
+                    
+                    @foreach (var item in Model.Cart.CartItems)
+                    {
+                        <div class="cart-item" data-item-id="@item.Id">
+                            <div class="col-product">
+                                <div class="product-info-cart">
+                                    <img src="@(item.Product?.ImageUrl ?? "/images/placeholder.jpg")" alt="@item.Product?.Name" class="product-image-cart" />
+                                    <div class="product-details-cart">
+                                        <h4>@(isArabic ? item.Product?.NameAr : item.Product?.Name)</h4>
+                                        <span class="product-brand-cart">@(isArabic ? item.Product?.BrandAr : item.Product?.Brand)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-price">
+                                <span class="price">$@item.UnitPrice</span>
+                            </div>
+                            <div class="col-quantity">
+                                <div class="quantity-control">
+                                    <form action="/Cart/Update" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="cartItemId" value="@item.Id" />
+                                        <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="qty-btn" @(item.Quantity <= 1 ? "disabled" : "")>-</button>
+                                        <span class="qty-value">@item.Quantity</span>
+                                        <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="qty-btn" @(item.Quantity >= item.Product?.StockQuantity ? "disabled" : "")>+</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-total">
+                                <span class="total-price">$@(item.Quantity * item.UnitPrice)</span>
+                            </div>
+                            <div class="col-action">
+                                <form action="/Cart/Remove" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="cartItemId" value="@item.Id" />
+                                    <button type="submit" class="remove-btn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h3>@(isArabic ? "ملخص الطلب" : "Order Summary")</h3>
+                    
+                    <div class="summary-row">
+                        <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                        <span>$@Model.Total.ToString("F2")</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                        <span>@(Model.Total > 200 ? (isArabic ? "مجاني" : "Free") : "$15.00")</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>@(isArabic ? "الضريبة (5%)" : "Tax (5%)")</span>
+                        <span>$@((Model.Total * 0.05m).ToString("F2"))</span>
+                    </div>
+                    
+                    <!-- Coupon -->
+                    <div class="coupon-section">
+                        <input type="text" id="couponCode" placeholder="@(isArabic ? "كود الخصم" : "Coupon Code")" />
+                        <button class="btn btn-outline" onclick="applyCoupon()">@(isArabic ? "تطبيق" : "Apply")</button>
+                    </div>
+                    
+                    <div class="summary-total">
+                        <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                        <span>$@((Model.Total + (Model.Total > 200 ? 0 : 15) + (Model.Total * 0.05m)).ToString("F2"))</span>
+                    </div>
+                    
+                    <a href="/Cart/Checkout" class="btn btn-primary btn-lg btn-block">
+                        @(isArabic ? "إتمام الشراء" : "Proceed to Checkout")
+                    </a>
+                    
+                    <a href="/Products" class="continue-shopping">
+                        <i class="fas fa-arrow-left"></i>
+                        @(isArabic ? "متابعة التسوق" : "Continue Shopping")
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-cart">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h2>@(isArabic ? "سلة التسوق فارغة" : "Your cart is empty")</h2>
+                <p>@(isArabic ? "لم تقم بإضافة أي منتجات بعد" : "You haven't added any products yet")</p>
+                <a href="/Products" class="btn btn-primary btn-lg">
+                    @(isArabic ? "تسوق الآن" : "Shop Now")
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<style>
+.cart-section {
+    padding: 6rem 0;
+    margin-top: 80px;
+    min-height: 60vh;
+}
+
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+}
+
+.cart-items {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.cart-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(212, 175, 55, 0.1);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #b8b8c8;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 50px;
+    gap: 1rem;
+    padding: 1.5rem;
+    align-items: center;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.product-info-cart {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.product-image-cart {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.product-details-cart h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-brand-cart {
+    color: #6c6c7c;
+    font-size: 0.875rem;
+}
+
+.price, .total-price {
+    font-weight: 600;
+}
+
+.total-price {
+    color: #d4af37;
+}
+
+.quantity-control form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #d4af37;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qty-btn:hover:not(:disabled) {
+    background: #d4af37;
+    color: #0f0f1a;
+}
+
+.qty-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qty-value {
+    min-width: 30px;
+    text-align: center;
+}
+
+.remove-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(231, 76, 60, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #e74c3c;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.remove-btn:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+.cart-summary {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.cart-summary h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: #b8b8c8;
+}
+
+.coupon-section {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.coupon-section input {
+    flex: 1;
+    padding: 0.75rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 1.5rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.summary-total span:last-child {
+    color: #d4af37;
+}
+
+.continue-shopping {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: #b8b8c8;
+    font-size: 0.875rem;
+}
+
+.continue-shopping:hover {
+    color: #d4af37;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-cart-icon {
+    width: 120px;
+    height: 120px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 3rem;
+    color: #d4af37;
+}
+
+.empty-cart h2 {
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 1rem;
+}
+
+.empty-cart p {
+    color: #b8b8c8;
+    margin-bottom: 2rem;
+}
+
+@@media (max-width: 992px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .cart-header {
+        display: none;
+    }
+    
+    .cart-item {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .col-product {
+        grid-column: 1 / -1;
+    }
+}
+</style>

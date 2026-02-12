@@ -1,0 +1,90 @@
+@model List<PerfumeStore.Models.Product>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "المنتجات" : "Products";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? "إدارة المنتجات" : "Products Management")</h1>
+        <p>@(isArabic ? "إدارة وتعديل منتجات المتجر" : "Manage and edit store products")</p>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/CreateProduct" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            @(isArabic ? "إضافة منتج" : "Add Product")
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>@(isArabic ? "الصورة" : "Image")</th>
+                        <th>@(isArabic ? "الاسم" : "Name")</th>
+                        <th>@(isArabic ? "الماركة" : "Brand")</th>
+                        <th>@(isArabic ? "الفئة" : "Category")</th>
+                        <th>@(isArabic ? "السعر" : "Price")</th>
+                        <th>@(isArabic ? "المخزون" : "Stock")</th>
+                        <th>@(isArabic ? "الحالة" : "Status")</th>
+                        <th>@(isArabic ? "الإجراءات" : "Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@product.Name" class="table-img" />
+                            </td>
+                            <td>
+                                <div class="product-name-cell">
+                                    <strong>@(isArabic ? product.NameAr : product.Name)</strong>
+                                    <small>@(isArabic ? product.Name : product.NameAr)</small>
+                                </div>
+                            </td>
+                            <td>@(isArabic ? product.BrandAr : product.Brand)</td>
+                            <td>@(isArabic ? product.Category?.NameAr : product.Category?.Name)</td>
+                            <td>
+                                <div class="price-cell">
+                                    <span class="current-price">$@product.Price</span>
+                                    @if (product.OldPrice.HasValue)
+                                    {
+                                        <span class="old-price">$@product.OldPrice</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="stock-badge @(product.StockQuantity > 10 ? "in-stock" : product.StockQuantity > 0 ? "low-stock" : "out-of-stock")">
+                                    @product.StockQuantity
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge @(product.IsActive ? "active" : "inactive")">
+                                    @(product.IsActive ? (isArabic ? "نشط" : "Active") : (isArabic ? "غير نشط" : "Inactive"))
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/Admin/EditProduct/@product.Id" class="action-btn edit" title="@(isArabic ? "تعديل" : "Edit")">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/Products/Details/@product.Id" class="action-btn view" title="@(isArabic ? "عرض" : "View")" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="action-btn delete" title="@(isArabic ? "حذف" : "Delete")" data-product-id="@product.Id">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

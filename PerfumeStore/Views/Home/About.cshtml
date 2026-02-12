@@ -1,0 +1,331 @@
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "من نحن" : "About Us";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+}
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <div class="about-hero-content">
+            <h1 class="animate-fade-up">@(isArabic ? "قصتنا" : "Our Story")</h1>
+            <p class="animate-fade-up delay-1">@(isArabic ? "رحلة في عالم العطور الفاخرة" : "A journey into the world of luxury perfumes")</p>
+        </div>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="about-section">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-image">
+                <img src="/images/about-store.jpg" alt="Our Store" class="rounded-image" />
+            </div>
+            <div class="about-content">
+                <h2>@(isArabic ? "مرحباً بكم في متجر العطور" : "Welcome to Perfume Store")</h2>
+                <p>
+                    @(isArabic 
+                        ? "منذ أكثر من عقد من الزمان، نسعى لتقديم أرقى العطور العالمية لعملائنا الكرام. نحن نؤمن بأن العطر ليس مجرد رائحة، بل هو تعبير عن الشخصية والأناقة."
+                        : "For over a decade, we have been striving to provide the finest international perfumes to our valued customers. We believe that perfume is not just a scent, but an expression of personality and elegance.")
+                </p>
+                <p>
+                    @(isArabic
+                        ? "نختار منتجاتنا بعناية فائقة من أفضل دور العطور العالمية، ونضمن لكم جودة أصيلة وتجربة تسوق استثنائية."
+                        : "We carefully select our products from the world's best perfume houses, guaranteeing authentic quality and an exceptional shopping experience.")
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>@(isArabic ? "قيمنا" : "Our Values")</h2>
+        </div>
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h3>@(isArabic ? "الجودة" : "Quality")</h3>
+                <p>@(isArabic ? "نقدم فقط منتجات أصلية 100% من أرقى الماركات العالمية" : "We offer only 100% authentic products from the finest international brands")</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>@(isArabic ? "الشغف" : "Passion")</h3>
+                <p>@(isArabic ? "نحب ما نفعله ونسعى لنقل هذا الشغف لعملائنا" : "We love what we do and strive to share this passion with our customers")</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>@(isArabic ? "الخدمة" : "Service")</h3>
+                <p>@(isArabic ? "فريق متخصص لمساعدتك في اختيار العطر المثالي" : "A specialized team to help you choose the perfect fragrance")</p>
+            </div>
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h3>@(isArabic ? "التميز" : "Excellence")</h3>
+                <p>@(isArabic ? "نسعى دائماً لتجاوز توقعات عملائنا" : "We always strive to exceed our customers' expectations")</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number" data-count="10">10+</span>
+                <span class="stat-label">@(isArabic ? "سنوات خبرة" : "Years Experience")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count="500">500+</span>
+                <span class="stat-label">@(isArabic ? "منتج" : "Products")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count="10000">10K+</span>
+                <span class="stat-label">@(isArabic ? "عميل سعيد" : "Happy Customers")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count="50">50+</span>
+                <span class="stat-label">@(isArabic ? "ماركة عالمية" : "Global Brands")</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>@(isArabic ? "فريقنا" : "Our Team")</h2>
+        </div>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-image">
+                    <img src="/images/team-1.jpg" alt="Team Member" />
+                </div>
+                <div class="team-info">
+                    <h4>@(isArabic ? "أحمد محمد" : "Ahmed Mohamed")</h4>
+                    <p>@(isArabic ? "المؤسس والرئيس التنفيذي" : "Founder & CEO")</p>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-image">
+                    <img src="/images/team-2.jpg" alt="Team Member" />
+                </div>
+                <div class="team-info">
+                    <h4>@(isArabic ? "سارة أحمد" : "Sara Ahmed")</h4>
+                    <p>@(isArabic ? "مديرة التسويق" : "Marketing Director")</p>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-image">
+                    <img src="/images/team-3.jpg" alt="Team Member" />
+                </div>
+                <div class="team-info">
+                    <h4>@(isArabic ? "محمد علي" : "Mohamed Ali")</h4>
+                    <p>@(isArabic ? "خبير العطور" : "Perfume Expert")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.about-hero {
+    height: 400px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 80px;
+}
+
+.about-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.about-hero p {
+    color: #b8b8c8;
+    font-size: 1.25rem;
+}
+
+.about-section {
+    padding: 5rem 0;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.about-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.about-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #d4af37;
+}
+
+.about-content p {
+    color: #b8b8c8;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.values-section {
+    padding: 5rem 0;
+    background: #0a0a12;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.value-card {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.value-card:hover {
+    border-color: #d4af37;
+    transform: translateY(-5px);
+}
+
+.value-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: #d4af37;
+}
+
+.value-card h3 {
+    margin-bottom: 0.5rem;
+}
+
+.value-card p {
+    color: #b8b8c8;
+    font-size: 0.9rem;
+}
+
+.stats-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 2rem;
+}
+
+.stat-number {
+    display: block;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #d4af37;
+    font-family: 'Playfair Display', serif;
+}
+
+.stat-label {
+    color: #b8b8c8;
+    font-size: 1rem;
+}
+
+.team-section {
+    padding: 5rem 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.team-card {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    border-color: #d4af37;
+}
+
+.team-image img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.team-info {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.team-info h4 {
+    margin-bottom: 0.25rem;
+}
+
+.team-info p {
+    color: #d4af37;
+    font-size: 0.9rem;
+}
+
+@@media (max-width: 768px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>

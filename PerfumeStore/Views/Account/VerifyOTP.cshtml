@@ -1,0 +1,384 @@
+@model PerfumeStore.ViewModels.OTPVerificationViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "التحقق من OTP" : "OTP Verification";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="@System.Globalization.CultureInfo.CurrentCulture.Name" dir="@(isArabic ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Perfume Store</title>
+    <link rel="stylesheet" href="~/css/auth.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <!-- Left Side - Visual -->
+        <div class="auth-left">
+            <div class="auth-brand">
+                <a href="/" class="logo">
+                    <span class="logo-text">Perfume</span>
+                    <span class="logo-accent">Store</span>
+                </a>
+            </div>
+
+            <div class="auth-illustration">
+                <div class="perfume-scene">
+                    <div class="otp-icon-large">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <div class="sparkles"></div>
+                </div>
+            </div>
+
+            <div class="auth-features">
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>@(isArabic ? "حماية متقدمة" : "Advanced Security")</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <span>@(isArabic ? "صلاحية 5 دقائق" : "5 minutes valid")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Form -->
+        <div class="auth-right">
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <div class="otp-badge">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h1>@(isArabic ? "التحقق من الرمز" : "Verify Code")</h1>
+                    <p>
+                        @(isArabic ? "أدخل الرمز المرسل إلى" : "Enter the code sent to")
+                        <br>
+                        <strong style="color: var(--primary);">@Model.Email</strong>
+                    </p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>@(isArabic ? "الرمز غير صحيح أو منتهي الصلاحية" : "Invalid or expired code")</span>
+                    </div>
+                }
+
+                <form asp-action="VerifyOTP" method="post" class="auth-form" id="otpForm">
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="Purpose" />
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
+                    <div class="otp-input-container">
+                        <div class="otp-inputs">
+                            @for (int i = 0; i < 6; i++)
+                            {
+                                <input type="text" maxlength="1" class="otp-input" data-index="@i" inputmode="numeric" pattern="[0-9]" />
+                            }
+                        </div>
+                        <input type="hidden" asp-for="OTPCode" id="otpCode" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>@(isArabic ? "تأكيد الرمز" : "Verify Code")</span>
+                        <i class="fas fa-check"></i>
+                    </button>
+                </form>
+
+                <div class="otp-resend">
+                    <p>@(isArabic ? "لم تستلم الرمز؟" : "Didn't receive the code?")</p>
+                    <button type="button" class="resend-btn" id="resendBtn" data-email="@Model.Email" data-purpose="@Model.Purpose">
+                        <i class="fas fa-paper-plane"></i>
+                        @(isArabic ? "إعادة الإرسال" : "Resend Code")
+                    </button>
+                    <div class="resend-timer" id="resendTimer">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span id="timerCount">60</span> @(isArabic ? "ثانية" : "seconds")
+                    </div>
+                </div>
+
+                <div class="auth-footer">
+                    <a href="/Account/Login" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-arrow-left"></i>
+                        @(isArabic ? "العودة لتسجيل الدخول" : "Back to Login")
+                    </a>
+                </div>
+
+                <div class="language-toggle">
+                    <a href="/Home/SetLanguage?culture=ar&returnUrl=/Account/VerifyOTP" class="@(isArabic ? "active" : "")">العربية</a>
+                    <span>|</span>
+                    <a href="/Home/SetLanguage?culture=en&returnUrl=/Account/VerifyOTP" class="@(!isArabic ? "active" : "")">English</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .otp-icon-large {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, rgba(201, 169, 98, 0.2) 0%, rgba(201, 169, 98, 0.05) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(201, 169, 98, 0.3);
+            animation: pulseOtp 3s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(201, 169, 98, 0.2);
+        }
+
+        @@keyframes pulseOtp {
+            0%, 100%
+
+        {
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 0 60px rgba(201, 169, 98, 0.2);
+        }
+
+        50% {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 0 80px rgba(201, 169, 98, 0.3);
+        }
+
+        }
+
+        .otp-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            direction: ltr;
+        }
+
+        .otp-input {
+            width: 52px;
+            height: 62px;
+            background: var(--bg-input);
+            border: 2px solid var(--border-light);
+            border-radius: 14px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: inherit;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            caret-color: var(--primary);
+        }
+
+            .otp-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.2);
+                transform: translateY(-2px);
+            }
+
+            .otp-input:not(:placeholder-shown) {
+                border-color: var(--primary);
+            }
+
+        .resend-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(201, 169, 98, 0.1);
+            border: 1px solid rgba(201, 169, 98, 0.3);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .resend-btn:hover {
+                background: rgba(201, 169, 98, 0.2);
+                border-color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .resend-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        #timerCount {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .auth-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+            .auth-footer a:hover {
+                color: var(--primary);
+            }
+
+        body[dir="rtl"] .auth-footer i {
+            transform: rotate(180deg);
+        }
+    </style>
+
+    <script>
+        // OTP Input Handler
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpCodeInput = document.getElementById('otpCode');
+        const isArabic = '@isArabic' === 'True';
+
+        // Focus first input on load
+        otpInputs[0].focus();
+
+        otpInputs.forEach((input, index) => {
+            // Handle input
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                e.target.value = value;
+
+                if (value.length === 1) {
+                    // Add filled animation
+                    e.target.style.transform = 'scale(1.1)';
+                    setTimeout(() => e.target.style.transform = '', 150);
+
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                }
+                updateOtpCode();
+
+                // Auto submit when all filled
+                if (otpCodeInput.value.length === 6) {
+                    document.getElementById('otpForm').submit();
+                }
+            });
+
+            // Handle backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                    otpInputs[index - 1].value = '';
+                    updateOtpCode();
+                }
+
+                // Handle arrow keys
+                if (e.key === 'ArrowLeft' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+                if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = paste.replace(/\D/g, '').slice(0, 6);
+                digits.split('').forEach((digit, i) => {
+                    if (otpInputs[i]) {
+                        otpInputs[i].value = digit;
+                    }
+                });
+                updateOtpCode();
+
+                // Auto submit when pasted
+                if (digits.length === 6) {
+                    document.getElementById('otpForm').submit();
+                }
+            });
+
+            // Select all on focus
+            input.addEventListener('focus', (e) => {
+                e.target.select();
+            });
+        });
+
+        function updateOtpCode() {
+            otpCodeInput.value = Array.from(otpInputs).map(input => input.value).join('');
+        }
+
+        // Resend Timer
+        const resendBtn = document.getElementById('resendBtn');
+        const timerDiv = document.getElementById('resendTimer');
+        const timerCount = document.getElementById('timerCount');
+        let countdown = 60;
+
+        resendBtn.style.display = 'none';
+
+        const timer = setInterval(() => {
+            countdown--;
+            timerCount.textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(timer);
+                timerDiv.style.display = 'none';
+                resendBtn.style.display = 'inline-flex';
+            }
+        }, 1000);
+
+        resendBtn.addEventListener('click', async () => {
+            const email = resendBtn.dataset.email;
+            const purpose = resendBtn.dataset.purpose;
+
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (isArabic ? 'جاري الإرسال...' : 'Sending...');
+            resendBtn.disabled = true;
+
+            try {
+                const response = await fetch('/Account/ResendOTP', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, purpose })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(isArabic ? 'تم إرسال الرمز بنجاح' : 'Code sent successfully');
+                    location.reload();
+                } else {
+                    alert(result.message || (isArabic ? 'حدث خطأ' : 'An error occurred'));
+                    resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + (isArabic ? 'إعادة الإرسال' : 'Resend Code');
+                    resendBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(isArabic ? 'حدث خطأ في الاتصال' : 'Connection error');
+                resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ' + (isArabic ? 'إعادة الإرسال' : 'Resend Code');
+                resendBtn.disabled = false;
+            }
+        });
+
+        // Form Submit Animation
+        document.getElementById('otpForm').addEventListener('submit', function() {
+            const btn = this.querySelector('.btn-primary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>' + (isArabic ? 'جاري التحقق...' : 'Verifying...') + '</span>';
+        });
+    </script>
+</body>
+</html>

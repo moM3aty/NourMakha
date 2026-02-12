@@ -1,0 +1,264 @@
+@model PerfumeStore.Models.Order
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تفاصيل الطلب" : "Order Details";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? $"تفاصيل الطلب #{Model.Id}" : $"Order #{Model.Id} Details")</h1>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/Invoice/@Model.Id" class="btn btn-outline" target="_blank">
+            <i class="fas fa-print"></i>
+            @(isArabic ? "طباعة الفاتورة" : "Print Invoice")
+        </a>
+    </div>
+</div>
+
+<div class="order-details-grid">
+    <!-- Order Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-info-circle"></i> @(isArabic ? "معلومات الطلب" : "Order Information")</h3>
+        </div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>@(isArabic ? "رقم الطلب" : "Order ID")</label>
+                    <span>#@Model.Id</span>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "التاريخ" : "Date")</label>
+                    <span>@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "الحالة" : "Status")</label>
+                    <form action="/Admin/UpdateOrderStatus" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        <select name="status" onchange="this.form.submit()" class="status-select @Model.Status.ToLower()">
+                            <option value="Pending" selected="@(Model.Status == "Pending")">@(isArabic ? "قيد الانتظار" : "Pending")</option>
+                            <option value="Confirmed" selected="@(Model.Status == "Confirmed")">@(isArabic ? "مؤكد" : "Confirmed")</option>
+                            <option value="Processing" selected="@(Model.Status == "Processing")">@(isArabic ? "قيد المعالجة" : "Processing")</option>
+                            <option value="Shipped" selected="@(Model.Status == "Shipped")">@(isArabic ? "تم الشحن" : "Shipped")</option>
+                            <option value="Delivered" selected="@(Model.Status == "Delivered")">@(isArabic ? "تم التسليم" : "Delivered")</option>
+                            <option value="Cancelled" selected="@(Model.Status == "Cancelled")">@(isArabic ? "ملغي" : "Cancelled")</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "طريقة الدفع" : "Payment Method")</label>
+                    <span>@(Model.PaymentMethod ?? "Cash on Delivery")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-user"></i> @(isArabic ? "معلومات العميل" : "Customer Information")</h3>
+        </div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>@(isArabic ? "الاسم" : "Name")</label>
+                    <span>@Model.ShippingFirstName @Model.ShippingLastName</span>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "البريد الإلكتروني" : "Email")</label>
+                    <span>@Model.User?.Email</span>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "الهاتف" : "Phone")</label>
+                    <span>@Model.ShippingPhone</span>
+                </div>
+                <div class="info-item">
+                    <label>@(isArabic ? "العنوان" : "Address")</label>
+                    <span>@Model.ShippingAddress, @Model.ShippingCity, @Model.ShippingCountry</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Items -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-box"></i> @(isArabic ? "المنتجات" : "Items")</h3>
+    </div>
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>@(isArabic ? "المنتج" : "Product")</th>
+                    <th>@(isArabic ? "السعر" : "Price")</th>
+                    <th>@(isArabic ? "الكمية" : "Qty")</th>
+                    <th>@(isArabic ? "الإجمالي" : "Total")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;" />
+                                <span>@item.ProductName</span>
+                            </div>
+                        </td>
+                        <td>$@item.UnitPrice</td>
+                        <td>@item.Quantity</td>
+                        <td><strong>$@item.TotalPrice</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Order Summary -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-receipt"></i> @(isArabic ? "ملخص الفاتورة" : "Invoice Summary")</h3>
+    </div>
+    <div class="card-body">
+        <div class="invoice-summary">
+            <div class="summary-row">
+                <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                <span>$@Model.TotalAmount</span>
+            </div>
+            <div class="summary-row">
+                <span>@(isArabic ? "الخصم" : "Discount")</span>
+                <span class="discount">-$@Model.DiscountAmount</span>
+            </div>
+            <div class="summary-row">
+                <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                <span>$@Model.ShippingCost</span>
+            </div>
+            <div class="summary-row">
+                <span>@(isArabic ? "الضريبة" : "Tax")</span>
+                <span>$@Model.TaxAmount</span>
+            </div>
+            <div class="summary-total">
+                <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                <span>$@Model.GrandTotal</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Notes))
+{
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-sticky-note"></i> @(isArabic ? "ملاحظات" : "Notes")</h3>
+        </div>
+        <div class="card-body">
+            <p>@Model.Notes</p>
+        </div>
+    </div>
+}
+
+<style>
+    .order-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+        .info-item label {
+            font-size: 0.75rem;
+            color: #6c6c7c;
+            text-transform: uppercase;
+        }
+
+    .status-select {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+    }
+
+        .status-select.pending {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .status-select.confirmed {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
+        .status-select.processing {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+        }
+
+        .status-select.shipped {
+            background: rgba(230, 126, 34, 0.2);
+            color: #e67e22;
+        }
+
+        .status-select.delivered {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .status-select.cancelled {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+    .invoice-summary {
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+        .summary-row .discount {
+            color: #2ecc71;
+        }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+        .summary-total span:last-child {
+            color: #d4af37;
+        }
+
+    @@media (max-width: 992px) {
+        .order-details-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }</style>

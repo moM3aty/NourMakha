@@ -1,0 +1,363 @@
+@model PerfumeStore.ViewModels.ProductViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إضافة منتج جديد" : "Add New Product";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? "إضافة منتج جديد" : "Add New Product")</h1>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/Products" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i>
+            @(isArabic ? "العودة" : "Back")
+        </a>
+    </div>
+</div>
+
+<form asp-action="CreateProduct" method="post" enctype="multipart/form-data" class="product-form">
+    @Html.AntiForgeryToken()
+    
+    <div class="form-grid">
+        <!-- Basic Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-info-circle"></i> @(isArabic ? "معلومات أساسية" : "Basic Information")</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label asp-for="Name">@(isArabic ? "اسم المنتج (إنجليزي)" : "Product Name (English)") *</label>
+                    <input asp-for="Name" required />
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="NameAr">@(isArabic ? "اسم المنتج (عربي)" : "Product Name (Arabic)")</label>
+                    <input asp-for="NameAr" dir="rtl" />
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Brand">@(isArabic ? "الماركة (إنجليزي)" : "Brand (English)") *</label>
+                        <input asp-for="Brand" required />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="BrandAr">@(isArabic ? "الماركة (عربي)" : "Brand (Arabic)")</label>
+                        <input asp-for="BrandAr" dir="rtl" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="CategoryId">@(isArabic ? "الفئة" : "Category") *</label>
+                    <select asp-for="CategoryId" required>
+                        <option value="">@(isArabic ? "اختر الفئة" : "Select Category")</option>
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-dollar-sign"></i> @(isArabic ? "السعر والمخزون" : "Pricing & Stock")</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Price">@(isArabic ? "السعر" : "Price") *</label>
+                        <input asp-for="Price" type="number" step="0.01" required />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="OldPrice">@(isArabic ? "السعر القديم" : "Old Price")</label>
+                        <input asp-for="OldPrice" type="number" step="0.01" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="StockQuantity">@(isArabic ? "الكمية المتوفرة" : "Stock Quantity") *</label>
+                    <input asp-for="StockQuantity" type="number" required />
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-cog"></i> @(isArabic ? "تفاصيل المنتج" : "Product Details")</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Size">@(isArabic ? "الحجم" : "Size")</label>
+                        <select asp-for="Size">
+                            <option value="">@(isArabic ? "اختر" : "Select")</option>
+                            <option value="30ml">30ml</option>
+                            <option value="50ml">50ml</option>
+                            <option value="75ml">75ml</option>
+                            <option value="100ml">100ml</option>
+                            <option value="125ml">125ml</option>
+                            <option value="200ml">200ml</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Gender">@(isArabic ? "الجنس" : "Gender")</label>
+                        <select asp-for="Gender">
+                            <option value="">@(isArabic ? "اختر" : "Select")</option>
+                            <option value="Men">@(isArabic ? "رجالي" : "Men")</option>
+                            <option value="Women">@(isArabic ? "نسائي" : "Women")</option>
+                            <option value="Unisex">@(isArabic ? "للجنسين" : "Unisex")</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Concentration">@(isArabic ? "التركيز" : "Concentration")</label>
+                        <select asp-for="Concentration">
+                            <option value="">@(isArabic ? "اختر" : "Select")</option>
+                            <option value="Parfum">Parfum</option>
+                            <option value="EDP">EDP (Eau de Parfum)</option>
+                            <option value="EDT">EDT (Eau de Toilette)</option>
+                            <option value="EDC">EDC (Eau de Cologne)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ScentFamily">@(isArabic ? "عائلة الرائحة" : "Scent Family")</label>
+                        <select asp-for="ScentFamily">
+                            <option value="">@(isArabic ? "اختر" : "Select")</option>
+                            <option value="Oud">@(isArabic ? "عود" : "Oud")</option>
+                            <option value="Floral">@(isArabic ? "زهر" : "Floral")</option>
+                            <option value="Woody">@(isArabic ? "خشبي" : "Woody")</option>
+                            <option value="Oriental">@(isArabic ? "شرقي" : "Oriental")</option>
+                            <option value="Fresh">@(isArabic ? "منعش" : "Fresh")</option>
+                            <option value="Citrus">@(isArabic ? "حمضيات" : "Citrus")</option>
+                            <option value="Aquatic">@(isArabic ? "مائي" : "Aquatic")</option>
+                            <option value="Leather">@(isArabic ? "جلد" : "Leather")</option>
+                            <option value="Amber">@(isArabic ? "عنبر" : "Amber")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="card full-width">
+            <div class="card-header">
+                <h3><i class="fas fa-align-left"></i> @(isArabic ? "الوصف" : "Description")</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label asp-for="Description">@(isArabic ? "الوصف (إنجليزي)" : "Description (English)")</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DescriptionAr">@(isArabic ? "الوصف (عربي)" : "Description (Arabic)")</label>
+                    <textarea asp-for="DescriptionAr" rows="4" dir="rtl"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image & Status -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-image"></i> @(isArabic ? "صورة المنتج" : "Product Image")</h3>
+            </div>
+            <div class="card-body">
+                <div class="image-upload">
+                    <input type="file" name="image" id="imageInput" accept="image/*" />
+                    <label for="imageInput" class="upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>@(isArabic ? "اختر صورة أو اسحبها هنا" : "Choose image or drag here")</span>
+                    </label>
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-toggle-on"></i> @(isArabic ? "الحالة" : "Status")</h3>
+            </div>
+            <div class="card-body">
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input asp-for="IsActive" checked />
+                        <span class="checkmark"></span>
+                        @(isArabic ? "نشط" : "Active")
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input asp-for="IsFeatured" />
+                        <span class="checkmark"></span>
+                        @(isArabic ? "مميز" : "Featured")
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input asp-for="IsNewArrival" />
+                        <span class="checkmark"></span>
+                        @(isArabic ? "وصل حديثاً" : "New Arrival")
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-save"></i>
+            @(isArabic ? "حفظ المنتج" : "Save Product")
+        </button>
+    </div>
+</form>
+
+<style>
+.product-form {
+    max-width: 1200px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #d4af37;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.image-upload {
+    position: relative;
+}
+
+.image-upload input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 2px dashed rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-label:hover {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.upload-label i {
+    font-size: 2rem;
+    color: #d4af37;
+}
+
+.image-preview {
+    margin-top: 1rem;
+}
+
+.image-preview img {
+    max-width: 200px;
+    border-radius: 8px;
+}
+
+.checkbox-group {
+    margin-bottom: 0.75rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    width: 18px;
+    height: 18px;
+    accent-color: #d4af37;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+@@media (max-width: 992px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>

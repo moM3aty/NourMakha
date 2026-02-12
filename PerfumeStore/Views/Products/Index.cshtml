@@ -1,0 +1,335 @@
+@model PerfumeStore.Controllers.ProductListViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "المنتجات" : "Products";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+}
+
+<!-- Products Page -->
+<section class="products-page">
+    <div class="container">
+        <div class="products-layout">
+            <!-- Sidebar Filters -->
+            <aside class="filters-sidebar">
+                <div class="filter-section">
+                    <h4>@(isArabic ? "البحث" : "Search")</h4>
+                    <form method="get" class="search-form">
+                        <input type="text" name="searchTerm" value="@Model.Filter.SearchTerm" placeholder="@(isArabic ? "ابحث..." : "Search...")" />
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <div class="filter-section">
+                    <h4>@(isArabic ? "الفئات" : "Categories")</h4>
+                    <ul class="filter-list">
+                        <li>
+                            <a href="@Url.Action("Index", new { searchTerm = Model.Filter.SearchTerm, gender = Model.Filter.Gender })" class="@(!Model.Filter.CategoryId.HasValue ? "active" : "")">
+                                @(isArabic ? "الكل" : "All")
+                            </a>
+                        </li>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <li>
+                                <a href="@Url.Action("Index", new { categoryId = category.Id, searchTerm = Model.Filter.SearchTerm, gender = Model.Filter.Gender })" class="@(Model.Filter.CategoryId == category.Id ? "active" : "")">
+                                    @(isArabic ? category.NameAr : category.Name)
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                
+                <div class="filter-section">
+                    <h4>@(isArabic ? "الجنس" : "Gender")</h4>
+                    <ul class="filter-list">
+                        <li>
+                            <a href="@Url.Action("Index", new { categoryId = Model.Filter.CategoryId, searchTerm = Model.Filter.SearchTerm })" class="@(string.IsNullOrEmpty(Model.Filter.Gender) ? "active" : "")">
+                                @(isArabic ? "الكل" : "All")
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", new { categoryId = Model.Filter.CategoryId, searchTerm = Model.Filter.SearchTerm, gender = "Men" })" class="@(Model.Filter.Gender == "Men" ? "active" : "")">
+                                @(isArabic ? "رجالي" : "Men")
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", new { categoryId = Model.Filter.CategoryId, searchTerm = Model.Filter.SearchTerm, gender = "Women" })" class="@(Model.Filter.Gender == "Women" ? "active" : "")">
+                                @(isArabic ? "نسائي" : "Women")
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Index", new { categoryId = Model.Filter.CategoryId, searchTerm = Model.Filter.SearchTerm, gender = "Unisex" })" class="@(Model.Filter.Gender == "Unisex" ? "active" : "")">
+                                @(isArabic ? "للجنسين" : "Unisex")
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="filter-section">
+                    <h4>@(isArabic ? "نطاق السعر" : "Price Range")</h4>
+                    <div class="price-inputs">
+                        <input type="number" name="minPrice" placeholder="@(isArabic ? "من" : "Min")" value="@Model.Filter.MinPrice" />
+                        <span>-</span>
+                        <input type="number" name="maxPrice" placeholder="@(isArabic ? "إلى" : "Max")" value="@Model.Filter.MaxPrice" />
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Products Grid -->
+            <div class="products-content">
+                <div class="products-header">
+                    <p class="results-count">@(isArabic ? $"{Model.TotalItems} منتج" : $"{Model.TotalItems} Products")</p>
+                    <div class="sort-dropdown">
+                        <label>@(isArabic ? "ترتيب حسب:" : "Sort by:")</label>
+                        <select name="sortBy" onchange="window.location.href = updateUrlParameter('sortBy', this.value)">
+                            <option value="">@(isArabic ? "الافتراضي" : "Default")</option>
+                            <option value="price-low" selected="@(Model.Filter.SortBy == "price-low")">@(isArabic ? "السعر: من الأقل" : "Price: Low to High")</option>
+                            <option value="price-high" selected="@(Model.Filter.SortBy == "price-high")">@(isArabic ? "السعر: من الأعلى" : "Price: High to Low")</option>
+                            <option value="name" selected="@(Model.Filter.SortBy == "name")">@(isArabic ? "الاسم" : "Name")</option>
+                            <option value="newest" selected="@(Model.Filter.SortBy == "newest")">@(isArabic ? "الأحدث" : "Newest")</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="products-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic ? product.NameAr : product.Name)" />
+                                @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+                                {
+                                    var discount = Math.Round((1 - (product.Price / product.OldPrice.Value)) * 100);
+                                    <span class="product-badge sale">-@discount%</span>
+                                }
+                                @if (product.IsNewArrival)
+                                {
+                                    <span class="product-badge new">@(isArabic ? "جديد" : "New")</span>
+                                }
+                                <div class="product-actions">
+                                    <button class="action-btn wishlist-btn" onclick="toggleWishlist(@product.Id)">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <a href="/Products/Details/@product.Id" class="action-btn">
+                                        <i class="far fa-eye"></i>
+                                    </a>
+                                    <button class="action-btn add-to-cart-btn" onclick="addToCart(@product.Id)">
+                                        <i class="fas fa-shopping-bag"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <span class="product-brand">@(isArabic ? product.BrandAr : product.Brand)</span>
+                                <h3 class="product-name">
+                                    <a href="/Products/Details/@product.Id">@(isArabic ? product.NameAr : product.Name)</a>
+                                </h3>
+                                <div class="product-price">
+                                    <span class="current-price">$@product.Price</span>
+                                    @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+                                    {
+                                        <span class="old-price">$@product.OldPrice</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="pagination">
+                        @if (Model.Filter.Page > 1)
+                        {
+                            <a href="@Url.Action("Index", new { page = Model.Filter.Page - 1, categoryId = Model.Filter.CategoryId, gender = Model.Filter.Gender, searchTerm = Model.Filter.SearchTerm, sortBy = Model.Filter.SortBy })" class="page-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        }
+                        
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == 1 || i == Model.TotalPages || (i >= Model.Filter.Page - 2 && i <= Model.Filter.Page + 2))
+                            {
+                                <a href="@Url.Action("Index", new { page = i, categoryId = Model.Filter.CategoryId, gender = Model.Filter.Gender, searchTerm = Model.Filter.SearchTerm, sortBy = Model.Filter.SortBy })" class="page-btn @(i == Model.Filter.Page ? "active" : "")">@i</a>
+                            }
+                            else if (i == Model.Filter.Page - 3 || i == Model.Filter.Page + 3)
+                            {
+                                <span class="page-dots">...</span>
+                            }
+                        }
+                        
+                        @if (Model.Filter.Page < Model.TotalPages)
+                        {
+                            <a href="@Url.Action("Index", new { page = Model.Filter.Page + 1, categoryId = Model.Filter.CategoryId, gender = Model.Filter.Gender, searchTerm = Model.Filter.SearchTerm, sortBy = Model.Filter.SortBy })" class="page-btn">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.products-page {
+    padding: 6rem 0;
+    margin-top: 80px;
+}
+
+.products-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+}
+
+.filters-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.filter-section {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-section h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #d4af37;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 0.75rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+}
+
+.search-form button {
+    width: 44px;
+    background: #d4af37;
+    border: none;
+    border-radius: 8px;
+    color: #0f0f1a;
+    cursor: pointer;
+}
+
+.filter-list {
+    list-style: none;
+}
+
+.filter-list li {
+    margin-bottom: 0.5rem;
+}
+
+.filter-list a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    color: #b8b8c8;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.filter-list a:hover,
+.filter-list a.active {
+    background: rgba(212, 175, 55, 0.1);
+    color: #d4af37;
+}
+
+.price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-inputs input {
+    flex: 1;
+    padding: 0.75rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    width: 100%;
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.results-count {
+    color: #b8b8c8;
+}
+
+.sort-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-dropdown select {
+    padding: 0.5rem 1rem;
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #fff;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.page-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 8px;
+    color: #b8b8c8;
+    transition: all 0.2s;
+}
+
+.page-btn:hover,
+.page-btn.active {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #0f0f1a;
+}
+
+.page-dots {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c6c7c;
+}
+
+@@media (max-width: 992px) {
+    .products-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-sidebar {
+        position: static;
+    }
+}
+</style>

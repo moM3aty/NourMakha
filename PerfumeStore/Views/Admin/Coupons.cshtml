@@ -1,0 +1,113 @@
+@model List<PerfumeStore.Models.Coupon>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "الكوبونات" : "Coupons";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <div class="header-left">
+        <h1>@(isArabic ? "إدارة الكوبونات" : "Coupons Management")</h1>
+    </div>
+    <div class="header-right">
+        <a href="/Admin/CreateCoupon" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            @(isArabic ? "إضافة كوبون" : "Add Coupon")
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>@(isArabic ? "الكود" : "Code")</th>
+                    <th>@(isArabic ? "نوع الخصم" : "Type")</th>
+                    <th>@(isArabic ? "القيمة" : "Value")</th>
+                    <th>@(isArabic ? "الحد الأدنى" : "Min. Order")</th>
+                    <th>@(isArabic ? "الاستخدام" : "Usage")</th>
+                    <th>@(isArabic ? "الصلاحية" : "Validity")</th>
+                    <th>@(isArabic ? "الحالة" : "Status")</th>
+                    <th>@(isArabic ? "الإجراءات" : "Actions")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var coupon in Model)
+                {
+                    var isActive = coupon.IsActive && (!coupon.EndDate.HasValue || coupon.EndDate > DateTime.Now);
+                    <tr>
+                        <td><strong class="coupon-code">@coupon.Code</strong></td>
+                        <td>
+                            <span class="type-badge @coupon.DiscountType.ToLower()">
+                                @(coupon.DiscountType == "Percentage" ? (isArabic ? "نسبة مئوية" : "Percentage") : (isArabic ? "مبلغ ثابت" : "Fixed"))
+                            </span>
+                        </td>
+                        <td>
+                            @if (coupon.DiscountType == "Percentage")
+                            {
+                                <span>@coupon.DiscountValue%</span>
+                            }
+                            else
+                            {
+                                <span>$@coupon.DiscountValue</span>
+                            }
+                        </td>
+                        <td>$@(coupon.MinimumOrderAmount ?? 0)</td>
+                        <td>@coupon.UsedCount / @(coupon.UsageLimit?.ToString() ?? "∞")</td>
+                        <td>
+                            @if (coupon.EndDate.HasValue)
+                            {
+                                @coupon.EndDate.Value.ToString("MMM dd, yyyy")
+                            }
+                            else
+                            {
+                                <span>@(isArabic ? "غير محدود" : "Unlimited")</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="status-badge @(isActive ? "active" : "inactive")">
+                                @(isActive ? (isArabic ? "نشط" : "Active") : (isArabic ? "غير نشط" : "Inactive"))
+                            </span>
+                        </td>
+                        <td>
+                            <form action="/Admin/DeleteCoupon/@coupon.Id" method="post" style="display: inline;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="action-btn delete" onclick="return confirm('@(isArabic ? "هل أنت متأكد؟" : "Are you sure?")')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.coupon-code {
+    font-family: monospace;
+    font-size: 1rem;
+    background: rgba(212, 175, 55, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: #d4af37;
+}
+
+.type-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+}
+
+.type-badge.percentage {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.type-badge.fixed {
+    background: rgba(52, 152, 219, 0.2);
+    color: #3498db;
+}
+</style>

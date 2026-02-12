@@ -1,0 +1,366 @@
+@model PerfumeStore.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إتمام الشراء" : "Checkout";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+}
+
+<section class="checkout-section">
+    <div class="container">
+        <h1 class="page-title">@(isArabic ? "إتمام الشراء" : "Checkout")</h1>
+        
+        <form asp-action="Checkout" method="post" class="checkout-form">
+            @Html.AntiForgeryToken()
+            
+            <div class="checkout-layout">
+                <!-- Checkout Details -->
+                <div class="checkout-details">
+                    <!-- Shipping Information -->
+                    <div class="checkout-card">
+                        <h3><i class="fas fa-truck"></i> @(isArabic ? "معلومات الشحن" : "Shipping Information")</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="FirstName">@(isArabic ? "الاسم الأول" : "First Name") *</label>
+                                <input asp-for="FirstName" required />
+                                <span asp-validation-for="FirstName" class="error-text"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="LastName">@(isArabic ? "الاسم الأخير" : "Last Name") *</label>
+                                <input asp-for="LastName" required />
+                                <span asp-validation-for="LastName" class="error-text"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Address">@(isArabic ? "العنوان" : "Address") *</label>
+                            <input asp-for="Address" placeholder="@(isArabic ? "اسم الشارع، رقم المبنى" : "Street name, Building number")" required />
+                            <span asp-validation-for="Address" class="error-text"></span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="City">@(isArabic ? "المدينة" : "City") *</label>
+                                <input asp-for="City" required />
+                                <span asp-validation-for="City" class="error-text"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PostalCode">@(isArabic ? "الرمز البريدي" : "Postal Code")</label>
+                                <input asp-for="PostalCode" />
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="Country">@(isArabic ? "الدولة" : "Country") *</label>
+                                <select asp-for="Country" required>
+                                    <option value="SA">@(isArabic ? "السعودية" : "Saudi Arabia")</option>
+                                    <option value="AE">@(isArabic ? "الإمارات" : "UAE")</option>
+                                    <option value="EG">@(isArabic ? "مصر" : "Egypt")</option>
+                                    <option value="KW">@(isArabic ? "الكويت" : "Kuwait")</option>
+                                    <option value="QA">@(isArabic ? "قطر" : "Qatar")</option>
+                                    <option value="BH">@(isArabic ? "البحرين" : "Bahrain")</option>
+                                    <option value="OM">@(isArabic ? "عمان" : "Oman")</option>
+                                </select>
+                                <span asp-validation-for="Country" class="error-text"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Phone">@(isArabic ? "رقم الهاتف" : "Phone") *</label>
+                                <input asp-for="Phone" type="tel" required />
+                                <span asp-validation-for="Phone" class="error-text"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Notes">@(isArabic ? "ملاحظات" : "Notes")</label>
+                            <textarea asp-for="Notes" rows="3" placeholder="@(isArabic ? "أي تعليمات خاصة للتوصيل..." : "Any special delivery instructions...")"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Method -->
+                    <div class="checkout-card">
+                        <h3><i class="fas fa-credit-card"></i> @(isArabic ? "طريقة الدفع" : "Payment Method")</h3>
+                        
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" asp-for="PaymentMethod" value="CashOnDelivery" checked />
+                                <div class="payment-option-content">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span>@(isArabic ? "الدفع عند الاستلام" : "Cash on Delivery")</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option">
+                                <input type="radio" asp-for="PaymentMethod" value="CreditCard" />
+                                <div class="payment-option-content">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>@(isArabic ? "بطاقة ائتمان" : "Credit Card")</span>
+                                </div>
+                            </label>
+                            
+                            <label class="payment-option">
+                                <input type="radio" asp-for="PaymentMethod" value="PayPal" />
+                                <div class="payment-option-content">
+                                    <i class="fab fa-paypal"></i>
+                                    <span>PayPal</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Coupon -->
+                    <div class="checkout-card">
+                        <h3><i class="fas fa-ticket-alt"></i> @(isArabic ? "كود الخصم" : "Coupon Code")</h3>
+                        <div class="coupon-input">
+                            <input asp-for="CouponCode" placeholder="@(isArabic ? "أدخل كود الخصم" : "Enter coupon code")" />
+                            <button type="button" class="btn btn-outline" onclick="validateCoupon()">@(isArabic ? "تطبيق" : "Apply")</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="checkout-card">
+                        <h3>@(isArabic ? "ملخص الطلب" : "Order Summary")</h3>
+                        
+                        <div class="summary-items">
+                            @* Cart items will be displayed here *@
+                            <div class="summary-item">
+                                <span class="item-name">@(isArabic ? "منتجات السلة" : "Cart Items")</span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                            <span id="shipping">$15.00</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>@(isArabic ? "الضريبة" : "Tax")</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        
+                        <div class="summary-row discount" style="display: none;">
+                            <span>@(isArabic ? "الخصم" : "Discount")</span>
+                            <span id="discount">-$0.00</span>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                            <span id="grandTotal">$0.00</span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-lock"></i>
+                            @(isArabic ? "تأكيد الطلب" : "Place Order")
+                        </button>
+                        
+                        <p class="secure-checkout">
+                            <i class="fas fa-shield-alt"></i>
+                            @(isArabic ? "دفع آمن ومشفر" : "Secure & Encrypted Payment")
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+.checkout-section {
+    padding: 6rem 0;
+    margin-top: 80px;
+}
+
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+}
+
+.checkout-card {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.checkout-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.875rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #d4af37;
+}
+
+.error-text {
+    color: #e74c3c;
+    font-size: 0.75rem;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.payment-option {
+    cursor: pointer;
+}
+
+.payment-option input {
+    display: none;
+}
+
+.payment-option-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.payment-option input:checked + .payment-option-content {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.payment-option-content i {
+    font-size: 1.5rem;
+    color: #d4af37;
+}
+
+.coupon-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.coupon-input input {
+    flex: 1;
+    padding: 0.875rem;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    color: #fff;
+}
+
+.order-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.summary-items {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: #b8b8c8;
+}
+
+.summary-row.discount span:last-child {
+    color: #2ecc71;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.summary-total span:last-child {
+    color: #d4af37;
+}
+
+.secure-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: #6c6c7c;
+    font-size: 0.875rem;
+}
+
+.secure-checkout i {
+    color: #2ecc71;
+}
+
+@@media (max-width: 992px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-summary {
+        position: static;
+    }
+}
+</style>
