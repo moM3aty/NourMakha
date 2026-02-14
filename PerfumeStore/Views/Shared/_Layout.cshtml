@@ -1,36 +1,161 @@
-<!DOCTYPE html>
+@using PerfumeStore.Data
+@inject ApplicationDbContext _context
 @{
-    // التصحيح هنا: استخدام StartsWith بدلاً من المطابقة الكاملة
     var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
     var isArabic = currentCulture.StartsWith("ar");
+
+    // جلب الإعدادات بناءً على اللغة الحالية
+    var settingKey = isArabic ? "AnnouncementBar_Ar" : "AnnouncementBar_En";
+    var announcement = _context.Database.CanConnect()
+        ? _context.SiteSettings.FirstOrDefault(s => s.Key == settingKey)
+        : null;
+
+    var isEnabled = announcement?.IsEnabled ?? false;
+    var announcementText = announcement?.Value ?? "";
+    var hasAnnouncement = isEnabled && !string.IsNullOrEmpty(announcementText);
 }
+<!DOCTYPE html>
 <html lang="@currentCulture" dir="@(isArabic ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - نور للعود والعطور</title>
+    <title>@ViewData["Title"] - NourMakha</title>
+
     <link rel="stylesheet" href="~/css/style.css" />
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-    @await RenderSectionAsync("Styles", required: false)
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Premium Scrolling Announcement Bar --- */
+        :root {
+            --announcement-height: @(hasAnnouncement ? "40px" : "0px");
+        }
+
+        body {
+            /* إزاحة الجسم بالكامل لأسفل بمقدار ارتفاع الشريط */
+            padding-top: var(--announcement-height);
+        }
+
+        .premium-announcement-wrapper {
+            height: var(--announcement-height);
+            background: linear-gradient(90deg, #001f44 0%, #002855 50%, #001f44 100%);
+            color: #ffffff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000; /* أعلى من كل شيء */
+            display: @(hasAnnouncement ? "flex" : "none");
+            align-items: center;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .marquee-container {
+            display: flex;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .marquee-content {
+            display: inline-flex;
+            animation: marquee-scroll 25s linear infinite;
+            padding-inline-start: 100%;
+        }
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 0 50px;
+        }
+
+            .marquee-item i {
+                color: #d4af37; /* لمسة ذهبية خفيفة */
+                font-size: 0.9rem;
+            }
+
+        @@keyframes marquee-scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX( @(isArabic ? "100%" : "-100%") );
+            }
+        }
+
+        /* تعديل الـ Header ليبدأ بعد الشريط */
+        .header {
+            top: var(--announcement-height) !important;
+            transition: top 0.3s ease;
+        }
+
+        /* تحسين مظهر أزرار اللغة والعملة */
+        .header-top-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-currency-select {
+            background: rgba(0, 40, 85, 0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #002855;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="@(isArabic ? "rtl" : "ltr")">
+
+    <!-- Premium Scrolling Bar -->
+    @if (hasAnnouncement)
+    {
+        <div class="premium-announcement-wrapper">
+            <div class="marquee-container">
+                <div class="marquee-content">
+                    <div class="marquee-item">
+                        <i class="fas fa-star"></i>
+                        <span>@announcementText</span>
+                    </div>
+                    <div class="marquee-item">
+                        <i class="fas fa-shipping-fast"></i>
+                        <span>@announcementText</span>
+                    </div>
+                    <div class="marquee-item">
+                        <i class="fas fa-gift"></i>
+                        <span>@announcementText</span>
+                    </div>
+                    <!-- التكرار لضمان اتصال الحركة -->
+                    <div class="marquee-item">
+                        <i class="fas fa-star"></i>
+                        <span>@announcementText</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
             <div class="container nav-container">
                 <a href="/" class="logo">
-                    <img style="padding:10px;width:100px;" src="~/images/logo.png" />
+                    <img src="~/images/logo.png" style="width: 100px; padding: 5px;" alt="NourMakha Logo" />
                 </a>
-
-                <button class="mobile-menu-btn" id="mobileMenuBtn">
-                    <i class="fas fa-bars"></i>
-                </button>
 
                 <div class="nav-menu" id="navMenu">
                     <ul class="nav-list">
-                        <li><a href="/" class="nav-link active">@(isArabic ? "الرئيسية" : "Home")</a></li>
+                        <li><a href="/" class="nav-link">@(isArabic ? "الرئيسية" : "Home")</a></li>
                         <li><a href="/Products" class="nav-link">@(isArabic ? "المنتجات" : "Products")</a></li>
                         <li><a href="/Home/About" class="nav-link">@(isArabic ? "من نحن" : "About")</a></li>
                         <li><a href="/Home/Contact" class="nav-link">@(isArabic ? "تواصل معنا" : "Contact")</a></li>
@@ -38,34 +163,44 @@
                 </div>
 
                 <div class="nav-right">
-                    <div class="language-switcher">
-                        <!-- استخدام نفس المنطق في الأزرار -->
-                        <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(isArabic ? "active" : "")">AR</a>
-                        <span class="lang-divider">|</span>
-                        <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(!isArabic ? "active" : "")">EN</a>
+                    <div class="header-top-nav">
+                        <!-- Currency Selector -->
+                        <select id="globalCurrencySelector" class="nav-currency-select">
+                            <option value="OMR">🇴🇲 OMR</option>
+                            <option value="SAR">🇸🇦 SAR</option>
+                            <option value="USD">🇺🇸 USD</option>
+                        </select>
+
+                        <!-- Language Toggle -->
+                        <div class="language-switcher">
+                            <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(isArabic ? "active" : "")">AR</a>
+                            <span class="lang-divider">|</span>
+                            <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(!isArabic ? "active" : "")">EN</a>
+                        </div>
                     </div>
 
                     <a href="/Cart" class="nav-icon-btn cart-btn">
                         <i class="fas fa-shopping-bag"></i>
-                        <span class="cart-count" id="cartCount">0</span>
+                        <span class="cart-count">0</span>
                     </a>
 
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
-                        <div class="user-dropdown">
-                            <a href="/Account/Profile" class="nav-icon-btn"><i class="fas fa-user"></i></a>
-                        </div>
+                        <a href="/Account/Profile" class="nav-icon-btn"><i class="fas fa-user"></i></a>
                     }
                     else
                     {
                         <a href="/Account/Login" class="nav-icon-btn"><i class="fas fa-user"></i></a>
                     }
+
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
                 </div>
             </div>
         </nav>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
         @RenderBody()
     </main>
@@ -74,15 +209,14 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                <!-- Brand -->
                 <div class="footer-brand">
-                    <a href="/" class="logo" >
+                    <a href="/" class="logo">
                         <img style="padding:10px;width:150px;" src="~/images/logo.png" />
                     </a>
                     <p class="footer-desc">
                         @(isArabic
-                                                ? "نور للعود والعطور، علامة تجارية عمانية رائدة في مجال العود والبخور والعطور الفرنسية."
-                                                : "Nour Oud & Perfumes, a leading Omani brand in Oud, Incense, and French Perfumes.")
+                                                ? "نور مخا للعود والعطور، علامة تجارية عمانية رائدة في مجال العود والبخور والعطور الفرنسية."
+                                                : "NourMakha Oud & Perfumes, a leading Omani brand in Oud, Incense, and French Perfumes.")
                     </p>
                     <div class="social-links">
                         <a href="https://instagram.com/nourperfumes.om" class="social-link"><i class="fab fa-instagram"></i></a>
@@ -90,7 +224,6 @@
                     </div>
                 </div>
 
-                <!-- Policies -->
                 <div class="footer-links">
                     <h4>@(isArabic ? "السياسات" : "Policies")</h4>
                     <ul>
@@ -100,27 +233,25 @@
                     </ul>
                 </div>
 
-                <!-- Branches -->
                 <div class="footer-links">
                     <h4>@(isArabic ? "الفروع" : "Branches")</h4>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt" style="color: #d4af37; margin-left:5px;"></i> @(isArabic ? "الموالح" : "Al Mawaleh")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #d4af37; margin-left:5px;"></i> @(isArabic ? "صور" : "Sur")</li>
+                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-left:5px;"></i> @(isArabic ? "الموالح" : "Al Mawaleh")</li>
+                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-left:5px;"></i> @(isArabic ? "صور" : "Sur")</li>
                     </ul>
                 </div>
 
-                <!-- Contact -->
                 <div class="footer-contact">
                     <h4>@(isArabic ? "تواصل معنا" : "Contact")</h4>
                     <ul>
                         <li><i class="fas fa-phone"></i> 98185589 | 96366332</li>
-                        <li><i class="fas fa-envelope"></i> info@nourperfumes.com</li>
+                        <li><i class="fas fa-envelope"></i> info@nourmakha.com</li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; @DateTime.Now.Year Nour Perfumes. @(isArabic ? "جميع الحقوق محفوظة" : "All rights reserved.")</p>
+                <p>&copy; @DateTime.Now.Year NourMakha. @(isArabic ? "جميع الحقوق محفوظة" : "All rights reserved.")</p>
                 <div class="payment-methods">
                     <i class="fab fa-cc-visa"></i>
                     <i class="fab fa-cc-mastercard"></i>
@@ -133,5 +264,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
-

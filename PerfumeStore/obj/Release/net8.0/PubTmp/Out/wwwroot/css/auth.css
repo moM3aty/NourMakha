@@ -1,18 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap');
 
 :root {
-    --primary: #c9a962;
-    --primary-light: #e8d5a3;
-    --primary-dark: #9a7b3c;
-    --bg-dark: #0a0a0f;
-    --bg-card: rgba(20, 20, 30, 0.85);
-    --bg-input: rgba(30, 30, 45, 0.9);
-    --text-light: #ffffff;
-    --text-muted: #8b8b9e;
-    --border-light: rgba(201, 169, 98, 0.3);
-    --border-focus: rgba(201, 169, 98, 0.6);
-    --success: #4ade80;
-    --error: #f87171;
+    /* Colors - Logo Blue Theme */
+    --primary: #002855; /* Royal Blue */
+    --primary-light: #004080;
+    --primary-dark: #001f44;
+    /* Backgrounds - Light Theme */
+    --bg-dark: #ffffff; /* White Background */
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --bg-input: #f8f9fa;
+    /* Text */
+    --text-light: #212529; /* Dark Text */
+    --text-muted: #6c757d; /* Gray Text */
+    /* Borders */
+    --border-light: rgba(0, 40, 85, 0.15);
+    --border-focus: rgba(0, 40, 85, 0.5);
+    /* Status */
+    --success: #2ecc71;
+    --error: #e74c3c;
 }
 
 * {
@@ -29,12 +34,13 @@ body.auth-page {
     overflow-x: hidden;
 }
 
-/* Background with Image */
+/* Background with Image - Updated Overlay for Light Theme */
 .auth-page::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, rgba(10, 10, 15, 0.92) 0%, rgba(20, 15, 25, 0.88) 50%, rgba(10, 10, 15, 0.95) 100%), url('/images/4.jpg');
+    /* Lighter overlay to keep it fresh */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 244, 248, 0.85) 100%), url('/images/4.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -46,7 +52,7 @@ body.auth-page {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: radial-gradient(2px 2px at 20px 30px, rgba(201, 169, 98, 0.4), transparent), radial-gradient(2px 2px at 40px 70px, rgba(201, 169, 98, 0.3), transparent), radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.3), transparent), radial-gradient(2px 2px at 130px 80px, rgba(201, 169, 98, 0.4), transparent), radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.2), transparent);
+    background-image: radial-gradient(2px 2px at 20px 30px, rgba(0, 40, 85, 0.2), transparent), radial-gradient(2px 2px at 40px 70px, rgba(0, 40, 85, 0.1), transparent), radial-gradient(1px 1px at 90px 40px, rgba(0, 40, 85, 0.1), transparent), radial-gradient(2px 2px at 130px 80px, rgba(0, 40, 85, 0.2), transparent), radial-gradient(1px 1px at 160px 120px, rgba(0, 40, 85, 0.1), transparent);
     background-size: 200px 200px;
     animation: particles 20s linear infinite;
     z-index: -1;
@@ -86,7 +92,7 @@ body.auth-page {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, transparent 0%, rgba(201, 169, 98, 0.05) 100%);
+        background: linear-gradient(180deg, transparent 0%, rgba(0, 40, 85, 0.05) 100%);
         pointer-events: none;
     }
 
@@ -140,7 +146,7 @@ body.auth-page {
     height: 100%;
 }
 
-/* 3D Perfume Bottle */
+/* 3D Perfume Bottle - Updated colors to Blue/Silver/White */
 .floating-bottle {
     position: absolute;
     top: 50%;
@@ -148,9 +154,10 @@ body.auth-page {
     transform: translate(-50%, -50%);
     width: 140px;
     height: 220px;
-    background: linear-gradient(135deg, rgba(201, 169, 98, 0.95) 0%, rgba(232, 213, 163, 1) 25%, rgba(201, 169, 98, 0.9) 50%, rgba(154, 123, 60, 0.95) 100% );
+    /* Blue gradient bottle */
+    background: linear-gradient(135deg, rgba(0, 40, 85, 0.9) 0%, rgba(0, 64, 128, 0.95) 50%, rgba(0, 30, 70, 0.95) 100% );
     border-radius: 30px 30px 50px 50px;
-    box-shadow: 0 0 80px rgba(201, 169, 98, 0.4), 0 25px 50px rgba(0, 0, 0, 0.3), inset 0 -20px 40px rgba(0, 0, 0, 0.1), inset 0 20px 40px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 80px rgba(0, 40, 85, 0.3), 0 25px 50px rgba(0, 0, 0, 0.15), inset 0 -20px 40px rgba(0, 0, 0, 0.2), inset 0 20px 40px rgba(255, 255, 255, 0.3);
     animation: floatBottle 6s ease-in-out infinite;
 }
 
@@ -162,9 +169,10 @@ body.auth-page {
         transform: translateX(-50%);
         width: 60px;
         height: 45px;
-        background: linear-gradient(180deg, #8b7355 0%, #6b5a44 100%);
+        /* Silver cap */
+        background: linear-gradient(180deg, #dceefb 0%, #a8c0d3 100%);
         border-radius: 10px 10px 0 0;
-        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .floating-bottle::after {
@@ -175,7 +183,8 @@ body.auth-page {
         transform: translateX(-50%);
         width: 30px;
         height: 25px;
-        background: linear-gradient(180deg, #a08060 0%, #7a6448 100%);
+        /* Silver darker cap part */
+        background: linear-gradient(180deg, #b0c4de 0%, #8ca6c5 100%);
         border-radius: 5px 5px 0 0;
     }
 
@@ -257,16 +266,16 @@ body.auth-page {
     color: var(--text-muted);
     font-size: 0.95rem;
     padding: 0.75rem 1.25rem;
-    background: rgba(201, 169, 98, 0.08);
+    background: rgba(0, 40, 85, 0.05);
     border-radius: 50px;
-    border: 1px solid rgba(201, 169, 98, 0.15);
+    border: 1px solid rgba(0, 40, 85, 0.1);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
 }
 
     .feature:hover {
-        background: rgba(201, 169, 98, 0.15);
-        border-color: rgba(201, 169, 98, 0.3);
+        background: rgba(0, 40, 85, 0.1);
+        border-color: rgba(0, 40, 85, 0.2);
         transform: translateY(-3px);
     }
 
@@ -293,7 +302,7 @@ body.auth-page {
     border-radius: 24px;
     border: 1px solid var(--border-light);
     backdrop-filter: blur(20px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 100px rgba(201, 169, 98, 0.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.05), 0 0 100px rgba(0, 40, 85, 0.05);
     position: relative;
     overflow: hidden;
 }
@@ -305,7 +314,7 @@ body.auth-page {
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(201, 169, 98, 0.5), transparent);
+        background: linear-gradient(90deg, transparent, rgba(0, 40, 85, 0.3), transparent);
     }
 
 /* Header */
@@ -319,7 +328,7 @@ body.auth-page {
         font-size: 2.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, var(--text-light) 0%, var(--primary-light) 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -391,8 +400,8 @@ body.auth-page {
         .input-group input:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(30, 30, 45, 1);
-            box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.15), 0 0 30px rgba(201, 169, 98, 0.1);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.1), 0 0 30px rgba(0, 40, 85, 0.05);
         }
 
     .input-group:focus-within i {
@@ -489,9 +498,9 @@ body.auth-page {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: #0a0a0f;
-    box-shadow: 0 10px 30px rgba(201, 169, 98, 0.3);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 40, 85, 0.2);
 }
 
     .btn-primary::before {
@@ -505,7 +514,7 @@ body.auth-page {
 
     .btn-primary:hover {
         transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(201, 169, 98, 0.4);
+        box-shadow: 0 15px 40px rgba(0, 40, 85, 0.3);
     }
 
         .btn-primary:hover::before {
@@ -557,7 +566,7 @@ body.auth-page {
     justify-content: center;
     gap: 0.75rem;
     padding: 0.9rem 1.5rem;
-    background: rgba(30, 30, 45, 0.6);
+    background: #ffffff;
     border: 1.5px solid var(--border-light);
     border-radius: 12px;
     color: var(--text-light);
@@ -577,7 +586,7 @@ body.auth-page {
 
     .social-btn:hover {
         border-color: var(--primary);
-        background: rgba(201, 169, 98, 0.08);
+        background: rgba(0, 40, 85, 0.05);
         transform: translateY(-2px);
     }
 
@@ -630,7 +639,7 @@ body.auth-page {
 
         .language-toggle a.active {
             color: var(--primary);
-            background: rgba(201, 169, 98, 0.15);
+            background: rgba(0, 40, 85, 0.1);
         }
 
     .language-toggle span {
@@ -668,7 +677,7 @@ body.auth-page {
 .otp-badge {
     width: 70px;
     height: 70px;
-    background: linear-gradient(135deg, rgba(201, 169, 98, 0.2) 0%, rgba(201, 169, 98, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(0, 40, 85, 0.1) 0%, rgba(0, 40, 85, 0.05) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -703,7 +712,7 @@ body.auth-page {
     .otp-input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.2);
+        box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.15);
     }
 
 .otp-resend {
@@ -905,6 +914,6 @@ html {
 
 /* Selection Color */
 ::selection {
-    background: rgba(201, 169, 98, 0.3);
+    background: rgba(0, 40, 85, 0.2);
     color: var(--text-light);
 }

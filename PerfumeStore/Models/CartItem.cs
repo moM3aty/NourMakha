@@ -5,7 +5,7 @@ namespace PerfumeStore.Models
     public class CartItem
     {
         public int Id { get; set; }
-        
+
         public int CartId { get; set; }
         public int ProductId { get; set; }
         public int Quantity { get; set; }
@@ -15,7 +15,7 @@ namespace PerfumeStore.Models
         // Navigation Properties
         [ForeignKey("CartId")]
         public Cart? Cart { get; set; }
-        
+
         [ForeignKey("ProductId")]
         public Product? Product { get; set; }
 

@@ -11,7 +11,7 @@
             <!-- Contact Info -->
             <div class="contact-info">
                 <h2>@(isArabic ? "تواصل معنا" : "Get in Touch")</h2>
-                <p>@(isArabic ? "نحرص في نور للعود والعطور على أن نكون قريبين منكم." : "At Nour Oud & Perfumes, we strive to be close to you.")</p>
+                <p>@(isArabic ? "نحرص في نور مخا للعود والعطور على أن نكون قريبين منكم." : "At NourMakha Oud & Perfumes, we strive to be close to you.")</p>
 
                 <div class="contact-items">
                     <div class="contact-item">
@@ -27,7 +27,7 @@
                         <div class="contact-icon"><i class="fas fa-envelope"></i></div>
                         <div class="contact-text">
                             <h4>@(isArabic ? "البريد الإلكتروني" : "Email")</h4>
-                            <p>info@nourperfumes.com</p>
+                            <p>info@nourmakha.com</p>
                         </div>
                     </div>
 
@@ -35,21 +35,21 @@
                         <div class="contact-icon"><i class="fab fa-instagram"></i></div>
                         <div class="contact-text">
                             <h4>@(isArabic ? "إنستجرام" : "Instagram")</h4>
-                            <p>@("@nourperfumes.om")</p>
+                            <p>@("@nourmakha.om")</p>
                         </div>
                     </div>
 
                     <div class="branches-box" style="margin-top: 2rem;">
-                        <h3 style="color: #d4af37; margin-bottom: 1rem;">@(isArabic ? "فروعنا الرسمية" : "Our Branches")</h3>
-                        <ul style="list-style: none; padding: 0; color: #b8b8c8;">
-                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-map-pin" style="color: #d4af37; margin-left: 10px;"></i> @(isArabic ? "فرع الموالح" : "Mawaleh Branch")</li>
-                            <li><i class="fas fa-map-pin" style="color: #d4af37; margin-left: 10px;"></i> @(isArabic ? "فرع صور" : "Sur Branch")</li>
+                        <h3 style="color: #002855; margin-bottom: 1rem;">@(isArabic ? "فروعنا الرسمية" : "Our Branches")</h3>
+                        <ul style="list-style: none; padding: 0; color: #6c757d;">
+                            <li style="margin-bottom: 0.5rem;"><i class="fas fa-map-pin" style="color: #002855; margin-left: 10px;"></i> @(isArabic ? "فرع الموالح" : "Mawaleh Branch")</li>
+                            <li><i class="fas fa-map-pin" style="color: #002855; margin-left: 10px;"></i> @(isArabic ? "فرع صور" : "Sur Branch")</li>
                         </ul>
                     </div>
 
                     <div class="distributors-box" style="margin-top: 2rem;">
-                        <h3 style="color: #d4af37; margin-bottom: 1rem; font-size: 1.1rem;">@(isArabic ? "متوفرون أيضاً في" : "Also Available In")</h3>
-                        <p style="color: #b8b8c8; font-size: 0.9rem;">
+                        <h3 style="color: #002855; margin-bottom: 1rem; font-size: 1.1rem;">@(isArabic ? "متوفرون أيضاً في" : "Also Available In")</h3>
+                        <p style="color: #6c757d; font-size: 0.9rem;">
                             @(isArabic ? "العامرات - المعبيلة - الخوير - الخوض - البريمي - صحم - صلالة" : "Al Amerat - Ma'abela - Al Khuwair - Al Khoud - Al Buraimi - Saham - Salalah")
                         </p>
                     </div>
@@ -126,10 +126,11 @@
         font-family: 'Playfair Display', serif;
         font-size: 2.5rem;
         margin-bottom: 1rem;
+        color: #002855;
     }
 
     .contact-info > p {
-        color: #b8b8c8;
+        color: #6c757d;
         margin-bottom: 2rem;
     }
 
@@ -149,12 +150,12 @@
     .contact-icon {
         width: 50px;
         height: 50px;
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(0, 40, 85, 0.1);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #d4af37;
+        color: #002855;
         font-size: 1.25rem;
         flex-shrink: 0;
     }
@@ -162,27 +163,28 @@
     .contact-text h4 {
         font-size: 1rem;
         margin-bottom: 0.25rem;
-        color: #fff;
+        color: #212529;
     }
 
     .contact-text p {
-        color: #b8b8c8;
+        color: #6c757d;
         font-size: 0.9rem;
         margin-bottom: 0.2rem;
     }
 
     .contact-form-container {
-        background: rgba(26, 26, 46, 0.8);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        background: #ffffff;
+        border: 1px solid rgba(0, 40, 85, 0.2);
         border-radius: 20px;
         padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
     .contact-form h3 {
         font-family: 'Playfair Display', serif;
         font-size: 1.5rem;
         margin-bottom: 1.5rem;
-        color: #d4af37;
+        color: #002855;
     }
 
     .form-row {
@@ -205,21 +207,23 @@
         .form-group label {
             font-size: 0.875rem;
             font-weight: 500;
+            color: #495057;
         }
 
         .form-group input, .form-group textarea {
             padding: 1rem;
-            background: rgba(15, 15, 26, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 10px;
-            color: #fff;
+            color: #212529;
             font-size: 1rem;
             transition: all 0.3s;
         }
 
             .form-group input:focus, .form-group textarea:focus {
                 outline: none;
-                border-color: #d4af37;
+                border-color: #002855;
+                background: #ffffff;
             }
 
     .error-text {

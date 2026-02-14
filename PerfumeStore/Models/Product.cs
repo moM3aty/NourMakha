@@ -72,8 +72,8 @@ namespace PerfumeStore.Models
 
         // Helper properties
         public bool IsInStock => StockQuantity > 0;
-        public int? DiscountPercentage => OldPrice.HasValue && OldPrice > Price 
-            ? (int)Math.Round((1 - Price / OldPrice.Value) * 100) 
+        public int? DiscountPercentage => OldPrice.HasValue && OldPrice > Price
+            ? (int)Math.Round((1 - Price / OldPrice.Value) * 100)
             : null;
 
         public string GetLocalizedName(bool isArabic) => isArabic && !string.IsNullOrEmpty(NameAr) ? NameAr : Name;

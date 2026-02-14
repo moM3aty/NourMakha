@@ -20,9 +20,28 @@
 
 <div class="card animate-fade-up delay-1" style="max-width: 800px; margin: 0 auto;">
     <div class="card-body" style="padding: 2.5rem;">
-        <form asp-action="EditCategory" method="post" class="premium-form">
+        <form asp-action="EditCategory" method="post" enctype="multipart/form-data" class="premium-form">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
+
+            <div class="form-group text-center">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="current-image mb-3">
+                        <img src="@Model.ImageUrl" alt="Current Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid var(--gold-primary);" />
+                        <p class="text-muted small">@(isArabic ? "الصورة الحالية" : "Current Image")</p>
+                    </div>
+                }
+                <label>@(isArabic ? "تغيير الصورة" : "Change Image")</label>
+                <div class="image-upload-area" style="height: 150px;">
+                    <input type="file" name="image" id="imageInput" accept="image/*" class="file-input" />
+                    <div class="upload-label">
+                        <i class="fas fa-camera upload-icon"></i>
+                        <span class="upload-text">@(isArabic ? "اضغط لاختيار صورة" : "Click to select image")</span>
+                    </div>
+                  
+                </div>
+            </div>
 
             <div class="form-group">
                 <label>@(isArabic ? "اسم القسم (عربي)" : "Category Name (Arabic)") *</label>
@@ -62,16 +81,16 @@
     </div>
 </div>
 
-<style>
-    .row-grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    @@media (max-width: 600px) {
-        .row-grid-2 {
-            grid-template-columns: 1fr;
+<script>
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-height: 100px; border-radius: 8px;" />`;
+            };
+            reader.readAsDataURL(file);
         }
-    }
-</style>
+    });
+</script>

@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Perfume Store</title>
+    <title>@ViewData["Title"] - NourMakha</title>
     <link rel="stylesheet" href="~/css/auth.css" />
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -21,8 +21,7 @@
         <div class="auth-left">
             <div class="auth-brand">
                 <a href="/" class="logo">
-                    <span class="logo-text">Perfume</span>
-                    <span class="logo-accent">Store</span>
+                    <img style="padding:10px;width:200px;" src="~/images/logo.png" />
                 </a>
             </div>
 
@@ -123,7 +122,8 @@
         .otp-icon-large {
             width: 180px;
             height: 180px;
-            background: linear-gradient(135deg, rgba(201, 169, 98, 0.2) 0%, rgba(201, 169, 98, 0.05) 100%);
+            /* Updated to Blue Theme */
+            background: linear-gradient(135deg, rgba(0, 40, 85, 0.1) 0%, rgba(0, 40, 85, 0.05) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -134,24 +134,21 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            border: 2px solid rgba(201, 169, 98, 0.3);
+            border: 2px solid rgba(0, 40, 85, 0.2);
             animation: pulseOtp 3s ease-in-out infinite;
-            box-shadow: 0 0 60px rgba(201, 169, 98, 0.2);
+            box-shadow: 0 0 60px rgba(0, 40, 85, 0.1);
         }
 
         @@keyframes pulseOtp {
-            0%, 100%
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 60px rgba(0, 40, 85, 0.1);
+            }
 
-        {
-            transform: translate(-50%, -50%) scale(1);
-            box-shadow: 0 0 60px rgba(201, 169, 98, 0.2);
-        }
-
-        50% {
-            transform: translate(-50%, -50%) scale(1.05);
-            box-shadow: 0 0 80px rgba(201, 169, 98, 0.3);
-        }
-
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+                box-shadow: 0 0 80px rgba(0, 40, 85, 0.2);
+            }
         }
 
         .otp-input-container {
@@ -187,7 +184,7 @@
             .otp-input:focus {
                 outline: none;
                 border-color: var(--primary);
-                box-shadow: 0 0 0 4px rgba(201, 169, 98, 0.2);
+                box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.15);
                 transform: translateY(-2px);
             }
 
@@ -199,8 +196,8 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(201, 169, 98, 0.1);
-            border: 1px solid rgba(201, 169, 98, 0.3);
+            background: rgba(0, 40, 85, 0.05);
+            border: 1px solid rgba(0, 40, 85, 0.2);
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
             color: var(--primary);
@@ -212,7 +209,7 @@
         }
 
             .resend-btn:hover {
-                background: rgba(201, 169, 98, 0.2);
+                background: rgba(0, 40, 85, 0.1);
                 border-color: var(--primary);
                 transform: translateY(-2px);
             }
@@ -224,7 +221,7 @@
             color: var(--text-muted);
             font-size: 0.9rem;
             padding: 0.6rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 40, 85, 0.03);
             border-radius: 8px;
         }
 

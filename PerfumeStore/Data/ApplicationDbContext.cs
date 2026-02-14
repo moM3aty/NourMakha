@@ -24,7 +24,8 @@ namespace PerfumeStore.Data
         public DbSet<Coupon> Coupons { get; set; } = null!;
         public DbSet<ContactMessage> ContactMessages { get; set; } = null!;
         public DbSet<OTPCode> OTPCodes { get; set; } = null!;
-
+        public DbSet<SiteSetting> SiteSettings { get; set; } = null!;
+        public DbSet<ShippingZone> ShippingZones { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -127,6 +128,16 @@ namespace PerfumeStore.Data
                 new Category { Id = 3, Name = "Unisex Perfumes", NameAr = "عطور للجنسين", Description = "Versatile unisex fragrances", DescriptionAr = "عطور متنوعة للجنسين", DisplayOrder = 3 },
                 new Category { Id = 4, Name = "Luxury Collections", NameAr = "مجموعات فاخرة", Description = "Exclusive luxury perfume collections", DescriptionAr = "مجموعات عطور فاخرة حصرية", DisplayOrder = 4 },
                 new Category { Id = 5, Name = "Gift Sets", NameAr = "هدايا", Description = "Perfect gift sets for loved ones", DescriptionAr = "مجموعات هدايا مثالية لأحبائك", DisplayOrder = 5 }
+            );
+            modelBuilder.Entity<ShippingZone>().HasData(
+                new ShippingZone { Id = 1, NameAr = "مسقط", NameEn = "Muscat", Cost = 2.00m, EstimatedDays = 2, IsActive = true },
+                new ShippingZone { Id = 2, NameAr = "الداخلية", NameEn = "Ad Dakhiliyah", Cost = 3.00m, EstimatedDays = 3, IsActive = true },
+                new ShippingZone { Id = 3, NameAr = "ظفار", NameEn = "Dhofar", Cost = 4.00m, EstimatedDays = 4, IsActive = true }
+            );
+
+            // تهيئة بيانات أولية للإعدادات
+            modelBuilder.Entity<SiteSetting>().HasData(
+                new SiteSetting { Id = 1, Key = "AnnouncementBar", Value = "خصم 20% لفترة محدودة على جميع العطور!", IsEnabled = true }
             );
         }
     }

@@ -122,10 +122,11 @@
                                     <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
                                 </h3>
                                 <div class="product-price">
-                                    <span class="current-price">$@product.Price</span>
+                                    <!-- UPDATED: Currency support -->
+                                    <span class="current-price currency-price" data-base-price="@product.Price">@product.Price OMR</span>
                                     @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
                                     {
-                                        <span class="old-price">$@product.OldPrice</span>
+                                        <span class="old-price currency-old-price" data-base-price="@product.OldPrice">@product.OldPrice OMR</span>
                                     }
                                 </div>
                             </div>
@@ -188,17 +189,18 @@
     }
 
     .filter-section {
-        background: rgba(26, 26, 46, 0.8);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        background: #ffffff;
+        border: 1px solid rgba(0, 40, 85, 0.1);
         border-radius: 15px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     }
 
         .filter-section h4 {
             font-size: 1rem;
             margin-bottom: 1rem;
-            color: #d4af37;
+            color: #002855;
         }
 
     .search-form {
@@ -209,18 +211,18 @@
         .search-form input {
             flex: 1;
             padding: 0.75rem;
-            background: rgba(15, 15, 26, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 8px;
-            color: #fff;
+            color: #212529;
         }
 
         .search-form button {
             width: 44px;
-            background: #d4af37;
+            background: #002855;
             border: none;
             border-radius: 8px;
-            color: #0f0f1a;
+            color: #ffffff;
             cursor: pointer;
         }
 
@@ -235,15 +237,15 @@
         .filter-list a {
             display: block;
             padding: 0.5rem 0.75rem;
-            color: #b8b8c8;
+            color: #6c757d;
             border-radius: 8px;
             transition: all 0.2s;
         }
 
             .filter-list a:hover,
             .filter-list a.active {
-                background: rgba(212, 175, 55, 0.1);
-                color: #d4af37;
+                background: rgba(0, 40, 85, 0.05);
+                color: #002855;
             }
 
     .price-inputs {
@@ -255,10 +257,10 @@
         .price-inputs input {
             flex: 1;
             padding: 0.75rem;
-            background: rgba(15, 15, 26, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 8px;
-            color: #fff;
+            color: #212529;
             width: 100%;
         }
 
@@ -270,7 +272,7 @@
     }
 
     .results-count {
-        color: #b8b8c8;
+        color: #6c757d;
     }
 
     .sort-dropdown {
@@ -281,10 +283,10 @@
 
         .sort-dropdown select {
             padding: 0.5rem 1rem;
-            background: rgba(26, 26, 46, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: #f8f9fa;
+            border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 8px;
-            color: #fff;
+            color: #212529;
         }
 
     .pagination {
@@ -300,18 +302,18 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(26, 26, 46, 0.8);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        background: #ffffff;
+        border: 1px solid rgba(0, 40, 85, 0.2);
         border-radius: 8px;
-        color: #b8b8c8;
+        color: #6c757d;
         transition: all 0.2s;
     }
 
         .page-btn:hover,
         .page-btn.active {
-            background: #d4af37;
-            border-color: #d4af37;
-            color: #0f0f1a;
+            background: #002855;
+            border-color: #002855;
+            color: #ffffff;
         }
 
     .page-dots {

@@ -4,7 +4,7 @@ using PerfumeStore.Models;
 namespace PerfumeStore.ViewModels
 {
     // ===================================
-    // Account ViewModels
+    // Account ViewModels (Fixed)
     // ===================================
     public class LoginViewModel
     {
@@ -48,6 +48,31 @@ namespace PerfumeStore.ViewModels
         public string PhoneNumber { get; set; } = string.Empty;
     }
 
+    public class ForgotPasswordViewModel
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordViewModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "New password is required")]
+        [StringLength(100, MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        public string? Token { get; set; }
+    }
+
     public class OTPVerificationViewModel
     {
         [Required]
@@ -60,6 +85,57 @@ namespace PerfumeStore.ViewModels
 
         public string Purpose { get; set; } = string.Empty;
         public string? ReturnUrl { get; set; }
+    }
+
+    // ===================================
+    // Dashboard ViewModels
+    // ===================================
+    public class DashboardViewModel
+    {
+        public decimal TotalSales { get; set; }
+        public int TotalOrders { get; set; }
+        public int TotalProducts { get; set; }
+        public int TotalCustomers { get; set; }
+        public List<RecentOrderViewModel> RecentOrders { get; set; } = new();
+        public List<TopProductViewModel> TopProducts { get; set; } = new();
+        public List<SalesChartViewModel> SalesChart { get; set; } = new();
+    }
+
+    public class RecentOrderViewModel
+    {
+        public int Id { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal Total { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class TopProductViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Image { get; set; }
+        public int SalesCount { get; set; }
+        public decimal Revenue { get; set; }
+    }
+
+    public class SalesChartViewModel
+    {
+        public string Date { get; set; } = string.Empty;
+        public decimal Sales { get; set; }
+        public int Orders { get; set; }
+    }
+
+    public class ReportsViewModel
+    {
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public decimal TotalSales { get; set; }
+        public int TotalOrders { get; set; }
+        public int TotalProductsSold { get; set; }
+        public decimal AverageOrderValue { get; set; }
+        public Dictionary<string, int> OrdersByStatus { get; set; } = new();
+        public Dictionary<string, decimal> SalesByCategory { get; set; } = new();
     }
 
     // ===================================
@@ -138,6 +214,7 @@ namespace PerfumeStore.ViewModels
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 12;
     }
+
     public class ProductDetailsViewModel
     {
         public Product Product { get; set; } = new();
@@ -165,7 +242,7 @@ namespace PerfumeStore.ViewModels
     }
 
     // ===================================
-    // Checkout ViewModels
+    // Checkout & Cart ViewModels
     // ===================================
     public class CheckoutViewModel
     {
@@ -211,9 +288,6 @@ namespace PerfumeStore.ViewModels
         public string PaymentMethod { get; set; } = "CashOnDelivery";
     }
 
-    // ===================================
-    // Cart ViewModels
-    // ===================================
     public class CartIndexViewModel
     {
         public Cart Cart { get; set; } = new();
@@ -224,9 +298,6 @@ namespace PerfumeStore.ViewModels
         public string? CouponError { get; set; }
     }
 
-    // ===================================
-    // Review ViewModel
-    // ===================================
     public class ReviewViewModel
     {
         [Required]
@@ -239,9 +310,6 @@ namespace PerfumeStore.ViewModels
         public int ProductId { get; set; }
     }
 
-    // ===================================
-    // Contact ViewModel
-    // ===================================
     public class ContactViewModel
     {
         [Required(ErrorMessage = "Name is required")]

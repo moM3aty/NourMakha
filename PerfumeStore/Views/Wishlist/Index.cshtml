@@ -23,7 +23,7 @@
             {
                 <div class="product-card animate-fade-up" id="product-card-@product.Id">
                     <div class="product-image">
-                        <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic ? product.NameAr : product.Name)" />
+                        <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic? product.NameAr: product.Name)" />
                         <div class="product-actions">
                             <button class="action-btn remove-wishlist" onclick="toggleWishlist(@product.Id, true)" title="@(isArabic ? "حذف" : "Remove")">
                                 <i class="fas fa-trash"></i>
@@ -37,12 +37,13 @@
                         </div>
                     </div>
                     <div class="product-info">
-                        <span class="product-brand">@(isArabic ? product.BrandAr : product.Brand)</span>
+                        <span class="product-brand">@(isArabic? product.BrandAr: product.Brand)</span>
                         <h3 class="product-name">
-                            <a href="/Products/Details/@product.Id">@(isArabic ? product.NameAr : product.Name)</a>
+                            <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
                         </h3>
                         <div class="product-price">
-                            <span class="current-price">$@product.Price</span>
+                            <!-- UPDATED: Currency Support -->
+                            <span class="current-price currency-price" data-base-price="@product.Price">@product.Price OMR</span>
                         </div>
                     </div>
                 </div>
@@ -61,16 +62,59 @@
 </section>
 
 <style>
-    .wishlist-section { padding: 4rem 0; min-height: 50vh; }
-    .remove-wishlist { background: #e74c3c !important; color: white !important; border-color: #e74c3c !important; }
-    .remove-wishlist:hover { background: #c0392b !important; }
+    .wishlist-section {
+        padding: 4rem 0;
+        min-height: 50vh;
+    }
+
+    .remove-wishlist {
+        background: #e74c3c !important;
+        color: white !important;
+        border-color: #e74c3c !important;
+    }
+
+        .remove-wishlist:hover {
+            background: #c0392b !important;
+        }
+
+    .empty-state-premium {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        background: rgba(0, 40, 85, 0.05);
+        color: #002855;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2rem;
+    }
+
+    .btn-premium {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #002855;
+        color: #fff;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .btn-premium:hover {
+            background: #004080;
+            transform: translateY(-3px);
+        }
 </style>
 
 <script>
-    // Overriding the global toggleWishlist for this page to remove items instantly
     function toggleWishlist(productId, isRemove) {
         if(!isRemove) return;
-        
+
         fetch('/Wishlist/Toggle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -79,14 +123,12 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Remove element from DOM
                 const card = document.getElementById(`product-card-${productId}`);
                 if(card) {
                     card.style.opacity = '0';
                     setTimeout(() => {
                         card.remove();
-                        // Check if empty
-                        if(document.querySelectorAll('.product-card').length === 0) location.reload(); 
+                        if(document.querySelectorAll('.product-card').length === 0) location.reload();
                     }, 300);
                 }
                 showToast('success', data.message);

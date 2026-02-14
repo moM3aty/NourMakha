@@ -1,0 +1,356 @@
+﻿@model PerfumeStore.Models.Coupon
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تعديل الكوبون" : "Edit Coupon";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? $"تعديل بيانات الكوبون: {Model.Code}" : $"Modify details for coupon: {Model.Code}")</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="/Admin/Coupons" class="btn-back">
+                    <i class="fas @(isArabic ? "fa-arrow-right" : "fa-arrow-left")"></i>
+                    <span>@(isArabic ? "العودة للقائمة" : "Back to List")</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="card animate-fade-up delay-1">
+        <div class="card-body" style="padding: 2.5rem;">
+            <form asp-action="EditCoupon" method="post" class="premium-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-grid-premium">
+                    <!-- Coupon Code -->
+                    <div class="form-group">
+                        <label asp-for="Code">@(isArabic ? "كود الكوبون" : "Coupon Code") <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-barcode"></i>
+                            <input asp-for="Code" placeholder="@(isArabic ? "مثال: SAVE20" : "e.g. SAVE20")" required style="text-transform: uppercase; font-weight: 800; letter-spacing: 1px;" />
+                        </div>
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                    </div>
+
+                    <!-- Discount Type -->
+                    <div class="form-group">
+                        <label asp-for="DiscountType">@(isArabic ? "نوع الخصم" : "Discount Type") <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percentage"></i>
+                            <select asp-for="DiscountType" required id="discountTypeSelect">
+                                <option value="Percentage">@(isArabic ? "نسبة مئوية (%)" : "Percentage (%)")</option>
+                                <option value="Fixed">@(isArabic ? "مبلغ ثابت (OMR)" : "Fixed Amount (OMR)")</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Discount Value -->
+                    <div class="form-group">
+                        <label asp-for="DiscountValue">@(isArabic ? "قيمة الخصم" : "Discount Value") <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-hand-holding-usd"></i>
+                            <input asp-for="DiscountValue" type="number" step="0.01" required />
+                        </div>
+                    </div>
+
+                    <!-- Minimum Order Amount -->
+                    <div class="form-group">
+                        <label asp-for="MinimumOrderAmount">@(isArabic ? "الحد الأدنى للطلب (OMR)" : "Min. Order Amount (OMR)")</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-shopping-basket"></i>
+                            <input asp-for="MinimumOrderAmount" type="number" step="0.1" />
+                        </div>
+                    </div>
+
+                    <!-- Maximum Discount Amount -->
+                    <div class="form-group" id="maxDiscountGroup">
+                        <label asp-for="MaximumDiscountAmount">@(isArabic ? "الحد الأقصى للخصم (OMR)" : "Max. Discount Amount (OMR)")</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-arrow-up"></i>
+                            <input asp-for="MaximumDiscountAmount" type="number" step="0.1" />
+                        </div>
+                        <small class="helper-text">@(isArabic ? "يُستخدم فقط مع نوع الخصم بالنسبة المئوية" : "Only used with Percentage discount type")</small>
+                    </div>
+
+                    <!-- Usage Limit -->
+                    <div class="form-group">
+                        <label asp-for="UsageLimit">@(isArabic ? "حد مرات الاستخدام" : "Total Usage Limit")</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-users"></i>
+                            <input asp-for="UsageLimit" type="number" placeholder="@(isArabic ? "اتركه فارغاً لغير محدود" : "Leave empty for unlimited")" />
+                        </div>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="form-group">
+                        <label asp-for="StartDate">@(isArabic ? "تاريخ التفعيل" : "Activation Date")</label>
+                        <div class="input-wrapper">
+                            <i class="far fa-calendar-check"></i>
+                            <input asp-for="StartDate" type="date" value="@(Model.StartDate.ToString("yyyy-MM-dd"))" />
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="form-group">
+                        <label asp-for="EndDate">@(isArabic ? "تاريخ الانتهاء" : "Expiry Date")</label>
+                        <div class="input-wrapper">
+                            <i class="far fa-calendar-times"></i>
+                            <input asp-for="EndDate" type="date" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Fields -->
+                <div class="form-group mt-4">
+                    <label asp-for="DescriptionAr">@(isArabic ? "وصف الكوبون (عربي)" : "Coupon Description (AR)")</label>
+                    <textarea asp-for="DescriptionAr" rows="2" dir="rtl"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">@(isArabic ? "وصف الكوبون (EN)" : "Coupon Description (EN)")</label>
+                    <textarea asp-for="Description" rows="2"></textarea>
+                </div>
+
+                <!-- Status Checkbox -->
+                <div class="form-group checkbox-premium mt-3">
+                    <label class="switch-status-label">
+                        <input asp-for="IsActive" type="checkbox" />
+                        <span class="slider-round"></span>
+                        <span class="text">@(isArabic ? "الكوبون نشط حالياً" : "Coupon is currently active")</span>
+                    </label>
+                </div>
+
+                <div class="form-actions-premium mt-5">
+                    <button type="submit" class="btn-save-premium">
+                        <i class="fas fa-check-double"></i>
+                        <span>@(isArabic ? "حفظ التعديلات" : "Save Changes")</span>
+                    </button>
+                    <a href="/Admin/Coupons" class="btn-cancel-premium">
+                        @(isArabic ? "إلغاء" : "Cancel")
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* --- Premium Page Specific Styles --- */
+    .form-grid-premium {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .required {
+        color: var(--danger-text, #ef4444);
+        margin-inline-start: 4px;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+        .input-wrapper i {
+            position: absolute;
+            inset-inline-start: 1rem;
+            color: #002855;
+            opacity: 0.5;
+            font-size: 1rem;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            padding-inline-start: 3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+            .input-wrapper input:focus, .input-wrapper select:focus {
+                border-color: #002855;
+                background: #fff;
+                box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.05);
+                outline: none;
+            }
+
+    textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        resize: vertical;
+        transition: 0.3s;
+    }
+
+        textarea:focus {
+            border-color: #002855;
+            background: #fff;
+            outline: none;
+        }
+
+    .helper-text {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* Custom Back Button */
+    .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.7rem 1.2rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        color: #64748b;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+        .btn-back:hover {
+            border-color: #002855;
+            color: #002855;
+            transform: translateX( @(isArabic ? "5px" : "-5px") );
+        }
+
+    /* Switch Style */
+    .switch-status-label {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+    }
+
+        .switch-status-label input {
+            display: none;
+        }
+
+    .slider-round {
+        position: relative;
+        width: 48px;
+        height: 24px;
+        background: #cbd5e1;
+        border-radius: 30px;
+        transition: 0.4s;
+    }
+
+        .slider-round::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+    .switch-status-label input:checked + .slider-round {
+        background: #10b981;
+    }
+
+        .switch-status-label input:checked + .slider-round::before {
+            transform: translateX(24px);
+        }
+
+    .switch-status-label .text {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    /* Actions */
+    .form-actions-premium {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .btn-save-premium {
+        background: #002855;
+        color: #fff;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0, 40, 85, 0.15);
+    }
+
+        .btn-save-premium:hover {
+            background: #004080;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0, 40, 85, 0.2);
+        }
+
+    .btn-cancel-premium {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+        .btn-cancel-premium:hover {
+            color: #ef4444;
+        }
+
+    @@media (max-width: 768px) {
+        .form-grid-premium {
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .form-actions-premium {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-save-premium {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('discountTypeSelect');
+        const maxDiscountGroup = document.getElementById('maxDiscountGroup');
+
+        function toggleMaxDiscount() {
+            if (typeSelect.value === 'Fixed') {
+                maxDiscountGroup.style.opacity = '0.5';
+                maxDiscountGroup.style.pointerEvents = 'none';
+            } else {
+                maxDiscountGroup.style.opacity = '1';
+                maxDiscountGroup.style.pointerEvents = 'auto';
+            }
+        }
+
+        typeSelect.addEventListener('change', toggleMaxDiscount);
+        toggleMaxDiscount(); // Initial check
+    });
+</script>

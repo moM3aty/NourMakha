@@ -1,38 +1,37 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "سياسة الاستبدال والاسترجاع" : "Return & Exchange Policy";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
 }
 
 <div class="container" style="padding: 120px 20px 60px;">
-    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 15px; padding: 2rem;">
-        <h1 class="page-title" style="margin-bottom: 2rem; text-align: center; color: var(--primary);">@ViewData["Title"]</h1>
-        
-        <div class="policy-content" style="line-height: 1.8; color: var(--text-secondary);">
+    <div class="card" style="background: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 15px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h1 class="page-title" style="margin-bottom: 2rem; text-align: center; color: #002855; font-family: 'Playfair Display', serif;">@ViewData["Title"]</h1>
+
+        <div class="policy-content" style="line-height: 1.8; color: #495057;">
             @if (isArabic)
             {
-                <div class="alert alert-info" style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div class="alert alert-info" style="background: rgba(0, 40, 85, 0.1); border: 1px solid #002855; color: #002855; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
                     <strong>ملاحظة هامة:</strong> نظراً لضغط الطلبات فإن مدة الشحن/التوصيل من 10 إلى 14 أيام عمل.
                 </div>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">الشحن والتوصيل</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">الشحن والتوصيل</h3>
                 <ul style="list-style-type: disc; padding-right: 20px;">
                     <li>نحرص على تقديم خدمة توصيل تلبي تطلعاتكم، لذا نأمل منكم تزويدنا بعنوان دقيق لضمان وصول الطلب بسرعة.</li>
                     <li>نقوم بشحن الطلبات من خلال خدمة "التوصيل المنزلي" يوميًا ما عدا أيام الجمعة والعطل الرسمية.</li>
                     <li>مدة التوصيل خلال 10 إلى 14 أيام عمل اعتبارًا من تاريخ تأكيد الطلب.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">رسوم التوصيل</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">رسوم التوصيل</h3>
                 <ul style="list-style-type: disc; padding-right: 20px;">
                     <li>إذا كان إجمالي الطلب أقل من 20 ريال عماني، يتم فرض رسوم توصيل بقيمة 2 ريال عماني.</li>
                     <li>إذا كان إجمالي الطلب أكثر من 20 ريال عماني، يُعفى العميل من رسوم التوصيل (يعتمد على العروض السارية).</li>
                     <li>الشحن لخارج السلطنة ومحافظة ظفار يعتمد على الإجراءات الدولية.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">الإلغاء</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">الإلغاء</h3>
                 <p>يمكنك الاتصال بخدمة العملاء لإلغاء الطلب قبل تنفيذه. إذا تم تنفيذ الطلب، سيتم التعامل معه كإرجاع. يحق للشركة إلغاء خيار الدفع عند الاستلام للعملاء الذين يكررون إلغاء الطلبات أو عدم استلامها.</p>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">المرتجعات</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">المرتجعات</h3>
                 <ul style="list-style-type: disc; padding-right: 20px;">
                     <li>تسمح سياستنا بإرجاع المنتج خلال 7 أيام من تاريخ الشراء بشرط أن يكون في حالته الأصلية.</li>
                     <li>إذا كان المنتج تالفاً أو غير المطلوب، يمكنك إرجاعه مجاناً.</li>
@@ -42,7 +41,7 @@
                     <li>يتم استرجاع المبالغ خلال 14 يوم عمل.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">الاستبدال</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">الاستبدال</h3>
                 <ul style="list-style-type: disc; padding-right: 20px;">
                     <li>يمكن استبدال المنتجات خلال 7 أيام بشرط عدم استخدامها ووجودها في حالتها الأصلية.</li>
                     <li>في حالة العيب المصنعي، يمكن الاستبدال حتى لو تم الفتح.</li>
@@ -51,28 +50,28 @@
             }
             else
             {
-                <div class="alert alert-info" style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                <div class="alert alert-info" style="background: rgba(0, 40, 85, 0.1); border: 1px solid #002855; color: #002855; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
                     <strong>Important:</strong> Due to high demand, shipping/delivery time is 10 to 14 business days.
                 </div>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Shipping & Delivery</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">Shipping & Delivery</h3>
                 <ul style="list-style-type: disc; padding-left: 20px;">
                     <li>We strive to provide a delivery service that meets your expectations, so please provide an accurate address.</li>
                     <li>We ship orders via "Home Delivery" service daily except Fridays and public holidays.</li>
                     <li>Delivery time is within 10 to 14 business days from the order confirmation date.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Delivery Fees</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">Delivery Fees</h3>
                 <ul style="list-style-type: disc; padding-left: 20px;">
                     <li>Orders under 20 OMR: Delivery fee of 2 OMR applies.</li>
                     <li>Orders over 20 OMR: Free delivery (subject to ongoing offers).</li>
                     <li>International shipping and Dhofar region depend on international procedures.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Cancellation</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">Cancellation</h3>
                 <p>You can contact customer service to cancel the order before it is processed. If processed, it will be treated as a return. We reserve the right to disable COD for customers with repeated cancellations/non-receipts.</p>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Returns</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">Returns</h3>
                 <ul style="list-style-type: disc; padding-left: 20px;">
                     <li>Returns allowed within 7 days of purchase if in original condition.</li>
                     <li>Defective or wrong items can be returned free of charge.</li>
@@ -82,7 +81,7 @@
                     <li>Refunds processed within 14 business days.</li>
                 </ul>
 
-                <h3 style="color: var(--text-primary); margin-top: 1.5rem;">Exchange</h3>
+                <h3 style="color: #002855; margin-top: 1.5rem;">Exchange</h3>
                 <ul style="list-style-type: disc; padding-left: 20px;">
                     <li>Exchange allowed within 7 days if unused and in original condition.</li>
                     <li>Manufacturing defects can be exchanged even if opened.</li>

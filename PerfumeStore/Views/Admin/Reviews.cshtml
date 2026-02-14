@@ -1,0 +1,249 @@
+﻿@model List<PerfumeStore.Models.Review>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "إدارة التقييمات" : "Manage Reviews";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    Layout = "_AdminLayout";
+}
+
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? "مراقبة آراء العملاء، إدارة المحتوى والاعتمادات" : "Monitor customer feedback, manage content and approvals")</p>
+                </div>
+            </div>
+            <div class="header-stats-mini">
+                <div class="stat-mini">
+                    <span class="label">@(isArabic ? "إجمالي التقييمات" : "Total Reviews")</span>
+                    <span class="value">@Model.Count</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="toolbar-container animate-fade-up delay-1">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="reviewSearch" placeholder="@(isArabic ? "بحث بالمنتج، العميل أو التعليق..." : "Search by product, user or comment...")" onkeyup="filterReviews()">
+        </div>
+
+        <div class="filters-wrapper">
+            <div class="select-wrapper">
+                <select id="statusFilter" onchange="filterReviews()">
+                    <option value="all">@(isArabic ? "كل الحالات" : "All Status")</option>
+                    <option value="approved">@(isArabic ? "معتمد" : "Approved")</option>
+                    <option value="pending">@(isArabic ? "مخفي" : "Hidden")</option>
+                </select>
+                <i class="fas fa-chevron-down arrow-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success animate-fade-up" style="background: #e8f5e9; color: #2e7d32; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #c8e6c9; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- Reviews Table Card -->
+    <div class="table-card animate-fade-up delay-2">
+        <div class="table-responsive">
+            <table class="premium-table" id="reviewsTable">
+                <thead>
+                    <tr>
+                        <th>@(isArabic ? "العميل" : "Customer")</th>
+                        <th>@(isArabic ? "المنتج" : "Product")</th>
+                        <th>@(isArabic ? "التقييم" : "Rating")</th>
+                        <th width="30%">@(isArabic ? "التعليق" : "Comment")</th>
+                        <th>@(isArabic ? "الحالة" : "Status")</th>
+                        <th class="text-end">@(isArabic ? "إجراءات" : "Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var review in Model)
+                    {
+                        var statusKey = review.IsApproved ? "approved" : "pending";
+                        <tr class="review-row"
+                            data-search="@(review.User?.FirstName) @(review.Product?.NameAr) @(review.Comment) @(review.CommentAr)"
+                            data-status="@statusKey">
+                            <td>
+                                <div class="user-info-cell">
+                                    <div class="avatar-sm">@(review.User?.FirstName?.FirstOrDefault())</div>
+                                    <div class="details">
+                                        <strong>@review.User?.FirstName @review.User?.LastName</strong>
+                                        <span>@review.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="product-link-cell">
+                                    <a href="/Products/Details/@review.ProductId" target="_blank">
+                                        @(isArabic? review.Product?.NameAr : review.Product?.Name)
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="stars-pro sm">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="@(i <= review.Rating ? "fas" : "far") fa-star"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <p class="comment-text">@(isArabic && !string.IsNullOrEmpty(review.CommentAr) ? review.CommentAr : review.Comment)</p>
+                            </td>
+                            <td>
+                                <span class="status-badge-pro @statusKey">
+                                    <span class="dot"></span>
+                                    @(review.IsApproved ? (isArabic ? "معتمد" : "Approved") : (isArabic ? "مخفي" : "Hidden"))
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <form asp-action="ToggleReviewApproval" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@review.Id" />
+                                        <button type="submit" class="action-btn @(review.IsApproved ? "hide" : "approve")" title="@(review.IsApproved ? (isArabic ? "إخفاء" : "Hide") : (isArabic ? "اعتماد" : "Approve"))">
+                                            <i class="fas @(review.IsApproved ? "fa-eye-slash" : "fa-check-circle")"></i>
+                                        </button>
+                                    </form>
+
+                                    <form asp-action="DeleteReview" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@review.Id" />
+                                        <button type="submit" class="action-btn delete" onclick="return confirm('@(isArabic ? "حذف التقييم نهائياً؟" : "Delete review permanently?")')" title="@(isArabic ? "حذف" : "Delete")">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-data">
+                    <i class="far fa-comments"></i>
+                    <h3>@(isArabic ? "لا توجد تقييمات حالياً" : "No Reviews Found")</h3>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium Table Customizations */
+    .user-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar-sm {
+        width: 35px;
+        height: 35px;
+        background: var(--p-blue);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .user-info-cell .details {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .user-info-cell .details span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+    .product-link-cell a {
+        color: var(--p-blue);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .product-link-cell a:hover {
+            text-decoration: underline;
+        }
+
+    .stars-pro.sm {
+        font-size: 0.8rem;
+        color: var(--p-blue);
+    }
+
+    .comment-text {
+        font-size: 0.9rem;
+        color: #495057;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+    }
+
+    /* Action Colors */
+    .action-btn.approve {
+        color: #10b981;
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .action-btn.hide {
+        color: #f59e0b;
+        border-color: #f59e0b;
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .status-badge-pro.approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+        .status-badge-pro.approved .dot {
+            background: #10b981;
+        }
+
+    .status-badge-pro.pending {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .status-badge-pro.pending .dot {
+            background: #94a3b8;
+        }
+</style>
+
+<script>
+    function filterReviews() {
+        const searchText = document.getElementById('reviewSearch').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.review-row');
+
+        rows.forEach(row => {
+            const text = row.getAttribute('data-search').toLowerCase();
+            const status = row.getAttribute('data-status');
+
+            const matchesSearch = text.includes(searchText);
+            const matchesStatus = statusFilter === 'all' || status === statusFilter;
+
+            row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+        });
+    }
+</script>

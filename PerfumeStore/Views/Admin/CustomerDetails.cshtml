@@ -25,7 +25,7 @@
             <div class="profile-header">
                 <div class="avatar-container">
                     <div class="avatar-ring"></div>
-                    <img src="https://ui-avatars.com/api/?name=@Model.FirstName+@Model.LastName&background=0f0f1a&color=d4af37&size=128&font-size=0.4" alt="@Model.FirstName" class="profile-avatar" />
+                    <img src="https://ui-avatars.com/api/?name=@Model.FirstName+@Model.LastName&background=002855&color=fff&size=128&font-size=0.4" alt="@Model.FirstName" class="profile-avatar" />
                     <div class="status-indicator active"></div>
                 </div>
                 <h2>@Model.FirstName @Model.LastName</h2>
@@ -110,7 +110,7 @@
                                 @foreach (var order in Model.Orders.OrderByDescending(o => o.CreatedAt))
                                 {
                                     <tr>
-                                        <td><span class="coupon-code">#@order.Id</span></td>
+                                        <td><span class="coupon-code" style="color: #002855; border-color: #002855; background: rgba(0,40,85,0.05);">#@order.Id</span></td>
                                         <td style="color: var(--text-secondary);">@order.CreatedAt.ToString("MMM dd, yyyy")</td>
                                         <td>
                                             <span class="status-badge @order.Status.ToLower()">@order.Status</span>
@@ -156,7 +156,7 @@
     }
 
     .profile-header {
-        background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+        background: linear-gradient(180deg, rgba(0, 40, 85, 0.05) 0%, transparent 100%);
         padding: 3rem 2rem 2rem;
         text-align: center;
     }
@@ -181,7 +181,7 @@
         position: absolute;
         inset: -5px;
         border-radius: 50%;
-        border: 1px dashed rgba(212, 175, 55, 0.3);
+        border: 1px dashed rgba(0, 40, 85, 0.3);
         animation: spin 20s linear infinite;
     }
 
@@ -214,20 +214,20 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.4rem 1rem;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 40, 85, 0.05);
         border-radius: 20px;
         font-size: 0.8rem;
         color: var(--text-secondary);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 40, 85, 0.1);
     }
 
     /* Stats */
     .profile-stats {
         display: flex;
         padding: 1.5rem 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        background: rgba(0, 0, 0, 0.1);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background: rgba(0, 0, 0, 0.02);
     }
 
     .stat-item {
@@ -237,7 +237,7 @@
 
     .stat-divider {
         width: 1px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.05);
     }
 
     .stat-item .value {
@@ -281,13 +281,13 @@
         gap: 1rem;
         margin-bottom: 1rem;
         padding: 0.8rem;
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(0, 0, 0, 0.02);
         border-radius: 12px;
         transition: 0.3s;
     }
 
         .info-row:hover {
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.04);
             transform: translateX(5px);
         }
 
@@ -295,7 +295,7 @@
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(0, 40, 85, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -326,7 +326,7 @@
     .empty-icon {
         width: 80px;
         height: 80px;
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 40, 85, 0.05);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -334,7 +334,7 @@
         margin: 0 auto 1.5rem;
         font-size: 2rem;
         color: var(--text-secondary);
-        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border: 1px dashed rgba(0, 40, 85, 0.2);
     }
 
     .empty-state h3 {

@@ -1,4 +1,3 @@
-About.cshtml
 @{
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "من نحن" : "About Us";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
@@ -8,7 +7,7 @@ About.cshtml
 <section class="about-hero">
     <div class="container">
         <div class="about-hero-content">
-            <h1 class="animate-fade-up">@(isArabic ? "نور للعود والعطور" : "Nour Oud & Perfumes")</h1>
+            <h1 class="animate-fade-up">@(isArabic ? "نور مخا للعود والعطور" : "NourMakha Oud & Perfumes")</h1>
             <p class="animate-fade-up delay-1">@(isArabic ? "حيث تتحوّل كل نفحة إلى توقيع فخامة يدوم" : "Where every scent becomes a lasting signature of luxury")</p>
         </div>
     </div>
@@ -25,13 +24,13 @@ About.cshtml
                 <h2>@(isArabic ? "قصتنا" : "Our Story")</h2>
                 @if (isArabic)
                 {
-                    <p>في نور للعود والعطور نؤمن بأن العطر أكثر من مجرد رائحة، فهو لغة راقية تعبّر عن الشخصية، وتفاصيل دقيقة تعكس الذوق والهوية. من هذا الإيمان انطلقت علامتنا لتقدّم تجربة عطرية فريدة، تجمع بين الأصالة الشرقية والفخامة العصرية.</p>
-                    <p>تختص نور للعود والعطور في تقديم أجود أنواع العود الطبيعي والعطور المختارة بعناية، حيث نحرص على انتقاء أفضل المكونات من مصادر موثوقة، وصياغتها بتركيبات متوازنة تعبّر عن الرقي والتميّز. كل عطر لدينا هو نتيجة شغف، ودقة في الاختيار، واهتمام بأدق التفاصيل.</p>
+                    <p>في نور مخا للعود والعطور نؤمن بأن العطر أكثر من مجرد رائحة، فهو لغة راقية تعبّر عن الشخصية، وتفاصيل دقيقة تعكس الذوق والهوية. من هذا الإيمان انطلقت علامتنا لتقدّم تجربة عطرية فريدة، تجمع بين الأصالة الشرقية والفخامة العصرية.</p>
+                    <p>تختص نور مخا للعود والعطور في تقديم أجود أنواع العود الطبيعي والعطور المختارة بعناية، حيث نحرص على انتقاء أفضل المكونات من مصادر موثوقة، وصياغتها بتركيبات متوازنة تعبّر عن الرقي والتميّز. كل عطر لدينا هو نتيجة شغف، ودقة في الاختيار، واهتمام بأدق التفاصيل.</p>
                     <p>نسعى دائمًا إلى تقديم جودة استثنائية لا تقتصر على المنتج فحسب، بل تمتد إلى تجربة العميل الكاملة، بدءًا من التصميم الأنيق للعبوات، مرورًا بخدمة العملاء الراقية، ووصولًا إلى سهولة الشراء عبر موقعنا الإلكتروني أو من خلال فروعنا ونقاط التوزيع داخل سلطنة عُمان.</p>
                 }
                 else
                 {
-                    <p>At Nour Oud & Perfumes, we believe that perfume is more than just a scent; it is a sophisticated language that expresses personality and precise details that reflect taste and identity. From this belief, our brand was launched to provide a unique aromatic experience that combines oriental authenticity with modern luxury.</p>
+                    <p>At NourMakha Oud & Perfumes, we believe that perfume is more than just a scent; it is a sophisticated language that expresses personality and precise details that reflect taste and identity. From this belief, our brand was launched to provide a unique aromatic experience that combines oriental authenticity with modern luxury.</p>
                     <p>We specialize in offering the finest natural oud and carefully selected perfumes. We are keen to select the best ingredients from reliable sources and craft them into balanced compositions that express sophistication and distinction.</p>
                 }
             </div>
@@ -43,13 +42,13 @@ About.cshtml
 <section class="values-section">
     <div class="container">
         <div class="section-header">
-            <h2>@(isArabic ? "لماذا نور للعود والعطور؟" : "Why Us?")</h2>
+            <h2>@(isArabic ? "لماذا نور مخا للعود والعطور؟" : "Why Us?")</h2>
         </div>
         @if (isArabic)
         {
             <div class="about-text-center" style="text-align: center; color: var(--text-secondary); max-width: 800px; margin: 0 auto 3rem;">
                 <p>نفخر بوجود فروعنا في الموالح وصور، إضافة إلى انتشار منتجاتنا في نخبة من المتاجر الخاصة في مختلف ولايات السلطنة، مما يتيح لعملائنا الوصول إلى عطورنا بكل سهولة ويسر.</p>
-                <p>في نور للعود والعطور نلتزم بقيم الأصالة، والجودة، والثقة، ونسعى إلى بناء علاقة طويلة الأمد مع عملائنا، أساسها التميّز والشفافية والاحترام.</p>
+                <p>في نور مخا للعود والعطور نلتزم بقيم الأصالة، والجودة، والثقة، ونسعى إلى بناء علاقة طويلة الأمد مع عملائنا، أساسها التميّز والشفافية والاحترام.</p>
             </div>
         }
 
@@ -73,7 +72,7 @@ About.cshtml
 <style>
     .about-hero {
         height: 400px;
-        background: linear-gradient( 5deg, #000000 0%, rgb(255 255 255 / 95%) 100%), url(/images/77.jpg);
+        background: linear-gradient( 5deg, #000000 0%, rgb(255 255 255 / 80%) 100%), url(/images/77.jpg);
         background-size: cover;
         background-position: center;
         background-blend-mode: overlay;
@@ -88,12 +87,13 @@ About.cshtml
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
             margin-bottom: 1rem;
-            color: #fff;
+            color: #002855;
         }
 
         .about-hero p {
-            color: #d4af37;
+            color: #002855;
             font-size: 1.25rem;
+            font-weight: 500;
         }
 
     .about-section {
@@ -110,19 +110,19 @@ About.cshtml
     .about-image img {
         width: 100%;
         border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0, 40, 85, 0.1);
     }
 
     .about-content h2 {
         font-family: 'Playfair Display', serif;
         font-size: 2rem;
         margin-bottom: 1.5rem;
-        color: #d4af37;
+        color: #002855;
     }
 
     .about-content p {
-        color: #b8b8c8;
+        color: #495057;
         line-height: 1.8;
         margin-bottom: 1rem;
         text-align: justify;
@@ -130,13 +130,17 @@ About.cshtml
 
     .values-section {
         padding: 5rem 0;
-        background: #0a0a12;
+        background: #f8f9fa;
     }
 
     .section-header {
         text-align: center;
         margin-bottom: 2rem;
     }
+
+        .section-header h2 {
+            color: #002855;
+        }
 
     .values-grid {
         display: grid;
@@ -145,30 +149,31 @@ About.cshtml
     }
 
     .value-card {
-        background: rgba(26, 26, 46, 0.8);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        background: #ffffff;
+        border: 1px solid rgba(0, 40, 85, 0.1);
         border-radius: 15px;
         padding: 2rem;
         text-align: center;
         transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     }
 
         .value-card:hover {
-            border-color: #d4af37;
+            border-color: #002855;
             transform: translateY(-5px);
         }
 
     .value-icon {
         width: 70px;
         height: 70px;
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(0, 40, 85, 0.05);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 1rem;
         font-size: 1.5rem;
-        color: #d4af37;
+        color: #002855;
     }
 
     @@media (max-width: 768px) {

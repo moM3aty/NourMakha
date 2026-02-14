@@ -3,54 +3,519 @@
 @model List<Order>
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "إدارة الطلبات" : "Orders";
+    ViewData["Title"] = CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "إدارة الطلبات" : "Order Management";
     var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
     var currentStatus = Context.Request.Query["status"].ToString();
 }
 
-<div class="btn-group mb-4 flex-wrap">
-    <a href="/Admin/Orders" class="btn @(string.IsNullOrEmpty(currentStatus) ? "btn-gold" : "btn-outline-secondary")">@(isArabic ? "الكل" : "All")</a>
-    <a href="/Admin/Orders?status=Pending" class="btn @(currentStatus == "Pending" ? "btn-gold" : "btn-outline-secondary")">@(isArabic ? "قيد الانتظار" : "Pending")</a>
-    <a href="/Admin/Orders?status=Shipped" class="btn @(currentStatus == "Shipped" ? "btn-gold" : "btn-outline-secondary")">@(isArabic ? "تم الشحن" : "Shipped")</a>
-    <a href="/Admin/Orders?status=Delivered" class="btn @(currentStatus == "Delivered" ? "btn-gold" : "btn-outline-secondary")">@(isArabic ? "تم التسليم" : "Delivered")</a>
-    <a href="/Admin/Orders?status=Cancelled" class="btn @(currentStatus == "Cancelled" ? "btn-gold" : "btn-outline-secondary")">@(isArabic ? "ملغي" : "Cancelled")</a>
-</div>
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? "متابعة طلبات العملاء وحالات الشحن" : "Track customer orders and shipping status")</p>
+                </div>
+            </div>
+            <div class="header-stats-mini">
+                <div class="stat-mini">
+                    <span class="label">@(isArabic ? "إجمالي الطلبات" : "Total Orders")</span>
+                    <span class="value">@Model.Count</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="card">
-    <div class="card-body">
+    <!-- Filter & Toolbar Section -->
+    <div class="toolbar-container animate-fade-up delay-1">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="orderSearch" placeholder="@(isArabic ? "بحث برقم الطلب، اسم العميل..." : "Search by Order ID, Customer name...")" onkeyup="filterOrders()">
+        </div>
+
+        <div class="filters-wrapper">
+            <!-- Quick Status Filter (Buttons) -->
+            <div class="status-btn-group">
+                <a href="/Admin/Orders" class="status-pill @(string.IsNullOrEmpty(currentStatus) ? "active" : "")">
+                    @(isArabic ? "الكل" : "All")
+                </a>
+                <a href="/Admin/Orders?status=Pending" class="status-pill pending @(currentStatus == "Pending" ? "active" : "")">
+                    @(isArabic ? "قيد الانتظار" : "Pending")
+                </a>
+                <a href="/Admin/Orders?status=Shipped" class="status-pill shipped @(currentStatus == "Shipped" ? "active" : "")">
+                    @(isArabic ? "تم الشحن" : "Shipped")
+                </a>
+                <a href="/Admin/Orders?status=Delivered" class="status-pill delivered @(currentStatus == "Delivered" ? "active" : "")">
+                    @(isArabic ? "تم التسليم" : "Delivered")
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table Card -->
+    <div class="table-card animate-fade-up delay-2">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="premium-table" id="ordersTable">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th width="120px">#</th>
                         <th>@(isArabic ? "العميل" : "Customer")</th>
-                        <th>@(isArabic ? "المبلغ" : "Amount")</th>
-                        <th>@(isArabic ? "الحالة" : "Status")</th>
                         <th>@(isArabic ? "التاريخ" : "Date")</th>
-                        <th></th>
+                        <th>@(isArabic ? "المبلغ" : "Total")</th>
+                        <th>@(isArabic ? "الحالة" : "Status")</th>
+                        <th class="text-end">@(isArabic ? "إجراءات" : "Actions")</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var order in Model)
                     {
-                        <tr>
-                            <td><strong>#@order.Id</strong></td>
-                            <td>@order.ShippingFirstName @order.ShippingLastName<br><small class="text-muted">@order.ShippingEmail</small></td>
-                            <td>@order.GrandTotal.ToString("N2") OMR</td>
-                            <td><span class="badge bg-@(order.Status.ToLower() switch { "pending" => "warning", "shipped" => "info", "delivered" => "success", "cancelled" => "danger", _ => "secondary" })">@order.Status</span></td>
-                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        var statusClass = order.Status.ToLower();
+                        <tr class="order-row" data-search-key="@(order.Id) @(order.ShippingFirstName) @(order.ShippingLastName) @(order.ShippingEmail)">
                             <td>
-                                <a href="/Admin/OrderDetails/@order.Id" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                                <span class="order-id-badge">#@order.Id</span>
+                            </td>
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="avatar-mini">
+                                        @(order.ShippingFirstName.Substring(0, 1))
+                                    </div>
+                                    <div class="details">
+                                        <h4 class="name">@order.ShippingFirstName @order.ShippingLastName</h4>
+                                        <span class="email">@order.ShippingEmail</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="date-cell">
+                                    <span class="day">@order.CreatedAt.ToString("dd MMM yyyy")</span>
+                                    <span class="time">@order.CreatedAt.ToString("HH:mm")</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="amount-cell">@order.GrandTotal.ToString("N2") <small>OMR</small></span>
+                            </td>
+                            <td>
+                                <span class="status-badge-pro @statusClass">
+                                    <span class="dot"></span>
+                                    @order.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <a href="/Admin/OrderDetails/@order.Id" class="action-btn view" title="@(isArabic ? "عرض التفاصيل" : "View Details")">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/Admin/Invoice/@order.Id" target="_blank" class="action-btn print" title="@(isArabic ? "طباعة الفاتورة" : "Print Invoice")">
+                                        <i class="fas fa-print"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-data">
+                    <i class="fas fa-receipt"></i>
+                    <h3>@(isArabic ? "لا توجد طلبات حالياً" : "No Orders Found")</h3>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 <style>
-    .btn-gold { background: linear-gradient(135deg, #d4af37, #b8960c); border: none; color: white; }
-    .btn-gold:hover { background: linear-gradient(135deg, #b8960c, #9a7b0a); color: white; }
+    /* --- Premium Layout & Components --- */
+    .page-content-wrapper {
+        padding: 1rem;
+    }
+
+    .page-header-premium {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 40, 85, 0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .icon-box {
+        width: 54px;
+        height: 54px;
+        background: linear-gradient(135deg, #002855, #004080);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.4rem;
+        box-shadow: 0 10px 20px rgba(0, 40, 85, 0.15);
+    }
+
+    .title-wrapper h1 {
+        font-size: 1.6rem;
+        color: #1e293b;
+        margin: 0;
+        font-family: 'Tajawal', sans-serif;
+    }
+
+    .title-wrapper p {
+        color: #64748b;
+        margin: 5px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .header-stats-mini {
+        display: flex;
+        gap: 2rem;
+        padding: 0.5rem 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-mini {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .stat-mini .label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-mini .value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #002855;
+        }
+
+    /* --- Toolbar & Filters --- */
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 300px;
+    }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            padding-inline-start: 3rem;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+            .search-wrapper input:focus {
+                border-color: #002855;
+                box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.05);
+                outline: none;
+            }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-start: 1.2rem;
+        color: #94a3b8;
+    }
+
+    .status-btn-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .status-pill {
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: 0.3s;
+    }
+
+        .status-pill:hover {
+            border-color: #002855;
+            color: #002855;
+        }
+
+        .status-pill.active {
+            background: #002855;
+            color: #fff;
+            border-color: #002855;
+            box-shadow: 0 4px 12px rgba(0, 40, 85, 0.2);
+        }
+
+    /* --- Table Card --- */
+    .table-card {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .premium-table thead {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .premium-table th {
+            padding: 1.2rem 1.5rem;
+            text-align: start;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .premium-table td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .premium-table tr:hover td {
+            background: #fcfdfe;
+        }
+
+    .order-id-badge {
+        background: #eff6ff;
+        color: #002855;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .customer-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .avatar-mini {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(0, 40, 85, 0.1);
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .customer-info-cell .name {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    .customer-info-cell .email {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .date-cell .day {
+        display: block;
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .date-cell .time {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .amount-cell {
+        font-weight: 800;
+        color: #002855;
+        font-size: 1.05rem;
+    }
+
+        .amount-cell small {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+    /* --- Status Badges Premium --- */
+    .status-badge-pro {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+        .status-badge-pro .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+    .pending {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+        .pending .dot {
+            background: #ea580c;
+        }
+
+    .shipped {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+        .shipped .dot {
+            background: #2563eb;
+        }
+
+    .delivered {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+        .delivered .dot {
+            background: #16a34a;
+        }
+
+    .cancelled {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+        .cancelled .dot {
+            background: #dc2626;
+        }
+
+    .actions-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+    }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .action-btn.view:hover {
+            color: #002855;
+            border-color: #002855;
+            background: rgba(0, 40, 85, 0.05);
+        }
+
+        .action-btn.print:hover {
+            color: #0ea5e9;
+            border-color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+    .empty-data {
+        padding: 4rem;
+        text-align: center;
+        color: #cbd5e1;
+    }
+
+        .empty-data i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    @@media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .toolbar-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .premium-table th:nth-child(3), .premium-table td:nth-child(3) {
+            display: none;
+        }
+    }
 </style>
+
+<script>
+    function filterOrders() {
+        const input = document.getElementById('orderSearch');
+        const filter = input.value.toLowerCase();
+        const rows = document.querySelectorAll('.order-row');
+
+        rows.forEach(row => {
+            const key = row.getAttribute('data-search-key').toLowerCase();
+            if (key.includes(filter)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+</script>

@@ -26,7 +26,7 @@ namespace PerfumeStore.Data
             }
 
             // Seed Admin User
-            var adminEmail = "admin@perfumestore.com";
+            var adminEmail = "admin@nourmakha.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
             {

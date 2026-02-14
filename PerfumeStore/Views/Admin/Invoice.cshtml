@@ -29,7 +29,7 @@
             background: white;
             padding: 3rem;
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
 
         .invoice-header {
@@ -38,12 +38,12 @@
             align-items: flex-start;
             margin-bottom: 2rem;
             padding-bottom: 2rem;
-            border-bottom: 2px solid #d4af37;
+            border-bottom: 2px solid #002855;
         }
 
         .company-info h1 {
             font-size: 2rem;
-            color: #1a1a2e;
+            color: #002855;
             margin-bottom: 0.5rem;
         }
 
@@ -57,7 +57,7 @@
         }
 
             .invoice-info h2 {
-                color: #d4af37;
+                color: #002855;
                 font-size: 1.5rem;
                 margin-bottom: 0.5rem;
             }
@@ -151,7 +151,7 @@
         }
 
             .totals-total span:last-child {
-                color: #d4af37;
+                color: #002855;
             }
 
         .footer {
@@ -176,8 +176,8 @@
         }
 
         .status- @Model.Status.ToLower() {
-            background: #f1c40f20;
-            color: #f1c40f;
+            background: rgba(0, 40, 85, 0.1);
+            color: #002855;
         }
 
         @@media print {
@@ -196,10 +196,10 @@
     <div class="invoice">
         <div class="invoice-header">
             <div class="company-info">
-                <h1>Perfume Store</h1>
+                <h1>NourMakha</h1>
                 <p>@(isArabic ? "شارع الملك فهد، الرياض، السعودية" : "King Fahd Road, Riyadh, Saudi Arabia")</p>
                 <p>@(isArabic ? "هاتف: +966 50 123 4567" : "Phone: +966 50 123 4567")</p>
-                <p>Email: info@perfumestore.com</p>
+                <p>Email: info@nourmakha.com</p>
             </div>
             <div class="invoice-info">
                 <h2>@(isArabic ? "فاتورة" : "INVOICE")</h2>
@@ -274,7 +274,7 @@
 
         <div class="footer">
             <p>@(isArabic ? "شكراً لتسوقكم معنا!" : "Thank you for shopping with us!")</p>
-            <p>@(isArabic ? "للاستفسارات، يرجى التواصل على info@perfumestore.com" : "For inquiries, please contact info@perfumestore.com")</p>
+            <p>@(isArabic ? "للاستفسارات، يرجى التواصل على info@nourmakha.com" : "For inquiries, please contact info@nourmakha.com")</p>
         </div>
     </div>
 

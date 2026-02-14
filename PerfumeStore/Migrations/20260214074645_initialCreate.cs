@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PerfumeStore.Migrations
 {
     /// <inheritdoc />
-    public partial class @new : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -113,10 +113,13 @@ namespace PerfumeStore.Migrations
                     DiscountValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MaxDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     MinOrderAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    MinimumOrderAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    MaximumDiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     UsageLimit = table.Column<int>(type: "int", nullable: true),
                     UsageCount = table.Column<int>(type: "int", nullable: false),
+                    UsedCount = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -141,6 +144,38 @@ namespace PerfumeStore.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OTPCodes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShippingZones",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameAr = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NameEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    EstimatedDays = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShippingZones", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SiteSettings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Key = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SiteSettings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -291,6 +326,9 @@ namespace PerfumeStore.Migrations
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     GrandTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CouponCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -438,10 +476,12 @@ namespace PerfumeStore.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CommentAr = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -493,12 +533,27 @@ namespace PerfumeStore.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "DescriptionAr", "DisplayOrder", "ImageUrl", "IsActive", "Name", "NameAr" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 2, 12, 19, 51, 58, 160, DateTimeKind.Local).AddTicks(3866), "Premium men's fragrances", "عطور رجالية فاخرة", 1, null, true, "Men's Perfumes", "عطور رجالية" },
-                    { 2, new DateTime(2026, 2, 12, 19, 51, 58, 160, DateTimeKind.Local).AddTicks(3962), "Elegant women's fragrances", "عطور نسائية راقية", 2, null, true, "Women's Perfumes", "عطور نسائية" },
-                    { 3, new DateTime(2026, 2, 12, 19, 51, 58, 160, DateTimeKind.Local).AddTicks(3966), "Versatile unisex fragrances", "عطور متنوعة للجنسين", 3, null, true, "Unisex Perfumes", "عطور للجنسين" },
-                    { 4, new DateTime(2026, 2, 12, 19, 51, 58, 160, DateTimeKind.Local).AddTicks(3969), "Exclusive luxury perfume collections", "مجموعات عطور فاخرة حصرية", 4, null, true, "Luxury Collections", "مجموعات فاخرة" },
-                    { 5, new DateTime(2026, 2, 12, 19, 51, 58, 160, DateTimeKind.Local).AddTicks(3972), "Perfect gift sets for loved ones", "مجموعات هدايا مثالية لأحبائك", 5, null, true, "Gift Sets", "هدايا" }
+                    { 1, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(947), "Premium men's fragrances", "عطور رجالية فاخرة", 1, null, true, "Men's Perfumes", "عطور رجالية" },
+                    { 2, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1026), "Elegant women's fragrances", "عطور نسائية راقية", 2, null, true, "Women's Perfumes", "عطور نسائية" },
+                    { 3, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1031), "Versatile unisex fragrances", "عطور متنوعة للجنسين", 3, null, true, "Unisex Perfumes", "عطور للجنسين" },
+                    { 4, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1036), "Exclusive luxury perfume collections", "مجموعات عطور فاخرة حصرية", 4, null, true, "Luxury Collections", "مجموعات فاخرة" },
+                    { 5, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1041), "Perfect gift sets for loved ones", "مجموعات هدايا مثالية لأحبائك", 5, null, true, "Gift Sets", "هدايا" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "ShippingZones",
+                columns: new[] { "Id", "Cost", "EstimatedDays", "IsActive", "NameAr", "NameEn" },
+                values: new object[,]
+                {
+                    { 1, 2.00m, 2, true, "مسقط", "Muscat" },
+                    { 2, 3.00m, 3, true, "الداخلية", "Ad Dakhiliyah" },
+                    { 3, 4.00m, 4, true, "ظفار", "Dhofar" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SiteSettings",
+                columns: new[] { "Id", "IsEnabled", "Key", "Value" },
+                values: new object[] { 1, true, "AnnouncementBar", "خصم 20% لفترة محدودة على جميع العطور!" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -660,6 +715,12 @@ namespace PerfumeStore.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reviews");
+
+            migrationBuilder.DropTable(
+                name: "ShippingZones");
+
+            migrationBuilder.DropTable(
+                name: "SiteSettings");
 
             migrationBuilder.DropTable(
                 name: "WishlistItems");

@@ -102,10 +102,10 @@ namespace PerfumeStore.Services
                     decimal discount = coupon.DiscountType == "Percentage"
                         ? subtotal * coupon.DiscountValue / 100
                         : coupon.DiscountValue;
-                    
+
                     if (coupon.MaxDiscount.HasValue && discount > coupon.MaxDiscount.Value)
                         discount = coupon.MaxDiscount.Value;
-                    
+
                     order.Discount = discount;
                     coupon.UsageCount++;
                 }

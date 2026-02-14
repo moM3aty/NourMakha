@@ -22,8 +22,8 @@ namespace PerfumeStore.Controllers
 
         private string? GetUserId()
         {
-            return User.Identity?.IsAuthenticated ?? false 
-                ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+            return User.Identity?.IsAuthenticated ?? false
+                ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                 : null;
         }
 

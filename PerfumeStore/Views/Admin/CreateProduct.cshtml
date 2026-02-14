@@ -110,7 +110,7 @@
                 <div class="card-body" style="padding: 2rem;">
                     <div class="form-group">
                         <label asp-for="Size">@(isArabic ? "الحجم" : "Size")</label>
-                        <select asp-for="Size">
+                        <select asp-for="Size" class="form-select allow-other">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="30ml">30ml</option>
                             <option value="50ml">50ml</option>
@@ -118,36 +118,44 @@
                             <option value="100ml">100ml</option>
                             <option value="125ml">125ml</option>
                             <option value="200ml">200ml</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                     <div class="form-group">
                         <label asp-for="Gender">@(isArabic ? "الجنس" : "Gender")</label>
-                        <select asp-for="Gender">
+                        <select asp-for="Gender" class="form-select allow-other">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Men">@(isArabic ? "رجالي" : "Men")</option>
                             <option value="Women">@(isArabic ? "نسائي" : "Women")</option>
                             <option value="Unisex">@(isArabic ? "للجنسين" : "Unisex")</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                     <div class="form-group">
                         <label asp-for="Concentration">@(isArabic ? "التركيز" : "Concentration")</label>
-                        <select asp-for="Concentration">
+                        <select asp-for="Concentration" class="form-select allow-other">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Parfum">Parfum</option>
                             <option value="EDP">EDP</option>
                             <option value="EDT">EDT</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                     <div class="form-group">
                         <label asp-for="ScentFamily">@(isArabic ? "العائلة العطرية" : "Scent Family")</label>
-                        <select asp-for="ScentFamily">
+                        <select asp-for="ScentFamily" class="form-select allow-other">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Oud">Oud (عود)</option>
                             <option value="Floral">Floral (زهري)</option>
                             <option value="Woody">Woody (خشبي)</option>
                             <option value="Fresh">Fresh (منعش)</option>
                             <option value="Oriental">Oriental (شرقي)</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                 </div>
             </div>
@@ -267,16 +275,15 @@
         text-align: center;
     }
 
-        .preview-container img {
-            max-width: 100%;
-            border-radius: 12px;
-            border: 1px solid var(--gold-primary);
-        }
-
     .action-save {
         min-width: 200px;
         padding: 1rem 2rem;
         font-size: 1.1rem;
+    }
+
+    .custom-other-input {
+        border-color: var(--gold-primary);
+        background-color: #f0f8ff; /* Light blue tint to indicate it's active */
     }
 
     @@media (max-width: 1200px) {
@@ -285,21 +292,3 @@
         }
     }
 </style>
-
-<script>
-    document.getElementById('imageInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('imagePreview');
-                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" />`;
-                // Visual feedback for upload area
-                document.querySelector('.upload-label').style.borderColor = '#2ecc71';
-                document.querySelector('.upload-icon').className = 'fas fa-check-circle upload-icon';
-                document.querySelector('.upload-icon').style.color = '#2ecc71';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-</script>

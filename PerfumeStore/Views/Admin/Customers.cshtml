@@ -1,89 +1,495 @@
 @model List<PerfumeStore.Models.ApplicationUser>
 @{
-    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "العملاء" : "Customers";
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إدارة العملاء" : "Customers Management";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
     Layout = "_AdminLayout";
 }
 
-<div class="page-header">
-    <div class="header-left">
-        <h1>@(isArabic ? "إدارة العملاء" : "Customers Management")</h1>
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? "متابعة بيانات العملاء، سجلات الشراء والولاء" : "Monitor customer data, purchase history, and loyalty")</p>
+                </div>
+            </div>
+            <div class="header-stats-mini">
+                <div class="stat-mini">
+                    <span class="label">@(isArabic ? "إجمالي العملاء" : "Total Customers")</span>
+                    <span class="value">@Model.Count</span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="header-right">
-        <input type="text" placeholder="@(isArabic ? "بحث عن عميل..." : "Search customer...")" class="search-input" />
-    </div>
-</div>
 
-<div class="card">
-    <div class="card-body">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>@(isArabic ? "العميل" : "Customer")</th>
-                    <th>@(isArabic ? "البريد الإلكتروني" : "Email")</th>
-                    <th>@(isArabic ? "الهاتف" : "Phone")</th>
-                    <th>@(isArabic ? "الطلبات" : "Orders")</th>
-                    <th>@(isArabic ? "إجمالي المشتريات" : "Total Spent")</th>
-                    <th>@(isArabic ? "تاريخ التسجيل" : "Joined")</th>
-                    <th>@(isArabic ? "الإجراءات" : "Actions")</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var customer in Model)
-                {
+    <!-- Filter & Toolbar Section -->
+    <div class="toolbar-container animate-fade-up delay-1">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="customerSearch" placeholder="@(isArabic ? "بحث باسم العميل، البريد، أو الهاتف..." : "Search by name, email, or phone...")" onkeyup="filterCustomers()">
+        </div>
+
+        <div class="filters-wrapper">
+            <div class="select-wrapper">
+                <select id="spentFilter" onchange="filterCustomers()">
+                    <option value="all">@(isArabic ? "كل المشتريات" : "All Spending")</option>
+                    <option value="high">@(isArabic ? "أكثر من 100 OMR" : "Above 100 OMR")</option>
+                    <option value="medium">@(isArabic ? "50 - 100 OMR" : "50 - 100 OMR")</option>
+                    <option value="low">@(isArabic ? "أقل من 50 OMR" : "Below 50 OMR")</option>
+                </select>
+                <i class="fas fa-chevron-down arrow-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customers Table Card -->
+    <div class="table-card animate-fade-up delay-2">
+        <div class="table-responsive">
+            <table class="premium-table" id="customersTable">
+                <thead>
                     <tr>
-                        <td>
-                            <div class="customer-cell">
-                                <img src="https://ui-avatars.com/api/?name=@customer.FirstName@customer.LastName&background=d4af37&color=fff" alt="@customer.FirstName" class="customer-avatar" />
-                                <div>
-                                    <strong>@customer.FirstName @customer.LastName</strong>
-                                </div>
-                            </div>
-                        </td>
-                        <td>@customer.Email</td>
-                        <td>@customer.PhoneNumber</td>
-                        <td>@customer.Orders.Count</td>
-                        <td><strong class="text-gold">$@customer.Orders.Sum(o => o.GrandTotal).ToString("F2")</strong></td>
-                        <td>@customer.CreatedAt.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            <div class="action-btns">
-                                <a href="/Admin/CustomerDetails/@customer.Id" class="action-btn view">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </td>
+                        <th>@(isArabic ? "العميل" : "Customer")</th>
+                        <th>@(isArabic ? "التواصل" : "Contact")</th>
+                        <th>@(isArabic ? "الطلبات" : "Orders")</th>
+                        <th>@(isArabic ? "إجمالي الإنفاق" : "Total Spent")</th>
+                        <th>@(isArabic ? "تاريخ الانضمام" : "Joined Date")</th>
+                        <th class="text-end">@(isArabic ? "إجراءات" : "Actions")</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model)
+                    {
+                        var totalSpent = customer.Orders.Sum(o => o.GrandTotal);
+                        <tr class="customer-row"
+                            data-search-key="@(customer.FirstName) @(customer.LastName) @(customer.Email) @(customer.PhoneNumber)"
+                            data-spent="@totalSpent">
+                            <td>
+                                <div class="customer-info-cell">
+                                    <div class="avatar-container">
+                                        <img src="https://ui-avatars.com/api/?name=@customer.FirstName+@customer.LastName&background=002855&color=fff&bold=true" alt="@customer.FirstName" />
+                                        <span class="status-dot"></span>
+                                    </div>
+                                    <div class="details">
+                                        <h4 class="name">@customer.FirstName @customer.LastName</h4>
+                                        <span class="id-tag">ID: @customer.Id.Substring(0, 8)</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="contact-cell">
+                                    <span class="email"><i class="far fa-envelope"></i> @customer.Email</span>
+                                    <span class="phone"><i class="fas fa-phone-alt"></i> @(string.IsNullOrEmpty(customer.PhoneNumber) ? "---" : customer.PhoneNumber)</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="order-count-badge">
+                                    @customer.Orders.Count @(isArabic ? "طلبات" : "Orders")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="amount-cell">@totalSpent.ToString("N2") <small>OMR</small></span>
+                            </td>
+                            <td>
+                                <div class="date-cell">
+                                    <span class="day">@customer.CreatedAt.ToString("dd MMM yyyy")</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <a href="/Admin/CustomerDetails/@customer.Id" class="action-btn view" title="@(isArabic ? "عرض الملف" : "View Profile")">
+                                        <i class="fas fa-user-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-data">
+                    <i class="fas fa-users-slash"></i>
+                    <h3>@(isArabic ? "لا يوجد عملاء مسجلين" : "No Customers Found")</h3>
+                </div>
+            }
+        </div>
     </div>
 </div>
 
 <style>
-.customer-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
+    /* --- Premium Layout & Components --- */
+    .page-content-wrapper {
+        padding: 1rem;
+    }
 
-.customer-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
+    .page-header-premium {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 40, 85, 0.05);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
 
-.search-input {
-    padding: 0.75rem 1rem;
-    background: rgba(15, 15, 26, 0.8);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    border-radius: 8px;
-    color: #fff;
-    width: 250px;
-}
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
 
-.text-gold {
-    color: #d4af37;
-}
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .icon-box {
+        width: 54px;
+        height: 54px;
+        background: linear-gradient(135deg, #002855, #004080);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.4rem;
+        box-shadow: 0 10px 20px rgba(0, 40, 85, 0.15);
+    }
+
+    .title-wrapper h1 {
+        font-size: 1.6rem;
+        color: #1e293b;
+        margin: 0;
+        font-family: 'Tajawal', sans-serif;
+    }
+
+    .title-wrapper p {
+        color: #64748b;
+        margin: 5px 0 0;
+        font-size: 0.95rem;
+    }
+
+    .header-stats-mini {
+        display: flex;
+        gap: 2rem;
+        padding: 0.5rem 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-mini {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .stat-mini .label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-mini .value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #002855;
+        }
+
+    /* --- Toolbar & Filters --- */
+    .toolbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 300px;
+    }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            padding-inline-start: 3rem;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+            .search-wrapper input:focus {
+                border-color: #002855;
+                box-shadow: 0 0 0 4px rgba(0, 40, 85, 0.05);
+                outline: none;
+            }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-start: 1.2rem;
+        color: #94a3b8;
+    }
+
+    .filters-wrapper {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .select-wrapper {
+        position: relative;
+        min-width: 180px;
+    }
+
+        .select-wrapper select {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            appearance: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+    .arrow-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        inset-inline-end: 1rem;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+
+    /* --- Table Card --- */
+    .table-card {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .premium-table thead {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .premium-table th {
+            padding: 1.2rem 1.5rem;
+            text-align: start;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .premium-table td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .premium-table tr:hover td {
+            background: #fcfdfe;
+        }
+
+    /* Customer Cell */
+    .customer-info-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 45px;
+        height: 45px;
+    }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+    .status-dot {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        background: #2ecc71;
+        border: 2px solid #fff;
+        border-radius: 50%;
+    }
+
+    .customer-info-cell .name {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    .customer-info-cell .id-tag {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-family: monospace;
+    }
+
+    .contact-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+        .contact-cell span {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-cell i {
+            color: #002855;
+            width: 14px;
+            opacity: 0.7;
+        }
+
+    .order-count-badge {
+        background: #eff6ff;
+        color: #002855;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border: 1px solid rgba(0, 40, 85, 0.1);
+    }
+
+    .amount-cell {
+        font-weight: 800;
+        color: #002855;
+        font-size: 1.05rem;
+    }
+
+        .amount-cell small {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+    .date-cell .day {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .actions-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+    }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .action-btn.view:hover {
+            color: #002855;
+            border-color: #002855;
+            background: rgba(0, 40, 85, 0.05);
+        }
+
+    .empty-data {
+        padding: 4rem;
+        text-align: center;
+        color: #cbd5e1;
+    }
+
+        .empty-data i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    @@media (max-width: 992px) {
+        .customer-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .toolbar-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .premium-table th:nth-child(3), .premium-table td:nth-child(3),
+        .premium-table th:nth-child(5), .premium-table td:nth-child(5) {
+            display: none;
+        }
+    }
 </style>
 
+<script>
+    function filterCustomers() {
+        const searchText = document.getElementById('customerSearch').value.toLowerCase();
+        const spentFilter = document.getElementById('spentFilter').value;
+        const rows = document.querySelectorAll('.customer-row');
 
+        rows.forEach(row => {
+            const key = row.getAttribute('data-search-key').toLowerCase();
+            const spent = parseFloat(row.getAttribute('data-spent'));
+
+            let matchesSearch = key.includes(searchText);
+            let matchesSpent = true;
+
+            if (spentFilter === 'high') matchesSpent = spent > 100;
+            else if (spentFilter === 'medium') matchesSpent = spent >= 50 && spent <= 100;
+            else if (spentFilter === 'low') matchesSpent = spent < 50;
+
+            if (matchesSearch && matchesSpent) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+</script>

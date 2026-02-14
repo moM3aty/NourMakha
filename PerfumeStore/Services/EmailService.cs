@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+
 namespace PerfumeStore.Services
 {
     public interface IEmailService
@@ -21,12 +24,13 @@ namespace PerfumeStore.Services
         {
             var subject = purpose switch
             {
-                "Register" => "Verify Your Email - Perfume Store",
-                "ResetPassword" => "Reset Your Password - Perfume Store",
-                "Login" => "Your Login Code - Perfume Store",
-                _ => "Your OTP Code - Perfume Store"
+                "Register" => "Verify Your Email - NourMakha",
+                "ResetPassword" => "Reset Your Password - NourMakha",
+                "Login" => "Your Login Code - NourMakha",
+                _ => "Your OTP Code - NourMakha"
             };
 
+            // تم تحديث الألوان إلى الأزرق الملكي #002855
             var body = $@"
 <!DOCTYPE html>
 <html>
@@ -34,17 +38,17 @@ namespace PerfumeStore.Services
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
         .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-        .header {{ background: linear-gradient(135deg, #d4af37, #b8960c); padding: 30px; text-align: center; }}
+        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
         .header h1 {{ color: white; margin: 0; }}
         .content {{ padding: 40px 30px; text-align: center; }}
-        .otp-code {{ font-size: 32px; font-weight: bold; color: #d4af37; letter-spacing: 8px; margin: 20px 0; }}
+        .otp-code {{ font-size: 32px; font-weight: bold; color: #002855; letter-spacing: 8px; margin: 20px 0; }}
         .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; font-size: 12px; }}
     </style>
 </head>
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>🌟 Perfume Store</h1>
+            <h1>🌟 NourMakha</h1>
         </div>
         <div class='content'>
             <h2>Your verification code is:</h2>
@@ -52,7 +56,7 @@ namespace PerfumeStore.Services
             <p style='color: #666; font-size: 14px;'>This code will expire in 10 minutes.</p>
         </div>
         <div class='footer'>
-            <p>© 2024 Perfume Store. All rights reserved.</p>
+            <p>© 2024 NourMakha. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -63,7 +67,8 @@ namespace PerfumeStore.Services
 
         public async Task SendOrderConfirmationAsync(string email, int orderId, string orderNumber)
         {
-            var subject = $"Order Confirmation - {orderNumber} - Perfume Store";
+            var subject = $"Order Confirmation - {orderNumber} - NourMakha";
+            // تم تحديث الألوان إلى الأزرق الملكي #002855
             var body = $@"
 <!DOCTYPE html>
 <html>
@@ -71,10 +76,10 @@ namespace PerfumeStore.Services
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
         .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }}
-        .header {{ background: linear-gradient(135deg, #d4af37, #b8960c); padding: 30px; text-align: center; }}
+        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
         .header h1 {{ color: white; margin: 0; }}
         .content {{ padding: 40px 30px; }}
-        .order-number {{ font-size: 24px; color: #d4af37; font-weight: bold; }}
+        .order-number {{ font-size: 24px; color: #002855; font-weight: bold; }}
         .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; }}
     </style>
 </head>
@@ -89,7 +94,7 @@ namespace PerfumeStore.Services
             <p>Order Number: <span class='order-number'>{orderNumber}</span></p>
         </div>
         <div class='footer'>
-            <p>© 2024 Perfume Store. All rights reserved.</p>
+            <p>© 2024 NourMakha. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -100,7 +105,8 @@ namespace PerfumeStore.Services
 
         public async Task SendOrderStatusUpdateAsync(string email, int orderId, string orderNumber, string status)
         {
-            var subject = $"Order Update - {orderNumber} - {status} - Perfume Store";
+            var subject = $"Order Update - {orderNumber} - {status} - NourMakha";
+            // تم تحديث الألوان إلى الأزرق الملكي #002855
             var body = $@"
 <!DOCTYPE html>
 <html>
@@ -108,10 +114,10 @@ namespace PerfumeStore.Services
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
         .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }}
-        .header {{ background: linear-gradient(135deg, #d4af37, #b8960c); padding: 30px; text-align: center; }}
+        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
         .header h1 {{ color: white; margin: 0; }}
         .content {{ padding: 40px 30px; text-align: center; }}
-        .status {{ font-size: 28px; color: #d4af37; font-weight: bold; }}
+        .status {{ font-size: 28px; color: #002855; font-weight: bold; }}
         .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; }}
     </style>
 </head>
@@ -126,7 +132,7 @@ namespace PerfumeStore.Services
             <p>New Status: <span class='status'>{status}</span></p>
         </div>
         <div class='footer'>
-            <p>© 2024 Perfume Store. All rights reserved.</p>
+            <p>© 2024 NourMakha. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -156,7 +162,7 @@ namespace PerfumeStore.Services
 
             var mailMessage = new System.Net.Mail.MailMessage
             {
-                From = new System.Net.Mail.MailAddress(fromEmail ?? smtpUsername, "Perfume Store"),
+                From = new System.Net.Mail.MailAddress(fromEmail ?? smtpUsername, "NourMakha"),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true

@@ -1,155 +1,549 @@
 @model PerfumeStore.ViewModels.CartIndexViewModel
+@using PerfumeStore.Data
+@inject ApplicationDbContext _context
 @{
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "حقيبة التسوق" : "Shopping Bag";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+    // جلب مناطق الشحن النشطة
+    var shippingZones = _context.Set<PerfumeStore.Models.ShippingZone>().Where(z => z.IsActive).ToList();
 }
 
-<!-- Page Header -->
-<div class="page-header-shop animate-fade-up">
+<div class="cart-header-premium animate-fade-up">
     <div class="container">
-        <h1>@ViewData["Title"]</h1>
-        <div class="breadcrumb-shop">
+        <nav class="breadcrumb-mini">
             <a href="/">@(isArabic ? "الرئيسية" : "Home")</a>
-            <span class="separator">/</span>
-            <span class="current">@ViewData["Title"]</span>
-        </div>
+            <i class="fas fa-chevron-@(isArabic ? "left" : "right")"></i>
+            <span>@(isArabic ? "سلة المشتريات" : "Cart")</span>
+        </nav>
+        <h1 class="display-title">@(isArabic ? "حقيبة التسوق الخاصة بك" : "Your Shopping Bag")</h1>
+        <p class="cart-subtitle">@(isArabic ? $"لديك {Model.Cart.Items.Count} منتجات في الحقيبة" : $"You have {Model.Cart.Items.Count} items in your bag")</p>
     </div>
 </div>
 
-<section class="cart-section container animate-fade-up delay-1">
+<section class="cart-section container">
     @if (Model.Cart.Items?.Any() == true)
     {
-        <div class="cart-layout-premium">
-            <!-- Cart Items List -->
-            <div class="cart-items-container">
-                <div class="cart-table-header">
-                    <div class="col-product">@(isArabic ? "المنتج" : "Product")</div>
-                    <div class="col-price">@(isArabic ? "السعر" : "Price")</div>
-                    <div class="col-qty">@(isArabic ? "الكمية" : "Quantity")</div>
-                    <div class="col-total">@(isArabic ? "الإجمالي" : "Total")</div>
-                    <div class="col-action"></div>
-                </div>
-
-                @foreach (var item in Model.Cart.Items)
-                {
-                    <div class="cart-item-row" id="cart-item-@item.Id">
-                        <div class="col-product">
-                            <div class="product-thumb">
+        <div class="cart-grid-pro animate-fade-up delay-1">
+            <!-- Left: Items List -->
+            <div class="cart-items-column">
+                <div class="items-card glass">
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="cart-item-premium">
+                            <div class="item-visual">
                                 <img src="@(item.Product?.ImageUrl ?? "/images/placeholder.jpg")" alt="@item.Product?.Name" />
                             </div>
-                            <div class="product-details">
-                                <h3>@(isArabic? item.Product?.NameAr : item.Product?.Name)</h3>
-                                <span class="brand">@(isArabic? item.Product?.BrandAr : item.Product?.Brand)</span>
-                                <span class="mobile-price">@item.UnitPrice OMR</span>
-                            </div>
-                        </div>
-                        <div class="col-price desktop-only">
-                            <span class="price">@item.UnitPrice OMR</span>
-                        </div>
-                        <div class="col-qty">
-                            <div class="qty-selector-premium">
-                                <form action="/Cart/Update" method="post" class="qty-form">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="cartItemId" value="@item.Id" />
-                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="qty-btn" @(item.Quantity <= 1 ? "disabled" : "")><i class="fas fa-minus"></i></button>
-                                    <input type="text" value="@item.Quantity" readonly class="qty-input" />
-                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="qty-btn" @(item.Quantity >= item.Product?.StockQuantity ? "disabled" : "")><i class="fas fa-plus"></i></button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-total">
-                            <span class="total-price">@((item.Quantity * item.UnitPrice).ToString("0.00")) <small>OMR</small></span>
-                        </div>
-                        <div class="col-action">
-                            <form action="/Cart/Remove" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="cartItemId" value="@item.Id" />
-                                <button type="submit" class="remove-btn-icon" title="@(isArabic ? "حذف" : "Remove")">
-                                    <i class="far fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                }
 
-                <div class="cart-actions-row">
-                    <a href="/Products" class="btn-link-premium">
-                        <i class="fas fa-arrow-right"></i> @(isArabic ? "متابعة التسوق" : "Continue Shopping")
+                            <div class="item-info-main">
+                                <div class="top-row">
+                                    <div class="txt">
+                                        <span class="brand">@(isArabic? item.Product?.BrandAr : item.Product?.Brand)</span>
+                                        <h3 class="name">@(isArabic? item.Product?.NameAr : item.Product?.Name)</h3>
+                                    </div>
+                                    <form asp-action="Remove" method="post">
+                                        <input type="hidden" name="cartItemId" value="@item.Id" />
+                                        <button type="submit" class="btn-remove-item" title="@(isArabic ? "إزالة" : "Remove")">
+                                            <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div class="bottom-row">
+                                    <div class="qty-control-pro">
+                                        <form asp-action="Update" method="post" class="qty-form">
+                                            <input type="hidden" name="cartItemId" value="@item.Id" />
+                                            <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="q-btn" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
+                                            <span class="q-val">@item.Quantity</span>
+                                            <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="q-btn">+</button>
+                                        </form>
+                                    </div>
+                                    <div class="item-total-price">
+                                        <span class="currency-price" data-base-price="@(item.Quantity* item.UnitPrice)">
+                                            @((item.Quantity * item.UnitPrice).ToString("N2")) OMR
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="cart-footer-actions">
+                    <a href="/Products" class="btn-continue-shopping">
+                        <i class="fas fa-arrow-@(isArabic ? "right" : "left")"></i>
+                        <span>@(isArabic ? "مواصلة التسوق" : "Continue Shopping")</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Order Summary -->
-            <div class="cart-summary-wrapper">
-                <div class="cart-summary-card">
-                    <h3>@(isArabic ? "ملخص الطلب" : "Order Summary")</h3>
+            <!-- Right: Summary Sidebar -->
+            <aside class="cart-summary-column">
+                <div class="summary-card-pro sticky-summary">
+                    <h2 class="summary-title">@(isArabic ? "ملخص الطلب" : "Order Summary")</h2>
 
-                    <div class="summary-details">
-                        <div class="summary-row">
+                    <div class="summary-rows">
+                        <div class="s-row">
                             <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                            <span class="value">@Model.Total.ToString("F2") OMR</span>
+                            <span class="val currency-price" data-base-price="@Model.Subtotal">@Model.Subtotal.ToString("N2") OMR</span>
                         </div>
-                        <div class="summary-row">
-                            <span>@(isArabic ? "الشحن" : "Shipping")</span>
-                            <span class="value">@(Model.Total >= 20 ? (isArabic ? "مجاني" : "Free") : "2.00 OMR")</span>
+
+                        <!-- Premium Shipping Selector -->
+                        <div class="shipping-box-premium">
+                            <label><i class="fas fa-truck"></i> @(isArabic ? "منطقة الشحن" : "Shipping Zone")</label>
+                            <div class="custom-select-wrapper">
+                                <select id="shippingZone" onchange="updateShippingTotal(this)">
+                                    <option value="0" data-cost="0">@(isArabic ? "-- اختر منطقتك --" : "-- Select Area --")</option>
+                                    @foreach (var zone in shippingZones)
+                                    {
+                                        <option value="@zone.Id" data-cost="@zone.Cost">@(isArabic? zone.NameAr: zone.NameEn) (+@zone.Cost OMR)</option>
+                                    }
+                                </select>
+                                <i class="fas fa-chevron-down select-arrow"></i>
+                            </div>
                         </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row total">
+
+                        <div class="s-row">
+                            <span>@(isArabic ? "تكلفة الشحن" : "Shipping Cost")</span>
+                            <span class="val" id="shipCostDisplay">0.00 OMR</span>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="s-row total-row">
                             <span>@(isArabic ? "الإجمالي الكلي" : "Grand Total")</span>
-                            <span class="value gold">@((Model.Total + (Model.Total >= 20 ? 0 : 2)).ToString("F2")) OMR</span>
+                            <span class="val gold-text" id="finalTotalDisplay" data-base-total="@Model.Total">@Model.Total.ToString("N2") OMR</span>
                         </div>
-                        <p class="vat-note">@(isArabic ? "شامل ضريبة القيمة المضافة" : "Including VAT")</p>
                     </div>
 
-                    <div class="coupon-area">
-                        <div class="input-group-coupon">
-                            <input type="text" id="couponCode" placeholder="@(isArabic ? "كود الخصم" : "Discount Code")" />
-                            <button type="button" onclick="applyCoupon()" class="btn-apply">@(isArabic ? "تطبيق" : "Apply")</button>
+                    <div class="checkout-actions">
+                        <a href="/Cart/Checkout" class="btn-checkout-pro" onclick="saveShippingSelection()">
+                            <span>@(isArabic ? "إتمام الدفع" : "Proceed to Checkout")</span>
+                            <i class="fas fa-shield-alt"></i>
+                        </a>
+                        <div class="payment-trust-icons">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <i class="fas fa-wallet"></i>
                         </div>
-                        <div id="couponMessage" class="coupon-msg"></div>
-                    </div>
-
-                    <a href="/Cart/Checkout" class="btn-checkout-premium">
-                        <span>@(isArabic ? "إتمام الشراء الآمن" : "Secure Checkout")</span>
-                        <i class="fas fa-lock"></i>
-                    </a>
-
-                    <div class="payment-icons">
-                        <i class="fab fa-cc-visa"></i>
-                        <i class="fab fa-cc-mastercard"></i>
-                        <i class="fas fa-money-bill-wave"></i>
                     </div>
                 </div>
-            </div>
+            </aside>
         </div>
     }
     else
     {
-        <div class="empty-cart-premium">
-            <div class="empty-icon-box">
+        <div class="empty-cart-premium-v2 animate-fade-up">
+            <div class="empty-bag-icon">
                 <i class="fas fa-shopping-bag"></i>
+                <span class="zero">0</span>
             </div>
-            <h2>@(isArabic ? "حقيبة التسوق فارغة" : "Your Bag is Empty")</h2>
-            <p>@(isArabic ? "يبدو أنك لم تضف أي عطور فاخرة بعد." : "Looks like you haven't added any luxury perfumes yet.")</p>
-            <a href="/Products" class="btn-primary-premium">@(isArabic ? "اكتشف المجموعة" : "Discover Collection")</a>
+            <h2>@(isArabic ? "حقيبتك فارغة حالياً" : "Your bag is currently empty")</h2>
+            <p>@(isArabic ? "اكتشف مجموعتنا الفاخرة من العطور وابدأ التسوق الآن." : "Explore our luxury perfume collection and start shopping now.")</p>
+            <a href="/Products" class="btn-primary-pro">@(isArabic ? "اكتشف العطور" : "Discover Fragrances")</a>
         </div>
     }
 </section>
 
+<style>
+    /* --- Premium Cart Styles --- */
+    .cart-header-premium {
+        padding: 4rem 0 3rem;
+        background: #fff;
+        border-bottom: 1px solid #f1f1f1;
+        margin-bottom: 3rem;
+        margin-top: 85px;
+    }
+
+    .breadcrumb-mini {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+    }
+
+    .display-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #002855;
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-subtitle {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .cart-grid-pro {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    .items-card {
+        background: #fff;
+        border-radius: 24px;
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+
+    .cart-item-premium {
+        display: flex;
+        gap: 2rem;
+        padding: 2rem;
+        border-bottom: 1px solid #f8f9fa;
+        transition: 0.3s;
+    }
+
+        .cart-item-premium:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-premium:hover {
+            background: #fafbfc;
+        }
+
+    .item-visual {
+        width: 120px;
+        height: 140px;
+        background: #f8f9fa;
+        border-radius: 16px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+        .item-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            transition: 0.5s;
+        }
+
+    .cart-item-premium:hover .item-visual img {
+        transform: scale(1.1);
+    }
+
+    .item-info-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+        .top-row .brand {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .top-row .name {
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+            color: #002855;
+        }
+
+    .btn-remove-item {
+        background: none;
+        border: none;
+        color: #cbd5e1;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        .btn-remove-item:hover {
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+
+    .bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+    }
+
+    .qty-control-pro {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .q-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: #fff;
+        color: #002855;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .q-btn:hover:not(:disabled) {
+            background: #002855;
+            color: #fff;
+        }
+
+    .q-val {
+        font-weight: 800;
+        min-width: 25px;
+        text-align: center;
+        color: #002855;
+    }
+
+    .item-total-price {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #002855;
+    }
+
+    /* Summary Card */
+    .summary-card-pro {
+        background: #fff;
+        border: 1px solid #002855;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 50px rgba(0,40,85,0.08);
+    }
+
+    .sticky-summary {
+        position: sticky;
+        top: 110px;
+    }
+
+    .summary-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
+        color: #002855;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid #f8f9fa;
+        padding-bottom: 1rem;
+    }
+
+    .s-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        color: #64748b;
+        font-size: 1rem;
+    }
+
+        .s-row .val {
+            color: #002855;
+            font-weight: 700;
+        }
+
+    .divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 1.5rem 0;
+    }
+
+    .total-row {
+        color: #002855;
+        font-size: 1.3rem;
+        font-weight: 800;
+    }
+
+    .gold-text {
+        color: #002855;
+    }
+
+    .shipping-box-premium {
+        margin-bottom: 2rem;
+    }
+
+        .shipping-box-premium label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #002855;
+            margin-bottom: 10px;
+        }
+
+    .custom-select-wrapper {
+        position: relative;
+    }
+
+        .custom-select-wrapper select {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            appearance: none;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+    .select-arrow {
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        color: #002855;
+        pointer-events: none;
+    }
+
+    body.rtl .select-arrow {
+        right: auto;
+        left: 1rem;
+    }
+
+    .btn-checkout-pro {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: #002855;
+        color: #fff;
+        padding: 1.2rem;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: 0.3s;
+        box-shadow: 0 10px 30px rgba(0,40,85,0.2);
+    }
+
+        .btn-checkout-pro:hover {
+            background: #004080;
+            transform: translateY(-5px);
+            color: #fff;
+        }
+
+    .payment-trust-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        color: #cbd5e1;
+        font-size: 1.5rem;
+    }
+
+    /* Empty Cart */
+    .empty-cart-premium-v2 {
+        text-align: center;
+        padding: 6rem 0;
+    }
+
+    .empty-bag-icon {
+        position: relative;
+        display: inline-block;
+        font-size: 4rem;
+        color: rgba(0,40,85,0.05);
+        margin-bottom: 2rem;
+    }
+
+        .empty-bag-icon .zero {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -10%);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #002855;
+        }
+
+    .empty-cart-premium-v2 h2 {
+        font-family: 'Playfair Display', serif;
+        color: #002855;
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-primary-pro {
+        display: inline-block;
+        background: #002855;
+        color: #fff;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 700;
+        margin-top: 2rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    @@media (max-width: 1100px) {
+        .cart-grid-pro {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-summary-column {
+            position: static;
+        }
+
+        .sticky-summary {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .cart-item-premium {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .top-row {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bottom-row {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+    }
+</style>
+
 <script>
-    async function applyCoupon() {
-        // Simple client-side simulation for UI feedback, logic handles in checkout
-        const code = document.getElementById('couponCode').value;
-        const msg = document.getElementById('couponMessage');
-        if(!code) return;
+    /**
+     * تحديث تكلفة الشحن والإجمالي في الواجهة
+     */
+    function updateShippingTotal(select) {
+        const option = select.options[select.selectedIndex];
+        const cost = parseFloat(option.getAttribute('data-cost')) || 0;
+        const subtotal = parseFloat(document.querySelector('.s-row span.val').parentElement.querySelector('.currency-price').getAttribute('data-base-price'));
 
-        // You would typically validate via AJAX here
-        msg.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        // عرض تكلفة الشحن
+        document.getElementById('shipCostDisplay').textContent = cost.toFixed(2) + " OMR";
 
-        // Simulate
-        setTimeout(() => {
-             // Just directing user to checkout where coupon logic usually resides or showing message
-             window.location.href = `/Cart/Checkout?coupon=${code}`;
-        }, 800);
+        // حساب وتحديث الإجمالي الكلي
+        const newTotal = subtotal + cost;
+        const totalEl = document.getElementById('finalTotalDisplay');
+        totalEl.textContent = newTotal.toFixed(2) + " OMR";
+        totalEl.setAttribute('data-base-price', newTotal);
+
+        // إذا كان هناك نظام تبديل عملة، نقوم بتحديثه فوراً
+        if(typeof changeCurrency === 'function') {
+            const currentCurr = localStorage.getItem('selectedCurrency') || 'OMR';
+            changeCurrency(currentCurr);
+        }
+    }
+
+    function saveShippingSelection() {
+        const zoneId = document.getElementById('shippingZone').value;
+        if(zoneId !== "0") {
+            document.cookie = "shippingZoneId=" + zoneId + ";path=/;max-age=3600";
+        }
     }
 </script>

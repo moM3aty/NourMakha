@@ -5,111 +5,154 @@
     Layout = "_AdminLayout";
 }
 
-<div class="dashboard">
+<div class="page-header animate-fade-up">
+    <div class="header-left">
+        <h1>@ViewData["Title"]</h1>
+        <p>@(isArabic ? "مرحباً بك مرة أخرى، إليك نظرة عامة على متجرك" : "Welcome back, here's your store overview")</p>
+    </div>
+    <div class="header-right">
+        <span class="date-badge">
+            <i class="far fa-calendar-alt"></i> @DateTime.Now.ToString("dd MMMM, yyyy")
+        </span>
+    </div>
+</div>
+
+<div class="dashboard animate-fade-up delay-1">
     <!-- Stats Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon sales">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
             <div class="stat-info">
                 <h3>@(isArabic ? "إجمالي المبيعات" : "Total Sales")</h3>
-                <p class="stat-value">$@Model.TotalSales.ToString("N0")</p>
-                <span class="stat-change positive">+12.5%</span>
+                <p class="stat-value">@Model.TotalSales.ToString("N0") <small style="font-size:0.5em; color:#94a3b8;">OMR</small></p>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 12.5%
+                </div>
+            </div>
+            <div class="stat-icon sales">
+                <i class="fas fa-wallet"></i>
             </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon orders">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
             <div class="stat-info">
                 <h3>@(isArabic ? "الطلبات" : "Orders")</h3>
                 <p class="stat-value">@Model.TotalOrders</p>
-                <span class="stat-change positive">+8.2%</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 8.2%
+                </div>
+            </div>
+            <div class="stat-icon orders">
+                <i class="fas fa-shopping-bag"></i>
             </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon products">
-                <i class="fas fa-box"></i>
-            </div>
             <div class="stat-info">
                 <h3>@(isArabic ? "المنتجات" : "Products")</h3>
                 <p class="stat-value">@Model.TotalProducts</p>
-                <span class="stat-change neutral">0</span>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i> 0%
+                </div>
+            </div>
+            <div class="stat-icon products">
+                <i class="fas fa-box-open"></i>
             </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon customers">
-                <i class="fas fa-users"></i>
-            </div>
             <div class="stat-info">
                 <h3>@(isArabic ? "العملاء" : "Customers")</h3>
                 <p class="stat-value">@Model.TotalCustomers</p>
-                <span class="stat-change positive">+15.3%</span>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 15.3%
+                </div>
+            </div>
+            <div class="stat-icon customers">
+                <i class="fas fa-users"></i>
             </div>
         </div>
     </div>
 
     <div class="dashboard-grid">
         <!-- Sales Chart -->
-        <div class="chart-card">
+        <div class="card chart-card">
             <div class="card-header">
-                <h3>@(isArabic ? "المبيعات الشهرية" : "Monthly Sales")</h3>
-                <select class="chart-filter" id="chartFilter">
-                    <option value="7">@(isArabic ? "آخر 7 أيام" : "Last 7 days")</option>
-                    <option value="30" selected>@(isArabic ? "آخر 30 يوم" : "Last 30 days")</option>
-                    <option value="90">@(isArabic ? "آخر 90 يوم" : "Last 90 days")</option>
-                </select>
+                <h3>@(isArabic ? "تحليل المبيعات" : "Sales Analytics")</h3>
+                <div class="card-actions">
+                    <select class="chart-filter" id="chartFilter">
+                        <option value="7">@(isArabic ? "آخر 7 أيام" : "Last 7 days")</option>
+                        <option value="30" selected>@(isArabic ? "آخر 30 يوم" : "Last 30 days")</option>
+                    </select>
+                </div>
             </div>
-            <div class="chart-container">
-                <canvas id="salesChart"></canvas>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 320px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
             </div>
         </div>
 
         <!-- Recent Orders -->
-        <div class="orders-card">
+        <div class="card orders-card">
             <div class="card-header">
                 <h3>@(isArabic ? "أحدث الطلبات" : "Recent Orders")</h3>
-                <a href="/Admin/Orders" class="view-all">@(isArabic ? "عرض الكل" : "View All")</a>
+                <a href="/Admin/Orders" class="view-all">@(isArabic ? "عرض الكل" : "View All") <i class="fas fa-arrow-left" style="font-size:0.8em"></i></a>
             </div>
-            <div class="orders-list">
-                @foreach (var order in Model.RecentOrders)
-                {
-                    <div class="order-item">
-                        <div class="order-info">
-                            <span class="order-id">#@order.Id</span>
-                            <span class="order-customer">@order.CustomerName</span>
-                        </div>
-                        <div class="order-meta">
-                            <span class="order-total">$@order.Total.ToString("N2")</span>
-                            <span class="order-status @order.Status.ToLower()">@order.Status</span>
-                        </div>
-                    </div>
-                }
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="data-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>@(isArabic ? "العميل" : "Customer")</th>
+                                <th>@(isArabic ? "المبلغ" : "Amount")</th>
+                                <th>@(isArabic ? "الحالة" : "Status")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td><span style="font-weight:600; color:var(--primary-color)">#@order.Id</span></td>
+                                    <td>@order.CustomerName</td>
+                                    <td style="font-weight:700;">@order.Total.ToString("N2")</td>
+                                    <td>
+                                        <span class="status-badge @order.Status.ToLower()" style="@(
+                                                                                           order.Status.ToLower() == "pending" ? "background:#fff7ed; color:#c2410c;" :
+                                                                                           order.Status.ToLower() == "shipped" ? "background:#eff6ff; color:#1d4ed8;" :
+                                                                                           order.Status.ToLower() == "delivered" ? "background:#f0fdf4; color:#15803d;" :
+                                                                                           "background:#f1f5f9; color:#475569;"
+                                                                                )">
+                                        @order.Status
+                                    </span>
+                                </td>
+                            </tr>
+                                                        }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Top Products -->
-        <div class="products-card">
+        <div class="card products-card">
             <div class="card-header">
-                <h3>@(isArabic ? "أفضل المنتجات" : "Top Products")</h3>
-                <a href="/Admin/Products" class="view-all">@(isArabic ? "عرض الكل" : "View All")</a>
+                <h3>@(isArabic ? "الأكثر مبيعاً" : "Top Selling")</h3>
             </div>
-            <div class="products-list">
-                @foreach (var product in Model.TopProducts)
-                {
-                    <div class="product-item">
-                        <img src="@(product.Image ?? "/images/placeholder.jpg")" alt="@product.Name" class="product-img" />
-                        <div class="product-info">
-                            <span class="product-name">@product.Name</span>
-                            <span class="product-sales">@product.SalesCount @(isArabic ? "مبيعة" : "sold")</span>
+            <div class="card-body">
+                <div class="products-list">
+                    @foreach (var product in Model.TopProducts)
+                    {
+                        <div class="product-list-item">
+                            <img src="@(product.Image ?? "/images/placeholder.jpg")" alt="@product.Name" class="product-thumb" />
+                            <div class="product-info">
+                                <h4>@product.Name</h4>
+                                <p>@product.SalesCount @(isArabic ? "مبيعة" : "sold")</p>
+                            </div>
+                            <span class="product-revenue">@product.Revenue.ToString("N0")</span>
                         </div>
-                        <span class="product-revenue">$@product.Revenue.ToString("N2")</span>
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -117,8 +160,14 @@
 
 @section Scripts {
     <script>
-        // Sales Chart
+        // Sales Chart Configured for Royal Blue Theme
         const ctx = document.getElementById('salesChart').getContext('2d');
+
+        // Gradient for chart
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 40, 85, 0.15)');
+        gradient.addColorStop(1, 'rgba(0, 40, 85, 0)');
+
         const salesChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -126,8 +175,14 @@
                 datasets: [{
                     label: '@(isArabic ? "المبيعات" : "Sales")',
                     data: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => s.Sales)))],
-                    borderColor: '#d4af37',
-                    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                    borderColor: '#002855', // Royal Blue
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#002855',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     tension: 0.4,
                     fill: true
                 }]
@@ -136,15 +191,32 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' OMR';
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        grid: { color: '#f1f5f9', borderDash: [5, 5] },
+                        ticks: { color: '#94a3b8', font: {family: "'Tajawal', sans-serif"} },
+                        border: { display: false }
                     },
                     x: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: {family: "'Tajawal', sans-serif"} },
+                        border: { display: false }
                     }
                 }
             }

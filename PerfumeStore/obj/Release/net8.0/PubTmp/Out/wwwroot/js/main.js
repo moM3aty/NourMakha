@@ -1,360 +1,89 @@
+/* ===================================
+   PERFUME STORE - MAIN JAVASCRIPT (PREMIUM)
+   =================================== */
+
 let currentLanguage = document.documentElement.lang || 'ar';
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize
+    // تهيئة جميع المكونات عند تحميل الصفحة
     initializeApp();
 });
 
 /**
- * تهيئة التطبيق
+ * وظيفة التهيئة الرئيسية
  */
 function initializeApp() {
-    // Preloader
     initPreloader();
-
-    // Header
     initHeader();
-
-    // Mobile Menu
     initMobileMenu();
-
-    // Search
     initSearch();
-
-    // Cart
     initCart();
-
-    // Toast System
     initToastSystem();
-
-    // Animations
     initAnimations();
+    initCurrencySwitcher();
 }
 
-/**
- * Preloader
- */
-function initPreloader() {
-    const preloader = document.getElementById('preloader');
-    if (preloader) {
-        // إخفاء الـ preloader بعد تحميل الصفحة
-        window.addEventListener('load', function () {
-            setTimeout(() => {
-                preloader.classList.add('hidden');
-            }, 500);
+/* ===================================
+   نظام تبديل العملات (الريال العماني هو الأساس)
+   =================================== */
+const currencyRates = {
+    "OMR": {
+        rate: 1,
+        symbol: '<svg width="25" height="25" viewBox="0 0 500 500" fill="currentColor" style="vertical-align: middle; margin-inline-start: 5px;"><path d="M241.67,213.77c-.63-49.2,11.44-95.41,35.76-137.75C313.47,13.28,353.02-6.48,421.55,28.87c10.67,5.5,53.6,35.43,57.81,44.54,5.03,10.87-27.48,103.87-29.11,122.3-34.69-37.51-99.37-98.66-154.85-69.62-45.05,23.58-12.02,62.54,11.46,87.68h409.36l-26.41,47.64h-332.5c-.31,1.8.87,3.3,2.53,4.6,12.44,9.72,80.97,39.54,94.75,39.54h210.71l-26.89,48.94H13.37l26.91-48.94h253.38l-37.11-44.13H64.75l26.41-47.64h150.51Z"/></svg>',
+        flag: "🇴🇲"
+    },
+    "SAR": {
+        rate: 9.75,
+        symbol: '<span style="font-weight:bold; font-size:0.8em; margin-inline-start:5px;">SAR</span>',
+        flag: "🇸🇦"
+    },
+    "USD": {
+        rate: 2.60,
+        symbol: '<i class="fas fa-dollar-sign" style="font-size:0.9em; margin-inline-start:5px;"></i>',
+        flag: "🇺🇸"
+    }
+};
+
+function initCurrencySwitcher() {
+    const savedCurrency = localStorage.getItem('selectedCurrency') || 'OMR';
+    const currencySelect = document.getElementById('globalCurrencySelector');
+    if (currencySelect) {
+        currencySelect.value = savedCurrency;
+        currencySelect.addEventListener('change', function () {
+            changeCurrency(this.value);
         });
     }
+    changeCurrency(savedCurrency);
 }
 
-/**
- * Header Scroll Effect
- */
-function initHeader() {
-    const header = document.querySelector('.header');
-    if (header) {
-        let lastScrollY = 0;
+function changeCurrency(currencyCode) {
+    localStorage.setItem('selectedCurrency', currencyCode);
+    const rateData = currencyRates[currencyCode];
+    if (!rateData) return;
 
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-
-            if (currentScrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-
-            lastScrollY = currentScrollY;
-        }, { passive: true });
-    }
-}
-
-/**
- * Mobile Menu
- */
-function initMobileMenu() {
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const navMenu = document.getElementById('navMenu');
-
-    if (mobileMenuBtn && navMenu) {
-        // Toggle Menu
-        mobileMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navMenu.classList.toggle('active');
-
-            // تغيير الأيقونة
-            const icon = mobileMenuBtn.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
-            }
-        });
-
-        // إغلاق القائمة عند النقر خارجه
-        document.addEventListener('click', (e) => {
-            if (navMenu.classList.contains('active')) {
-                if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                    navMenu.classList.remove('active');
-                    const icon = mobileMenuBtn.querySelector('i');
-                    if (icon) {
-                        icon.classList.add('fa-bars');
-                        icon.classList.remove('fa-times');
-                    }
-                }
-            }
-        });
-
-        // إغلاق القائمة عند النقر على رابط
-        navMenu.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                const icon = mobileMenuBtn.querySelector('i');
-                if (icon) {
-                    icon.classList.add('fa-bars');
-                    icon.classList.remove('fa-times');
-                }
-            });
-        });
-    }
-}
-
-/**
- * Search Overlay
- */
-function initSearch() {
-    const searchBtn = document.getElementById('searchBtn');
-    const searchOverlay = document.getElementById('searchOverlay');
-    const searchClose = document.getElementById('searchClose');
-
-    if (searchBtn && searchOverlay) {
-        // فتح البحث
-        searchBtn.addEventListener('click', () => {
-            searchOverlay.classList.add('active');
-            const searchInput = searchOverlay.querySelector('.search-input');
-            if (searchInput) {
-                setTimeout(() => searchInput.focus(), 100);
-            }
-        });
-
-        // إغلاق البحث
-        if (searchClose) {
-            searchClose.addEventListener('click', () => {
-                searchOverlay.classList.remove('active');
-            });
+    // تحديث كافة الأسعار التي تحمل كلاس currency-price
+    document.querySelectorAll('.currency-price, .currency-old-price').forEach(el => {
+        const basePrice = parseFloat(el.getAttribute('data-base-price'));
+        if (!isNaN(basePrice)) {
+            const converted = (basePrice * rateData.rate).toFixed(2);
+            el.innerHTML = `${converted} ${rateData.symbol}`;
         }
-
-        // إغلاق عند النقر على الخلفية
-        searchOverlay.addEventListener('click', (e) => {
-            if (e.target === searchOverlay) {
-                searchOverlay.classList.remove('active');
-            }
-        });
-
-        // إغلاق بزر Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
-                searchOverlay.classList.remove('active');
-            }
-        });
-    }
-}
-
-/**
- * Cart Functions
- */
-function initCart() {
-    // تحديث عدد المنتجات
-    updateCartCount();
-
-    // إضافة أزرار "أضف للسلة"
-    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.addEventListener('click', async function (e) {
-            e.preventDefault();
-
-            const productId = this.dataset.productId;
-            if (!productId) return;
-
-            // إضافة تأثير التحميل
-            this.classList.add('loading');
-            this.disabled = true;
-
-            try {
-                const response = await fetch('/Cart/Add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': getAntiForgeryToken()
-                    },
-                    body: JSON.stringify({
-                        productId: parseInt(productId),
-                        quantity: 1
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast('success', getLocalizedString('addedToCart'));
-                    updateCartCount();
-
-                    // تأثير النجاح
-                    this.classList.add('added');
-                    setTimeout(() => this.classList.remove('added'), 300);
-                } else {
-                    showToast('error', result.message || getLocalizedString('errorOccurred'));
-                }
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-                showToast('error', getLocalizedString('errorOccurred'));
-            } finally {
-                this.classList.remove('loading');
-                this.disabled = false;
-            }
-        });
     });
 }
 
-/**
- * تحديث عدد المنتجات في السلة
- */
-async function updateCartCount() {
-    try {
-        const response = await fetch('/Cart/GetCartCount');
-        const result = await response.json();
-
-        const cartCountElements = document.querySelectorAll('.cart-count');
-        cartCountElements.forEach(el => {
-            el.textContent = result.count || 0;
-
-            // تأثير التحديث
-            el.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                el.style.transform = 'scale(1)';
-            }, 200);
-        });
-    } catch (error) {
-        console.error('Error updating cart count:', error);
-    }
-}
+/* ===================================
+   نظام المفضلة (Wishlist) والتنبيهات
+   =================================== */
 
 /**
- * Toast System
- */
-function initToastSystem() {
-    // إنشاء حاوية الـ Toast إذا لم تكن موجودة
-    if (!document.getElementById('toastContainer')) {
-        const container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-}
-
-/**
- * عرض رسالة Toast
- * @param {string} type - نوع الرسالة: 'success' أو 'error'
- * @param {string} message - نص الرسالة
- * @param {number} duration - مدة العرض بالميلي ثانية
- */
-function showToast(type, message, duration = 3000) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-
-    toast.innerHTML = `
-        <i class="fas ${icon}"></i>
-        <span>${message}</span>
-    `;
-
-    container.appendChild(toast);
-
-    // إزالة الـ Toast بعد المدة المحددة
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, 300);
-    }, duration);
-}
-
-/**
- * Animations
- */
-function initAnimations() {
-    // Intersection Observer للعناصر المتحركة
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        observer.observe(el);
-    });
-}
-
-/**
- * الحصول على نص مترجم
- * @param {string} key - مفتاح النص
- * @returns {string} النص المترجم
- */
-function getLocalizedString(key) {
-    const isArabic = currentLanguage.startsWith('ar');
-
-    const strings = {
-        addedToCart: {
-            en: 'Added to cart successfully',
-            ar: 'تمت الإضافة للسلة بنجاح'
-        },
-        errorOccurred: {
-            en: 'An error occurred',
-            ar: 'حدث خطأ، يرجى المحاولة مرة أخرى'
-        },
-        addedToWishlist: {
-            en: 'Added to wishlist',
-            ar: 'تمت الإضافة للمفضلة'
-        },
-        removedFromWishlist: {
-            en: 'Removed from wishlist',
-            ar: 'تمت الإزالة من المفضلة'
-        },
-        confirmDelete: {
-            en: 'Are you sure you want to delete this item?',
-            ar: 'هل أنت متأكد من حذف هذا العنصر؟'
-        }
-    };
-
-    return strings[key]?.[isArabic ? 'ar' : 'en'] || key;
-}
-
-/**
- * الحصول على Anti-Forgery Token
- * @returns {string} التوكن
- */
-function getAntiForgeryToken() {
-    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-    return tokenInput ? tokenInput.value : '';
-}
-
-/**
- * تبديل المفضلة
- * @param {number} productId - معرف المنتج
+ * تبديل حالة المنتج في المفضلة (إضافة/حذف)
  */
 async function toggleWishlist(productId) {
+    const btns = document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"], .btn-wishlist-pro[data-product-id="${productId}"]`);
+
+    // إضافة تأثير نبض أثناء التحميل
+    btns.forEach(b => b.classList.add('loading-pulse'));
+
     try {
         const response = await fetch('/Wishlist/Toggle', {
             method: 'POST',
@@ -368,35 +97,40 @@ async function toggleWishlist(productId) {
         const result = await response.json();
 
         if (result.success) {
-            showToast('success', result.message);
+            // إظهار تنبيه Premium
+            showToast('success', result.message || getLocalizedString('addedToWishlist'));
 
-            // تحديث أيقونة القلب
-            const btn = document.querySelector(`.wishlist-btn[data-product-id="${productId}"]`);
-            if (btn) {
+            // تحديث حالة الأيقونة بصرياً
+            btns.forEach(btn => {
                 const icon = btn.querySelector('i');
                 if (icon) {
-                    if (result.inWishlist) {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
+                    if (icon.classList.contains('far')) {
+                        icon.classList.replace('far', 'fas');
+                        btn.classList.add('active');
                     } else {
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
+                        icon.classList.replace('fas', 'far');
+                        btn.classList.remove('active');
                     }
                 }
-            }
+            });
+        } else {
+            showToast('error', result.message || getLocalizedString('errorOccurred'));
         }
     } catch (error) {
         console.error('Error toggling wishlist:', error);
         showToast('error', getLocalizedString('errorOccurred'));
+    } finally {
+        btns.forEach(b => b.classList.remove('loading-pulse'));
     }
 }
 
 /**
- * إضافة منتج للسلة مع كمية محددة
- * @param {number} productId - معرف المنتج
- * @param {number} quantity - الكمية
+ * إضافة منتج للسلة مع الكمية المحددة
  */
 async function addToCartWithQty(productId, quantity = 1) {
+    const qtyInput = document.getElementById('quantity');
+    const finalQty = qtyInput ? parseInt(qtyInput.value) : quantity;
+
     try {
         const response = await fetch('/Cart/Add', {
             method: 'POST',
@@ -404,10 +138,7 @@ async function addToCartWithQty(productId, quantity = 1) {
                 'Content-Type': 'application/json',
                 'RequestVerificationToken': getAntiForgeryToken()
             },
-            body: JSON.stringify({
-                productId: productId,
-                quantity: quantity
-            })
+            body: JSON.stringify({ productId: parseInt(productId), quantity: finalQty })
         });
 
         const result = await response.json();
@@ -424,90 +155,115 @@ async function addToCartWithQty(productId, quantity = 1) {
     }
 }
 
-/**
- * تنسيق الأرقام
- * @param {number} number - الرقم
- * @param {number} decimals - عدد الأرقام العشرية
- * @returns {string} الرقم منسق
- */
-function formatNumber(number, decimals = 2) {
-    return number.toLocaleString(currentLanguage === 'ar' ? 'ar-OM' : 'en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
+/* ===================================
+   أدوات مساعدة (Utils)
+   =================================== */
+
+function initToastSystem() {
+    if (!document.getElementById('toastContainer')) {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+}
+
+function showToast(type, message, duration = 3500) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+function updateCartCount() {
+    fetch('/Cart/GetCartCount')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = data.count || 0;
+            });
+        }).catch(e => { });
+}
+
+function getAntiForgeryToken() {
+    return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+}
+
+function getLocalizedString(key) {
+    const isAr = currentLanguage.startsWith('ar');
+    const strings = {
+        addedToCart: { en: 'Added to cart successfully', ar: 'تمت الإضافة للسلة بنجاح' },
+        errorOccurred: { en: 'An error occurred', ar: 'حدث خطأ، يرجى المحاولة مرة أخرى' },
+        addedToWishlist: { en: 'Wishlist updated', ar: 'تم تحديث قائمة المفضلة' }
+    };
+    return strings[key]?.[isAr ? 'ar' : 'en'] || key;
+}
+
+/* --- بقية وظائف التهيئة القياسية --- */
+
+function initPreloader() {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        window.addEventListener('load', () => setTimeout(() => preloader.classList.add('hidden'), 500));
+    }
+}
+
+function initHeader() {
+    const header = document.querySelector('.header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            window.scrollY > 50 ? header.classList.add('scrolled') : header.classList.remove('scrolled');
+        }, { passive: true });
+    }
+}
+
+function initMobileMenu() {
+    const btn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('navMenu');
+    if (btn && menu) {
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            btn.querySelector('i').classList.toggle('fa-bars');
+            btn.querySelector('i').classList.toggle('fa-times');
+        });
+    }
+}
+
+function initSearch() {
+    const btn = document.getElementById('searchBtn');
+    const overlay = document.getElementById('searchOverlay');
+    if (btn && overlay) {
+        btn.addEventListener('click', () => overlay.classList.add('active'));
+        overlay.querySelector('#searchClose')?.addEventListener('click', () => overlay.classList.remove('active'));
+    }
+}
+
+function initCart() {
+    updateCartCount();
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const id = btn.dataset.productId;
+            if (id) addToCartWithQty(id);
+        });
     });
 }
 
-/**
- * تنسيق العملة
- * @param {number} amount - المبلغ
- * @param {string} currency - رمز العملة
- * @returns {string} المبلغ منسق
- */
-function formatCurrency(amount, currency = 'OMR') {
-    return `${formatNumber(amount)} ${currency}`;
+function initAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 }
-
-// إضافة تأثيرات CSS للتحريك
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideOut {
-        from { 
-            opacity: 1; 
-            transform: translateX(0); 
-        }
-        to { 
-            opacity: 0; 
-            transform: translateX(100%); 
-        }
-    }
-    
-    .add-to-cart-btn.loading {
-        pointer-events: none;
-        opacity: 0.7;
-    }
-    
-    .add-to-cart-btn.loading::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-        border-top-color: currentColor;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    .add-to-cart-btn.added {
-        background: #27ae60 !important;
-        transform: scale(1.05);
-    }
-    
-    .animate-visible {
-        animation: fadeInUp 0.6s ease forwards;
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// تصدير الدوال للاستخدام الخارجي
-window.showToast = showToast;
-window.updateCartCount = updateCartCount;
-window.toggleWishlist = toggleWishlist;
-window.addToCartWithQty = addToCartWithQty;
-window.formatNumber = formatNumber;
-window.formatCurrency = formatCurrency;
-window.getLocalizedString = getLocalizedString;

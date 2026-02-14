@@ -1,0 +1,382 @@
+﻿@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "إعدادات الموقع" : "Site Settings";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<style>
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+    }
+
+    .card-header-clean {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .header-title h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+    .status-toggle-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .toggle-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    /* Switch Premium */
+    .switch-premium {
+        position: relative;
+        width: 50px;
+        height: 26px;
+        cursor: pointer;
+    }
+
+        .switch-premium input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider-round {
+        position: absolute;
+        inset: 0;
+        background: #e2e8f0;
+        border-radius: 30px;
+        transition: 0.4s;
+    }
+
+        .slider-round::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.4s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+    input:checked + .slider-round {
+        background: #10b981;
+    }
+
+        input:checked + .slider-round::before {
+            transform: translateX(24px);
+        }
+
+    .form-instruction {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .lang-tag {
+        background: var(--primary-color);
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        margin-inline-end: 8px;
+    }
+
+    .input-wrapper-icon {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+        .input-wrapper-icon i {
+            position: absolute;
+            inset-inline-start: 1rem;
+            color: var(--primary-color);
+            opacity: 0.4;
+        }
+
+        .input-wrapper-icon input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 3rem !important;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+    body.rtl .input-wrapper-icon input {
+        padding-right: 3rem !important;
+        padding-left: 1rem !important;
+    }
+
+    /* Preview Device Mockup */
+    .preview-card-settings .card-body {
+        display: flex;
+        justify-content: center;
+    }
+
+    .preview-device {
+        width: 100%;
+        max-width: 320px;
+        height: 450px;
+        background: #fff;
+        border: 8px solid #1e293b;
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .device-top-bar {
+        height: 20px;
+        background: #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+        .device-top-bar span {
+            width: 4px;
+            height: 4px;
+            background: #475569;
+            border-radius: 50%;
+        }
+
+    .mock-announcement-bar {
+        height: 30px;
+        background: var(--primary-color);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .preview-marquee {
+        width: 100%;
+        text-align: center;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        animation: miniMarquee 10s linear infinite;
+    }
+
+    @@keyframes miniMarquee {
+        0% {
+            transform: translateX(100%);
+        }
+
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+
+    .mock-nav {
+        height: 40px;
+        border-bottom: 1px solid #f1f5f9;
+        margin: 10px;
+        border-radius: 4px;
+        background: #f8fafc;
+    }
+
+    .mock-hero {
+        height: 150px;
+        background: #f1f5f9;
+        margin: 10px;
+        border-radius: 8px;
+    }
+
+    @@media (max-width: 1200px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-card-settings {
+            display: none;
+        }
+    }
+
+    .btn-add-new {
+        background: #002855;
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        border:none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 40, 85, 0.15);
+    }
+
+        .btn-add-new:hover {
+            background: #003377;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 40, 85, 0.25);
+            color: #fff;
+        }
+</style>
+
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? "تخصيص تجربة الموقع والرسائل الترويجية" : "Customize site experience and promotional messages")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success animate-fade-up" style="background: #e8f5e9; color: #2e7d32; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #c8e6c9; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+
+    <div class="settings-grid">
+        <!-- Announcement Bar Form -->
+        <div class="card animate-fade-up delay-1">
+            <div class="card-header-clean">
+                <div class="header-title">
+                    <i class="fas fa-bullhorn" style="color: var(--primary-color);"></i>
+                    <h3>@(isArabic ? "شريط الإعلانات العلوي" : "Top Announcement Bar")</h3>
+                </div>
+                <!-- Premium Switch -->
+                <div class="status-toggle-wrapper">
+                    <span class="toggle-label">@(isArabic ? "حالة العرض:" : "Display Status:")</span>
+                    <label class="switch-premium">
+                        <input type="checkbox" id="barToggle" form="settingsForm" name="isEnabled" value="true" @(ViewBag.IsEnabled == true ? "checked" : "") />
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card-body" style="padding: 2.5rem;">
+                <form asp-action="UpdateAnnouncement" method="post" id="settingsForm" class="premium-form">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-instruction">
+                        <i class="fas fa-info-circle"></i>
+                        <span>@(isArabic ? "سيظهر هذا النص في الشريط المتحرك أعلى الموقع بناءً على لغة المستخدم." : "This text will appear in the moving bar at the top based on user language.")</span>
+                    </div>
+
+                    <div class="form-grid-premium">
+                        <!-- Arabic Content -->
+                        <div class="form-group">
+                            <label class="input-label">
+                                <span class="lang-tag">AR</span>
+                                @(isArabic ? "النص العربي" : "Arabic Text")
+                            </label>
+                            <div class="input-wrapper-icon">
+                                <i class="fas fa-pen-nib"></i>
+                                <input type="text" name="announcementAr" value="@ViewBag.AnnouncementAr" dir="rtl" placeholder="مثال: خصم 20% لفترة محدودة..." />
+                            </div>
+                        </div>
+
+                        <!-- English Content -->
+                        <div class="form-group">
+                            <label class="input-label">
+                                <span class="lang-tag">EN</span>
+                                @(isArabic ? "النص الإنجليزي" : "English Text")
+                            </label>
+                            <div class="input-wrapper-icon">
+                                <i class="fas fa-language"></i>
+                                <input type="text" name="announcementEn" value="@ViewBag.AnnouncementEn" placeholder="e.g. 20% Discount for limited time..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-premium" style="margin-top: 3rem; justify-content: flex-start;">
+                        <button type="submit" class="btn-add-new">
+                            <i class="fas fa-save"></i>
+                            <span>@(isArabic ? "حفظ كافة الإعدادات" : "Save All Settings")</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card animate-fade-up delay-2 preview-card-settings">
+            <div class="card-header-clean">
+                <h3><i class="fas fa-eye"></i> @(isArabic ? "معاينة مباشرة" : "Live Preview")</h3>
+            </div>
+            <div class="card-body">
+                <div class="preview-device">
+                    <div class="device-top-bar">
+                        <div class="dots"><span></span><span></span><span></span></div>
+                    </div>
+                    <div class="mock-announcement-bar" id="previewBar">
+                        <div class="preview-marquee">
+                            <span id="previewText">@ViewBag.AnnouncementAr</span>
+                        </div>
+                    </div>
+                    <div class="mock-content">
+                        <div class="mock-nav"></div>
+                        <div class="mock-hero"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live Preview Logic
+    const inputAr = document.querySelector('input[name="announcementAr"]');
+    const inputEn = document.querySelector('input[name="announcementEn"]');
+    const previewText = document.getElementById('previewText');
+    const previewBar = document.getElementById('previewBar');
+    const barToggle = document.getElementById('barToggle');
+
+    function updatePreview() {
+        // عرض العربي لثواني ثم الإنجليزي كمحاكاة (بسيط)
+        previewText.textContent = inputAr.value || "Announcement Text...";
+        previewBar.style.opacity = barToggle.checked ? "1" : "0.3";
+    }
+
+    inputAr.addEventListener('input', updatePreview);
+    barToggle.addEventListener('change', updatePreview);
+
+    // محاكاة تبديل اللغة في المعاينة كل 3 ثواني
+    setInterval(() => {
+        if(previewText.textContent === inputAr.value) {
+            previewText.textContent = inputEn.value || "English Text...";
+        } else {
+            previewText.textContent = inputAr.value || "Arabic Text...";
+        }
+    }, 3000);
+</script>

@@ -14,15 +14,20 @@ namespace PerfumeStore.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IOrderService _orderService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AdminController(ApplicationDbContext context, IOrderService orderService)
+        public AdminController(ApplicationDbContext context, IOrderService orderService, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _orderService = orderService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
 
+        // ==========================================
+        //  Dashboard
+        // ==========================================
         public async Task<IActionResult> Index()
         {
             var today = DateTime.Today;
@@ -57,7 +62,9 @@ namespace PerfumeStore.Controllers
             return View(viewModel);
         }
 
-        // Categories
+        // ==========================================
+        //  Categories Management
+        // ==========================================
         public async Task<IActionResult> Categories()
         {
             var categories = await _context.Categories
@@ -71,10 +78,15 @@ namespace PerfumeStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCategory(Category model)
+        public async Task<IActionResult> CreateCategory(Category model, IFormFile? image)
         {
             if (ModelState.IsValid)
             {
+                if (image != null)
+                {
+                    model.ImageUrl = await SaveImage(image, "categories");
+                }
+
                 _context.Categories.Add(model);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = IsArabic ? "تم إضافة القسم بنجاح" : "Category added successfully";
@@ -92,11 +104,25 @@ namespace PerfumeStore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCategory(Category model)
+        public async Task<IActionResult> EditCategory(Category model, IFormFile? image)
         {
             if (ModelState.IsValid)
             {
-                _context.Categories.Update(model);
+                var existingCategory = await _context.Categories.FindAsync(model.Id);
+                if (existingCategory == null) return NotFound();
+
+                existingCategory.Name = model.Name;
+                existingCategory.NameAr = model.NameAr;
+                existingCategory.Description = model.Description;
+                existingCategory.DescriptionAr = model.DescriptionAr;
+                existingCategory.DisplayOrder = model.DisplayOrder;
+                existingCategory.IsActive = model.IsActive;
+
+                if (image != null)
+                {
+                    existingCategory.ImageUrl = await SaveImage(image, "categories");
+                }
+
                 await _context.SaveChangesAsync();
                 TempData["Success"] = IsArabic ? "تم تحديث القسم بنجاح" : "Category updated successfully";
                 return RedirectToAction(nameof(Categories));
@@ -107,21 +133,26 @@ namespace PerfumeStore.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null && id > 5)
+            var category = await _context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null) return NotFound();
+
+            if (category.Products.Any())
             {
-                _context.Categories.Remove(category);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = IsArabic ? "تم حذف القسم بنجاح" : "Category deleted successfully";
+                TempData["Error"] = IsArabic ? "لا يمكن حذف قسم يحتوي على منتجات" : "Cannot delete category with products";
+                return RedirectToAction(nameof(Categories));
             }
-            else
-            {
-                TempData["Error"] = IsArabic ? "لا يمكن حذف هذا القسم" : "Cannot delete this category";
-            }
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = IsArabic ? "تم حذف القسم بنجاح" : "Category deleted successfully";
+
             return RedirectToAction(nameof(Categories));
         }
 
-        // Products
+        // ==========================================
+        //  Products Management
+        // ==========================================
         public async Task<IActionResult> Products()
         {
             var products = await _context.Products
@@ -168,7 +199,7 @@ namespace PerfumeStore.Controllers
 
                 if (image != null)
                 {
-                    product.ImageUrl = await SaveImage(image);
+                    product.ImageUrl = await SaveImage(image, "products");
                 }
 
                 _context.Products.Add(product);
@@ -244,7 +275,7 @@ namespace PerfumeStore.Controllers
 
                 if (image != null)
                 {
-                    product.ImageUrl = await SaveImage(image);
+                    product.ImageUrl = await SaveImage(image, "products");
                 }
 
                 await _context.SaveChangesAsync();
@@ -261,20 +292,34 @@ namespace PerfumeStore.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
-                product.IsActive = false;
+                // Soft delete or hard delete based on preference. Here just deactivating or removing.
+                // For safety, let's remove if no orders, otherwise deactivate.
+                var hasOrders = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
+                if (hasOrders)
+                {
+                    product.IsActive = false;
+                    _context.Products.Update(product);
+                    TempData["Success"] = IsArabic ? "تم تعطيل المنتج لوجود طلبات مرتبطة به" : "Product deactivated (has orders)";
+                }
+                else
+                {
+                    _context.Products.Remove(product);
+                    TempData["Success"] = IsArabic ? "تم حذف المنتج بنجاح" : "Product deleted successfully";
+                }
                 await _context.SaveChangesAsync();
-                TempData["Success"] = IsArabic ? "تم حذف المنتج بنجاح" : "Product deleted successfully";
             }
             return RedirectToAction(nameof(Products));
         }
 
-        // Orders
+        // ==========================================
+        //  Orders Management
+        // ==========================================
         public async Task<IActionResult> Orders(string? status)
         {
             var query = _context.Orders.Include(o => o.User).Include(o => o.OrderItems).AsQueryable();
-            if (!string.IsNullOrEmpty(status)) 
+            if (!string.IsNullOrEmpty(status))
                 query = query.Where(o => o.Status == status);
-            
+
             var orders = await query.OrderByDescending(o => o.CreatedAt).ToListAsync();
             return View(orders);
         }
@@ -299,7 +344,19 @@ namespace PerfumeStore.Controllers
             return RedirectToAction(nameof(OrderDetails), new { id = orderId });
         }
 
-        // Customers
+        public async Task<IActionResult> Invoice(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound();
+            return View(order);
+        }
+
+        // ==========================================
+        //  Customers Management
+        // ==========================================
         public async Task<IActionResult> Customers()
         {
             var customers = await _context.Users
@@ -319,7 +376,9 @@ namespace PerfumeStore.Controllers
             return View(customer);
         }
 
-        // Coupons
+        // ==========================================
+        //  Coupons Management
+        // ==========================================
         public async Task<IActionResult> Coupons()
         {
             var coupons = await _context.Coupons.OrderByDescending(c => c.CreatedAt).ToListAsync();
@@ -344,6 +403,58 @@ namespace PerfumeStore.Controllers
             return View(model);
         }
 
+        // --- مضافة حديثاً: تعديل الكوبون (GET) ---
+        [HttpGet]
+        public async Task<IActionResult> EditCoupon(int id)
+        {
+            var coupon = await _context.Coupons.FindAsync(id);
+            if (coupon == null)
+            {
+                return NotFound();
+            }
+            return View(coupon);
+        }
+
+        // --- مضافة حديثاً: تعديل الكوبون (POST) ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCoupon(Coupon model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingCoupon = await _context.Coupons.FindAsync(model.Id);
+                    if (existingCoupon == null) return NotFound();
+
+                    // تحديث البيانات
+                    existingCoupon.Code = model.Code.ToUpper();
+                    existingCoupon.Description = model.Description;
+                    existingCoupon.DescriptionAr = model.DescriptionAr;
+                    existingCoupon.DiscountType = model.DiscountType;
+                    existingCoupon.DiscountValue = model.DiscountValue;
+                    existingCoupon.MinimumOrderAmount = model.MinimumOrderAmount;
+                    existingCoupon.MaximumDiscountAmount = model.MaximumDiscountAmount;
+                    existingCoupon.UsageLimit = model.UsageLimit;
+                    existingCoupon.StartDate = model.StartDate;
+                    existingCoupon.EndDate = model.EndDate;
+                    existingCoupon.IsActive = model.IsActive;
+
+                    _context.Update(existingCoupon);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = IsArabic ? "تم تحديث الكوبون بنجاح" : "Coupon updated successfully";
+                    return RedirectToAction(nameof(Coupons));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CouponExists(model.Id)) return NotFound();
+                    else throw;
+                }
+            }
+            return View(model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCoupon(int id)
@@ -358,7 +469,14 @@ namespace PerfumeStore.Controllers
             return RedirectToAction(nameof(Coupons));
         }
 
-        // Reports
+        private bool CouponExists(int id)
+        {
+            return _context.Coupons.Any(e => e.Id == id);
+        }
+
+        // ==========================================
+        //  Reports
+        // ==========================================
         public async Task<IActionResult> Reports(DateTime? startDate, DateTime? endDate)
         {
             var start = startDate ?? DateTime.Today.AddMonths(-1);
@@ -384,28 +502,119 @@ namespace PerfumeStore.Controllers
             return View(reportsViewModel);
         }
 
-        // Invoice
-        public async Task<IActionResult> Invoice(int id)
+        // ==========================================
+        //  Settings & Announcement
+        // ==========================================
+        public async Task<IActionResult> Settings()
         {
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == id);
-            if (order == null) return NotFound();
-            return View(order);
+            var arSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_Ar");
+            var enSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_En");
+
+            // تأكد من وجود السجلات
+            if (arSetting == null) { arSetting = new SiteSetting { Key = "AnnouncementBar_Ar", Value = "", IsEnabled = false }; _context.SiteSettings.Add(arSetting); }
+            if (enSetting == null) { enSetting = new SiteSetting { Key = "AnnouncementBar_En", Value = "", IsEnabled = false }; _context.SiteSettings.Add(enSetting); }
+
+            if (_context.ChangeTracker.HasChanges()) await _context.SaveChangesAsync();
+
+            ViewBag.AnnouncementAr = arSetting.Value;
+            ViewBag.AnnouncementEn = enSetting.Value;
+            ViewBag.IsEnabled = arSetting.IsEnabled; // كلاهما يتشاركان حالة التفعيل
+
+            return View();
         }
 
-        // Helpers
-        private async Task<string> SaveImage(IFormFile image)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAnnouncement(string announcementAr, string announcementEn, bool isEnabled)
         {
+            var arSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_Ar");
+            var enSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_En");
+
+            if (arSetting != null) { arSetting.Value = announcementAr; arSetting.IsEnabled = isEnabled; }
+            if (enSetting != null) { enSetting.Value = announcementEn; enSetting.IsEnabled = isEnabled; }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = IsArabic ? "تم تحديث الإعدادات بنجاح" : "Settings updated successfully";
+            return RedirectToAction(nameof(Settings));
+        }
+        // ==========================================
+        //  Shipping Zones
+        // ==========================================
+        public async Task<IActionResult> ShippingZones()
+        {
+            var zones = await _context.ShippingZones.ToListAsync();
+            return View(zones);
+        }
+
+        public IActionResult CreateShippingZone() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateShippingZone(ShippingZone model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.ShippingZones.Add(model);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = IsArabic ? "تم إضافة منطقة الشحن" : "Shipping zone added";
+                return RedirectToAction(nameof(ShippingZones));
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> EditShippingZone(int id)
+        {
+            var zone = await _context.ShippingZones.FindAsync(id);
+            if (zone == null) return NotFound();
+            return View(zone);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditShippingZone(ShippingZone model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.ShippingZones.Update(model);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = IsArabic ? "تم تحديث منطقة الشحن" : "Shipping zone updated";
+                return RedirectToAction(nameof(ShippingZones));
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteShippingZone(int id)
+        {
+            var zone = await _context.ShippingZones.FindAsync(id);
+            if (zone != null)
+            {
+                _context.ShippingZones.Remove(zone);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = IsArabic ? "تم الحذف بنجاح" : "Deleted successfully";
+            }
+            return RedirectToAction(nameof(ShippingZones));
+        }
+
+        // ==========================================
+        //  Helpers
+        // ==========================================
+        private async Task<string> SaveImage(IFormFile image, string folder = "products")
+        {
+            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", folder);
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products", fileName);
-            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+            var filePath = Path.Combine(uploadPath, fileName);
+
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await image.CopyToAsync(stream);
             }
-            return $"/images/products/{fileName}";
+            return $"/images/{folder}/{fileName}";
         }
 
         private async Task<List<TopProductViewModel>> GetTopProductsAsync()
@@ -457,6 +666,48 @@ namespace PerfumeStore.Controllers
             return orderItems
                 .GroupBy(oi => oi.Product?.Category?.Name ?? "Uncategorized")
                 .ToDictionary(g => g.Key, g => g.Sum(oi => oi.TotalPrice));
+        }
+        [HttpGet]
+        public async Task<IActionResult> Reviews()
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.Product)
+                .Include(r => r.User)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            return View(reviews);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleReviewApproval(int id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            if (review == null) return NotFound();
+
+            review.IsApproved = !review.IsApproved;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = IsArabic
+                ? (review.IsApproved ? "تمت الموافقة على التقييم" : "تم إخفاء التقييم")
+                : (review.IsApproved ? "Review approved" : "Review hidden");
+
+            return RedirectToAction(nameof(Reviews));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            if (review == null) return NotFound();
+
+            _context.Reviews.Remove(review);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = IsArabic ? "تم حذف التقييم بنجاح" : "Review deleted successfully";
+            return RedirectToAction(nameof(Reviews));
         }
     }
 }

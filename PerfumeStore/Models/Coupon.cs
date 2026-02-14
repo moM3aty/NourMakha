@@ -31,26 +31,26 @@ namespace PerfumeStore.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal? MinOrderAmount { get; set; }
 
-        public int? UsageLimit { get; set; }
-        public int UsageCount { get; set; } = 0;
-        public int UsedCount { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
         [Column(TypeName = "decimal(18,2)")]
         public decimal? MinimumOrderAmount { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal? MaximumDiscountAmount { get; set; }
 
+        public int? UsageLimit { get; set; }
+        public int UsageCount { get; set; } = 0;
+        public int UsedCount { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public bool IsActive { get; set; } = true;
 
         [NotMapped]
-        public bool IsValid => IsActive && DateTime.Now >= StartDate && DateTime.Now <= EndDate 
+        public bool IsValid => IsActive && DateTime.Now >= StartDate && DateTime.Now <= EndDate
             && (!UsageLimit.HasValue || UsageCount < UsageLimit.Value);
 
-        public string GetLocalizedDescription(bool isArabic) => 
+        public string GetLocalizedDescription(bool isArabic) =>
             isArabic && !string.IsNullOrEmpty(DescriptionAr) ? DescriptionAr : Description ?? "";
     }
 }

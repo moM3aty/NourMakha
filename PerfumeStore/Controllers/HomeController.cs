@@ -79,8 +79,8 @@ namespace PerfumeStore.Controllers
                 _context.ContactMessages.Add(model);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = IsArabic 
-                    ? "تم إرسال رسالتك بنجاح! سنقوم بالرد عليك قريباً." 
+                TempData["Success"] = IsArabic
+                    ? "تم إرسال رسالتك بنجاح! سنقوم بالرد عليك قريباً."
                     : "Thank you for your message! We will get back to you soon.";
 
                 return RedirectToAction(nameof(Contact));

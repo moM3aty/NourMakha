@@ -1,142 +1,187 @@
 @{
-    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "التقارير" : "Reports";
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "التقارير والإحصائيات" : "Reports & Analytics";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
     Layout = "_AdminLayout";
 }
 
-<div class="page-header">
-    <div class="header-left">
-        <h1>@(isArabic ? "التقارير والإحصائيات" : "Reports & Analytics")</h1>
-    </div>
-</div>
-
-<!-- Date Filter -->
-<div class="card filter-card">
-    <form method="get" class="date-filter">
-        <div class="filter-group">
-            <label>@(isArabic ? "من تاريخ" : "From Date")</label>
-            <input type="date" name="startDate" value="DateTime.Today.AddMonths(-1).ToString(" yyyy-MM-dd")" />
-        </div>
-        <div class="filter-group">
-            <label>@(isArabic ? "إلى تاريخ" : "To Date")</label>
-            <input type="date" name="endDate" value="DateTime.Today.ToString(" yyyy-MM-dd")" />
-        </div>
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-filter"></i>
-            @(isArabic ? "تصفية" : "Filter")
-        </button>
-    </form>
-</div>
-
-<!-- Stats Grid -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon sales">
-            <i class="fas fa-dollar-sign"></i>
-        </div>
-        <div class="stat-info">
-            <h3>@(isArabic ? "إجمالي المبيعات" : "Total Sales")</h3>
-            <p class="stat-value">$24,500</p>
-            <span class="stat-change positive">+12.5%</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon orders">
-            <i class="fas fa-shopping-cart"></i>
-        </div>
-        <div class="stat-info">
-            <h3>@(isArabic ? "الطلبات" : "Orders")</h3>
-            <p class="stat-value">156</p>
-            <span class="stat-change positive">+8.2%</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon products">
-            <i class="fas fa-box"></i>
-        </div>
-        <div class="stat-info">
-            <h3>@(isArabic ? "المنتجات المباعة" : "Products Sold")</h3>
-            <p class="stat-value">342</p>
-            <span class="stat-change positive">+15.3%</span>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon customers">
-            <i class="fas fa-users"></i>
-        </div>
-        <div class="stat-info">
-            <h3>@(isArabic ? "متوسط قيمة الطلب" : "Avg. Order Value")</h3>
-            <p class="stat-value">$157</p>
-            <span class="stat-change negative">-2.1%</span>
-        </div>
-    </div>
-</div>
-
-<div class="reports-grid">
-    <!-- Sales Chart -->
-    <div class="card chart-card">
-        <div class="card-header">
-            <h3>@(isArabic ? "المبيعات الشهرية" : "Monthly Sales")</h3>
-        </div>
-        <div class="card-body">
-            <canvas id="salesChart" height="300"></canvas>
-        </div>
-    </div>
-
-    <!-- Orders by Status -->
-    <div class="card">
-        <div class="card-header">
-            <h3>@(isArabic ? "الطلبات حسب الحالة" : "Orders by Status")</h3>
-        </div>
-        <div class="card-body">
-            <canvas id="statusChart" height="300"></canvas>
-        </div>
-    </div>
-
-    <!-- Sales by Category -->
-    <div class="card">
-        <div class="card-header">
-            <h3>@(isArabic ? "المبيعات حسب الفئة" : "Sales by Category")</h3>
-        </div>
-        <div class="card-body">
-            <canvas id="categoryChart" height="300"></canvas>
-        </div>
-    </div>
-
-    <!-- Top Products -->
-    <div class="card">
-        <div class="card-header">
-            <h3>@(isArabic ? "أفضل المنتجات" : "Top Products")</h3>
-        </div>
-        <div class="card-body">
-            <div class="top-products-list">
-                <div class="top-product-item">
-                    <span class="rank">1</span>
-                    <span class="name">Oud Royal</span>
-                    <span class="sales">$4,500</span>
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header Section -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-chart-pie"></i>
                 </div>
-                <div class="top-product-item">
-                    <span class="rank">2</span>
-                    <span class="name">Amber Nights</span>
-                    <span class="sales">$3,800</span>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@Html.Raw(isArabic ? "تحليل شامل للمبيعات، الطلبات وأداء المنتجات" : "Comprehensive analysis of sales, orders, and product performance")</p>
                 </div>
-                <div class="top-product-item">
-                    <span class="rank">3</span>
-                    <span class="name">Rose Mystique</span>
-                    <span class="sales">$2,900</span>
+            </div>
+            <div class="header-right">
+                <button class="btn-silver-outline" onclick="window.print()">
+                    <i class="fas fa-download"></i>
+                    <span>@Html.Raw(isArabic ? "تصدير تقرير PDF" : "Export PDF")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Filter Toolbar -->
+    <div class="toolbar-container animate-fade-up delay-1">
+        <form method="get" class="reports-filter-form">
+            <div class="filter-inputs">
+                <div class="input-item">
+                    <label>@Html.Raw(isArabic ? "من تاريخ" : "From Date")</label>
+                    <div class="input-wrapper-pro">
+                        <i class="far fa-calendar-alt"></i>
+                        <input type="date" name="startDate" value="@DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")" />
+                    </div>
                 </div>
-                <div class="top-product-item">
-                    <span class="rank">4</span>
-                    <span class="name">Leather Prestige</span>
-                    <span class="sales">$2,400</span>
+                <div class="input-item">
+                    <label>@Html.Raw(isArabic ? "إلى تاريخ" : "To Date")</label>
+                    <div class="input-wrapper-pro">
+                        <i class="far fa-calendar-check"></i>
+                        <input type="date" name="endDate" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
                 </div>
-                <div class="top-product-item">
-                    <span class="rank">5</span>
-                    <span class="name">Blue Ocean</span>
-                    <span class="sales">$1,800</span>
+            </div>
+            <button type="submit" class="btn-royal-sm">
+                <i class="fas fa-filter"></i>
+                <span>@Html.Raw(isArabic ? "تحديث البيانات" : "Update Data")</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid animate-fade-up delay-1">
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>@Html.Raw(isArabic ? "إجمالي المبيعات" : "Total Revenue")</h3>
+                <p class="stat-value">24,500 <small>OMR</small></p>
+                <span class="stat-change positive"><i class="fas fa-caret-up"></i> +12.5%</span>
+            </div>
+            <div class="stat-icon sales"><i class="fas fa-coins"></i></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>@Html.Raw(isArabic ? "إجمالي الطلبات" : "Total Orders")</h3>
+                <p class="stat-value">156</p>
+                <span class="stat-change positive"><i class="fas fa-caret-up"></i> +8.2%</span>
+            </div>
+            <div class="stat-icon orders"><i class="fas fa-shopping-cart"></i></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>@Html.Raw(isArabic ? "المنتجات المباعة" : "Items Sold")</h3>
+                <p class="stat-value">342</p>
+                <span class="stat-change positive"><i class="fas fa-caret-up"></i> +15.3%</span>
+            </div>
+            <div class="stat-icon products"><i class="fas fa-box"></i></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <h3>@Html.Raw(isArabic ? "متوسط قيمة الطلب" : "Avg. Order Value")</h3>
+                <p class="stat-value">157 <small>OMR</small></p>
+                <span class="stat-change negative"><i class="fas fa-caret-down"></i> -2.1%</span>
+            </div>
+            <div class="stat-icon customers"><i class="fas fa-receipt"></i></div>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="reports-main-grid animate-fade-up delay-2">
+        <!-- Sales Performance (Full Width) -->
+        <div class="card chart-main-card">
+            <div class="card-header-clean">
+                <div class="header-title">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>@Html.Raw(isArabic ? "أداء المبيعات الشهري" : "Monthly Sales Performance")</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="height: 350px; position: relative;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribution Charts (Side by Side) -->
+        <div class="card">
+            <div class="card-header-clean">
+                <div class="header-title">
+                    <i class="fas fa-tasks"></i>
+                    <h3>@Html.Raw(isArabic ? "حالات الطلبات" : "Orders by Status")</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header-clean">
+                <div class="header-title">
+                    <i class="fas fa-tags"></i>
+                    <h3>@Html.Raw(isArabic ? "المبيعات حسب الفئة" : "Sales by Category")</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performing Products -->
+        <div class="card full-row">
+            <div class="card-header-clean">
+                <div class="header-title">
+                    <i class="fas fa-trophy"></i>
+                    <h3>@Html.Raw(isArabic ? "المنتجات الأكثر مبيعاً" : "Top Performing Products")</h3>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th width="80">@Html.Raw(isArabic ? "المركز" : "Rank")</th>
+                                <th>@Html.Raw(isArabic ? "المنتج" : "Product")</th>
+                                <th>@Html.Raw(isArabic ? "إجمالي المبيعات" : "Total Revenue")</th>
+                                <th>@Html.Raw(isArabic ? "النمو" : "Growth")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="top-row-highlight">
+                                <td><span class="rank-badge gold">1</span></td>
+                                <td>
+                                    <div class="product-cell-mini">
+                                        <div class="p-img"><i class="fas fa-crown"></i></div>
+                                        <span>Oud Royal - عود ملكي</span>
+                                    </div>
+                                </td>
+                                <td class="val-bold">4,500 OMR</td>
+                                <td><span class="growth-label positive">+22%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-badge silver">2</span></td>
+                                <td>Amber Nights - ليالي العنبر</td>
+                                <td class="val-bold">3,800 OMR</td>
+                                <td><span class="growth-label positive">+14%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="rank-badge bronze">3</span></td>
+                                <td>Rose Mystique - غموض الورد</td>
+                                <td class="val-bold">2,900 OMR</td>
+                                <td><span class="growth-label neutral">0%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -144,106 +189,261 @@
 </div>
 
 <style>
-    .filter-card {
-        margin-bottom: 1.5rem;
-    }
-
-    .date-filter {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-        .filter-group label {
-            font-size: 0.875rem;
-            color: #6c6c7c;
-        }
-
-        .filter-group input {
-            padding: 0.75rem;
-            background: rgba(15, 15, 26, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            color: #fff;
-        }
-
-    .reports-grid {
+    /* --- Premium Reports Specific Styles --- */
+    .reports-main-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
     }
 
-    .chart-card {
+    .chart-main-card, .full-row {
         grid-column: 1 / -1;
     }
 
-    .top-products-list {
+    .reports-filter-form {
         display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        gap: 1rem;
     }
 
-    .top-product-item {
+    .filter-inputs {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .input-item label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .input-wrapper-pro {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.75rem;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 8px;
     }
 
-        .top-product-item .rank {
-            width: 30px;
-            height: 30px;
-            background: rgba(212, 175, 55, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #d4af37;
+        .input-wrapper-pro i {
+            position: absolute;
+            inset-inline-start: 1rem;
+            color: var(--primary-color);
+            opacity: 0.5;
         }
 
-        .top-product-item .name {
-            flex: 1;
-        }
-
-        .top-product-item .sales {
+        .input-wrapper-pro input {
+            padding: 0.7rem 1rem 0.7rem 2.8rem !important;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
             font-weight: 600;
-            color: #d4af37;
+            color: var(--primary-color);
+        }
+
+    body.rtl .input-wrapper-pro input {
+        padding: 0.7rem 2.8rem 0.7rem 1rem !important;
+    }
+
+    .btn-royal-sm {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+
+        .btn-royal-sm:hover {
+            transform: translateY(-2px);
+            background: var(--primary-hover);
+            box-shadow: 0 4px 12px rgba(0,40,85,0.2);
+        }
+
+    .btn-silver-outline {
+        background: #fff;
+        border: 1.5px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+
+        .btn-silver-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+    /* Rank Badges */
+    .rank-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.8rem;
+    }
+
+        .rank-badge.gold {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .rank-badge.silver {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .rank-badge.bronze {
+            background: #ffedd5;
+            color: #9a3412;
+            border: 1px solid #ea580c;
+        }
+
+    .product-cell-mini {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+    }
+
+    .p-img {
+        width: 32px;
+        height: 32px;
+        background: var(--primary-light);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+    }
+
+    .val-bold {
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+    .growth-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+
+        .growth-label.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .growth-label.neutral {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+    .card-header-clean {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--primary-color);
+    }
+
+        .header-title i {
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+
+        .header-title h3 {
+            font-size: 1.05rem;
+            margin: 0;
+            font-weight: 700;
         }
 
     @@media (max-width: 992px) {
-        .date-filter {
-            flex-wrap: wrap;
-        }
-
-        .reports-grid {
+        .reports-main-grid {
             grid-template-columns: 1fr;
         }
+
+        .reports-filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-inputs {
+            flex-direction: column;
+            gap: 1rem;
+        }
     }
+
+    .btn-add-new {
+        background: var(--primary-blue);
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 40, 85, 0.15);
+    }
+
+        .btn-add-new:hover {
+            background: #003377;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 40, 85, 0.25);
+            color: #fff;
+        }
 </style>
 
 @section Scripts {
     <script>
-        // Sales Chart
-        new Chart(document.getElementById('salesChart'), {
+        // Global Chart Defaults for Premium Look
+        Chart.defaults.font.family = "'Tajawal', sans-serif";
+        Chart.defaults.color = "#64748b";
+
+        // 1. Sales Chart (Line)
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesGradient = salesCtx.createLinearGradient(0, 0, 0, 400);
+        salesGradient.addColorStop(0, 'rgba(0, 40, 85, 0.15)');
+        salesGradient.addColorStop(1, 'rgba(0, 40, 85, 0)');
+
+        new Chart(salesCtx, {
             type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
-                    label: '@(isArabic ? "المبيعات" : "Sales")',
+                    label: '@Html.Raw(isArabic ? "المبيعات (OMR)" : "Sales (OMR)")',
                     data: [12000, 15000, 18000, 22000, 19000, 25000, 28000, 24000, 26000, 30000, 28000, 32000],
-                    borderColor: '#d4af37',
-                    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                    borderColor: '#002855',
+                    backgroundColor: salesGradient,
+                    borderWidth: 3,
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#002855',
+                    pointBorderWidth: 2,
+                    pointRadius: 4
                 }]
             },
             options: {
@@ -251,40 +451,55 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' } },
                     x: { grid: { display: false } }
                 }
             }
         });
 
-        // Status Chart
+        // 2. Status Chart (Doughnut)
         new Chart(document.getElementById('statusChart'), {
             type: 'doughnut',
             data: {
-                labels: ['@(isArabic ? "تم التسليم" : "Delivered")', '@(isArabic ? "قيد الشحن" : "Shipped")', '@(isArabic ? "قيد المعالجة" : "Processing")', '@(isArabic ? "قيد الانتظار" : "Pending")'],
+                labels: [
+                    '@Html.Raw(isArabic ? "تم التسليم" : "Delivered")',
+                    '@Html.Raw(isArabic ? "قيد الشحن" : "Shipped")',
+                    '@Html.Raw(isArabic ? "قيد المعالجة" : "Processing")',
+                    '@Html.Raw(isArabic ? "قيد الانتظار" : "Pending")'
+                ],
                 datasets: [{
                     data: [65, 20, 10, 5],
-                    backgroundColor: ['#2ecc71', '#e67e22', '#9b59b6', '#f1c40f']
+                    backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'],
+                    borderWidth: 0,
+                    hoverOffset: 15
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '75%',
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
                 }
             }
         });
 
-        // Category Chart
+        // 3. Category Chart (Bar)
         new Chart(document.getElementById('categoryChart'), {
             type: 'bar',
             data: {
-                labels: ['@(isArabic ? "رجالي" : "Men")', '@(isArabic ? "نسائي" : "Women")', '@(isArabic ? "للجنسين" : "Unisex")', '@(isArabic ? "فاخر" : "Luxury")'],
+                labels: [
+                    '@Html.Raw(isArabic ? "رجالي" : "Men")',
+                    '@Html.Raw(isArabic ? "نسائي" : "Women")',
+                    '@Html.Raw(isArabic ? "للجنسين" : "Unisex")',
+                    '@Html.Raw(isArabic ? "فاخر" : "Luxury")'
+                ],
                 datasets: [{
-                    label: '@(isArabic ? "المبيعات" : "Sales")',
+                    label: '@Html.Raw(isArabic ? "المبيعات" : "Sales")',
                     data: [8500, 7200, 4800, 4000],
-                    backgroundColor: '#d4af37'
+                    backgroundColor: '#002855',
+                    borderRadius: 8,
+                    barThickness: 30
                 }]
             },
             options: {
@@ -292,7 +507,7 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' } },
                     x: { grid: { display: false } }
                 }
             }

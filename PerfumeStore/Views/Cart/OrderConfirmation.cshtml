@@ -7,81 +7,74 @@
     var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
 }
 
-<section class="order-confirmation py-5">
+<section class="order-confirmation-premium">
     <div class="container">
-        <div class="text-center mb-5">
-            <div class="success-icon mb-4">
-                <i class="fas fa-check-circle"></i>
+        <div class="confirmation-wrapper">
+            <div class="success-header animate-fade-up">
+                <div class="success-icon-box">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2>@(isArabic ? "شكراً لطلبك!" : "Thank You For Your Order!")</h2>
+                <p>@(isArabic ? $"تم استلام طلبك رقم #{Model.OrderNumber} بنجاح." : $"Your order #{Model.OrderNumber} has been received.")</p>
+                <div class="order-actions">
+                    <a href="/" class="btn-home">@(isArabic ? "العودة للرئيسية" : "Back to Home")</a>
+                    <a href="/Account/Profile" class="btn-track">@(isArabic ? "تتبع الطلب" : "Track Order")</a>
+                </div>
             </div>
-            <h2>@(isArabic ? "تم تأكيد طلبك بنجاح!" : "Your Order Has Been Confirmed!")</h2>
-        </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card mb-4">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="mb-1">@(isArabic ? "رقم الطلب" : "Order Number")</h4>
-                                <span class="order-number">@Model.OrderNumber</span>
+            <div class="order-receipt animate-fade-up delay-1">
+                <div class="receipt-header">
+                    <h3>@(isArabic ? "ملخص الطلب" : "Order Summary")</h3>
+                    <span class="date">@Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                </div>
+
+                <div class="receipt-items">
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <div class="receipt-item">
+                            <div class="item-img">
+                                <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" />
                             </div>
-                            <div class="text-end">
-                                <h4 class="mb-1">@(isArabic ? "التاريخ" : "Date")</h4>
-                                <span>@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            <div class="item-info">
+                                <span class="name">@item.ProductName</span>
+                                <span class="meta">Qty: @item.Quantity</span>
                             </div>
-                        </div>
-
-                        <hr>
-
-                        <h5 class="mb-3">@(isArabic ? "المنتجات" : "Products")</h5>
-                        @foreach (var item in Model.OrderItems)
-                        {
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="@item.ProductImage" style="width:60px;height:60px;object-fit:cover;border-radius:8px;" class="me-3">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-0">@item.ProductName</h6>
-                                    <small class="text-muted">@(isArabic ? "الكمية" : "Qty"): @item.Quantity</small>
-                                </div>
-                                <span class="fw-bold">@item.TotalPrice.ToString("N2") OMR</span>
-                            </div>
-                        }
-
-                        <hr>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="mb-3">@(isArabic ? "عنوان الشحن" : "Shipping Address")</h5>
-                                <p class="mb-1">@Model.ShippingFirstName @Model.ShippingLastName</p>
-                                <p class="mb-1">@Model.ShippingAddress</p>
-                                <p class="mb-0">@Model.ShippingCity, @Model.ShippingCountry</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="mb-3">@(isArabic ? "ملخص الدفع" : "Payment Summary")</h5>
-                                <p class="d-flex justify-content-between mb-1">
-                                    <span>@(isArabic ? "المجموع الفرعي" : "Subtotal"):</span>
-                                    <span>@Model.Subtotal.ToString("N2") OMR</span>
-                                </p>
-                                @if (Model.Discount > 0)
-                                {
-                                    <p class="d-flex justify-content-between mb-1 text-success">
-                                        <span>@(isArabic ? "الخصم" : "Discount"):</span>
-                                        <span>-@Model.Discount.ToString("N2") OMR</span>
-                                    </p>
-                                }
-                                <hr>
-                                <p class="d-flex justify-content-between fs-5">
-                                    <strong>@(isArabic ? "الإجمالي" : "Total"):</strong>
-                                    <strong class="text-gold">@Model.GrandTotal.ToString("N2") OMR</strong>
-                                </p>
+                            <div class="item-total">
+                                <span class="currency-price" data-base-price="@item.TotalPrice">@item.TotalPrice.ToString("N2") OMR</span>
                             </div>
                         </div>
+                    }
+                </div>
+
+                <div class="receipt-totals">
+                    <div class="row">
+                        <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                        <span class="currency-price" data-base-price="@Model.Subtotal">@Model.Subtotal.ToString("N2") OMR</span>
+                    </div>
+                    <div class="row">
+                        <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                        <span class="currency-price" data-base-price="@Model.ShippingCost">@Model.ShippingCost.ToString("N2") OMR</span>
+                    </div>
+                    @if (Model.Discount > 0)
+                    {
+                        <div class="row discount">
+                            <span>@(isArabic ? "الخصم" : "Discount")</span>
+                            <span class="currency-price" data-base-price="@Model.Discount">-@Model.Discount.ToString("N2") OMR</span>
+                        </div>
+                    }
+                    <div class="divider"></div>
+                    <div class="row total">
+                        <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                        <span class="currency-price" data-base-price="@Model.GrandTotal">@Model.GrandTotal.ToString("N2") OMR</span>
                     </div>
                 </div>
 
-                <div class="text-center">
-                    <a href="/" class="btn btn-gold btn-lg">
-                        <i class="fas fa-home me-2"></i>@(isArabic ? "العودة للرئيسية" : "Back to Home")
-                    </a>
+                <div class="shipping-details">
+                    <h4>@(isArabic ? "تفاصيل الشحن" : "Shipping Details")</h4>
+                    <p><strong>@Model.ShippingFirstName @Model.ShippingLastName</strong></p>
+                    <p>@Model.ShippingAddress</p>
+                    <p>@Model.ShippingCity, @Model.ShippingCountry</p>
+                    <p>@Model.ShippingPhone</p>
                 </div>
             </div>
         </div>
@@ -89,47 +82,216 @@
 </section>
 
 <style>
-    .success-icon {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, #27ae60, #229954);
+    .order-confirmation-premium {
+        padding: 5rem 0;
+        background: #f8f9fa;
+        min-height: 80vh;
+    }
+
+    .confirmation-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .success-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .success-icon-box {
+        width: 80px;
+        height: 80px;
+        background: #2ecc71;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto;
+        color: #fff;
+        font-size: 2.5rem;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
     }
 
-        .success-icon i {
-            font-size: 3rem;
-            color: white;
-        }
-
-    .order-number {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #d4af37;
+    .success-header h2 {
+        font-family: 'Playfair Display', serif;
+        color: #002855;
+        margin-bottom: 0.5rem;
     }
 
-    .btn-gold {
-        background: linear-gradient(135deg, #d4af37, #b8960c);
-        border: none;
-        color: white;
+    .success-header p {
+        color: #6c757d;
+    }
+
+    .order-actions {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn-home, .btn-track {
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
         font-weight: 600;
+        transition: 0.3s;
     }
 
-        .btn-gold:hover {
-            background: linear-gradient(135deg, #b8960c, #9a7b0a);
-            color: white;
+    .btn-home {
+        background: #002855;
+        color: #fff;
+    }
+
+        .btn-home:hover {
+            background: #004080;
+            transform: translateY(-3px);
         }
 
-    .card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    .btn-track {
+        background: #fff;
+        color: #002855;
+        border: 2px solid #002855;
     }
 
-    .text-gold {
-        color: #d4af37;
+        .btn-track:hover {
+            background: rgba(0, 40, 85, 0.05);
+        }
+
+    /* Receipt */
+    .order-receipt {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .receipt-header {
+        background: #002855;
+        color: #fff;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .receipt-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .receipt-header .date {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+    .receipt-items {
+        padding: 2rem;
+    }
+
+    .receipt-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f1f3f5;
+        margin-bottom: 1.5rem;
+    }
+
+        .receipt-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+    .item-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+        .item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .item-info {
+        flex: 1;
+    }
+
+        .item-info .name {
+            display: block;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .item-info .meta {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+    .item-total {
+        font-weight: 700;
+        color: #002855;
+    }
+
+    .receipt-totals {
+        background: #f8f9fa;
+        padding: 2rem;
+    }
+
+        .receipt-totals .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            color: #495057;
+        }
+
+            .receipt-totals .row.total {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #002855;
+                margin-top: 1rem;
+                margin-bottom: 0;
+            }
+
+        .receipt-totals .divider {
+            height: 1px;
+            background: #dee2e6;
+            margin: 1rem 0;
+        }
+
+    .shipping-details {
+        padding: 2rem;
+        border-top: 1px dashed #dee2e6;
+    }
+
+        .shipping-details h4 {
+            font-size: 1rem;
+            color: #002855;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .shipping-details p {
+            margin-bottom: 0.3rem;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
+    @@media (max-width: 768px) {
+        .order-actions {
+            flex-direction: column;
+        }
+
+        .receipt-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
     }
 </style>

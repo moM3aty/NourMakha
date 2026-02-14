@@ -33,7 +33,6 @@ namespace PerfumeStore.Controllers
         }
 
         private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
-
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -81,19 +80,46 @@ namespace PerfumeStore.Controllers
                 return RedirectToAction(nameof(Login));
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return NotFound();
+            if (user == null) return NotFound();
 
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Where(o => o.UserId == user.Id)
                 .OrderByDescending(o => o.CreatedAt)
-                .Take(10)
                 .ToListAsync();
 
             ViewBag.Orders = orders;
             return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ApplicationUser model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            // تحديث البيانات الأساسية
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.PhoneNumber = model.PhoneNumber;
+
+            // تحديث العنوان إذا تم إرساله
+            if (!string.IsNullOrEmpty(model.Address)) user.Address = model.Address;
+            if (!string.IsNullOrEmpty(model.City)) user.City = model.City;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["Success"] = IsArabic ? "تم تحديث البيانات بنجاح" : "Profile updated successfully";
+            }
+            else
+            {
+                TempData["Error"] = IsArabic ? "حدث خطأ أثناء التحديث" : "Error updating profile";
+            }
+
+            return RedirectToAction(nameof(Profile));
         }
 
         [HttpPost]
@@ -124,7 +150,7 @@ namespace PerfumeStore.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
-                
+
                 // Generate and send OTP
                 var otp = await _otpService.GenerateOTPAsync(model.Email, "Register");
                 await _emailService.SendOtpEmailAsync(model.Email, otp, "Register");

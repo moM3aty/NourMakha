@@ -53,10 +53,20 @@
                 </div>
 
                 <div class="product-price-large">
-                    <span class="current-price">$@Model.Product.Price</span>
+                    <span class="current-price currency-price" data-base-price="@Model.Product.Price">
+                        @Model.Product.Price
+                        <svg width="35" height="35" viewBox="0 0 500 500" fill="currentColor" style="vertical-align: middle; margin-inline-start: 5px;">
+                            <path d="M241.67,213.77c-.63-49.2,11.44-95.41,35.76-137.75C313.47,13.28,353.02-6.48,421.55,28.87c10.67,5.5,53.6,35.43,57.81,44.54,5.03,10.87-27.48,103.87-29.11,122.3-34.69-37.51-99.37-98.66-154.85-69.62-45.05,23.58-12.02,62.54,11.46,87.68h409.36l-26.41,47.64h-332.5c-.31,1.8.87,3.3,2.53,4.6,12.44,9.72,80.97,39.54,94.75,39.54h210.71l-26.89,48.94H13.37l26.91-48.94h253.38l-37.11-44.13H64.75l26.41-47.64h150.51Z" />
+                        </svg>
+                    </span>
                     @if (Model.Product.OldPrice.HasValue && Model.Product.OldPrice > Model.Product.Price)
                     {
-                        <span class="old-price">$@Model.Product.OldPrice</span>
+                        <span class="old-price currency-old-price" data-base-price="@Model.Product.OldPrice">
+                            @Model.Product.OldPrice
+                            <svg width="20" height="20" viewBox="0 0 500 500" fill="currentColor" style="vertical-align: middle; margin-inline-start: 2px;">
+                                <path d="M241.67,213.77c-.63-49.2,11.44-95.41,35.76-137.75C313.47,13.28,353.02-6.48,421.55,28.87c10.67,5.5,53.6,35.43,57.81,44.54,5.03,10.87-27.48,103.87-29.11,122.3-34.69-37.51-99.37-98.66-154.85-69.62-45.05,23.58-12.02,62.54,11.46,87.68h409.36l-26.41,47.64h-332.5c-.31,1.8.87,3.3,2.53,4.6,12.44,9.72,80.97,39.54,94.75,39.54h210.71l-26.89,48.94H13.37l26.91-48.94h253.38l-37.11-44.13H64.75l26.41-47.64h150.51Z" />
+                            </svg>
+                        </span>
                         var discount = Math.Round((1 - (Model.Product.Price / Model.Product.OldPrice.Value)) * 100);
                         <span class="discount-badge">-@discount%</span>
                     }
@@ -117,7 +127,7 @@
                 <div class="product-features">
                     <div class="feature">
                         <i class="fas fa-truck"></i>
-                        <span>@(isArabic ? "توصيل مجاني فوق $200" : "Free shipping over $200")</span>
+                        <span>@(isArabic ? "توصيل سريع" : "Fast shipping")</span>
                     </div>
                     <div class="feature">
                         <i class="fas fa-shield-alt"></i>
@@ -131,77 +141,129 @@
             </div>
         </div>
 
-        <!-- Product Tabs -->
-        <div class="product-tabs">
-            <div class="tabs-header">
-                <button class="tab-btn active" data-tab="description">@(isArabic ? "الوصف" : "Description")</button>
-                <button class="tab-btn" data-tab="reviews">@(isArabic ? "التقييمات" : "Reviews") (@Model.TotalReviews)</button>
+        <!-- ===================================
+             PREMIUM REVIEWS SECTION (MODERN STYLE)
+             =================================== -->
+        <div class="product-tabs-premium">
+            <div class="tabs-header-premium">
+                <button class="tab-btn-premium active" data-tab="description">@(isArabic ? "تفاصيل المنتج" : "Product Details")</button>
+                <button class="tab-btn-premium" data-tab="reviews">
+                    @(isArabic ? "التقييمات والآراء" : "Reviews & Feedbacks")
+                    <span class="rev-count-pill">@Model.TotalReviews</span>
+                </button>
             </div>
 
-            <div class="tab-content active" id="description">
-                <div class="description-content">
+            <div class="tab-content-premium active" id="description">
+                <div class="premium-description-box glass">
                     <p>@(isArabic? Model.Product.DescriptionAr : Model.Product.Description)</p>
                 </div>
             </div>
 
-            <div class="tab-content" id="reviews">
-                <!-- Add Review Form -->
-                @if (User.Identity?.IsAuthenticated ?? false)
-                {
-                    <form asp-action="AddReview" method="post" class="review-form">
-                        <input type="hidden" name="productId" value="@Model.Product.Id" />
-                        <h4>@(isArabic ? "أضف تقييمك" : "Write a Review")</h4>
-                        <div class="rating-input">
-                            <label>@(isArabic ? "التقييم" : "Rating"):</label>
-                            <div class="star-rating">
-                                @for (int i = 5; i >= 1; i--)
+            <div class="tab-content-premium" id="reviews">
+                <div class="reviews-layout">
+                    <!-- Sidebar: Rating Summary -->
+                    <div class="reviews-summary-card glass">
+                        <div class="overall-rating">
+                            <span class="rating-num">@Model.AverageRating.ToString("0.0")</span>
+                            <div class="stars-visual">
+                                @for (int i = 1; i <= 5; i++)
                                 {
-                                    <input type="radio" name="rating" value="@i" id="star@i" />
-                                    <label for="star@i"><i class="far fa-star"></i></label>
+                                    <i class="@(i <= Math.Round(Model.AverageRating) ? "fas" : "far") fa-star"></i>
                                 }
                             </div>
+                            <p class="total-reviews-txt">@(isArabic ? $"بناءً على {Model.TotalReviews} تقييم" : $"Based on {Model.TotalReviews} reviews")</p>
                         </div>
-                        <div class="form-group">
-                            <textarea name="comment" rows="4" placeholder="@(isArabic ? "اكتب تعليقك..." : "Write your comment...")"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">@(isArabic ? "إرسال" : "Submit")</button>
-                    </form>
-                }
-                else
-                {
-                    <p><a href="/Account/Login">@(isArabic ? "سجل دخولك" : "Login")</a> @(isArabic ? "لكتابة تقييم" : "to write a review")</p>
-                }
 
-                <!-- Reviews List -->
-                <div class="reviews-list">
-                    @if (Model.Product.Reviews?.Any() == true)
-                    {
-                        foreach (var review in Model.Product.Reviews.Where(r => r.IsApproved))
-                        {
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer">
-                                        <div class="reviewer-avatar">@(review.User?.FirstName?.FirstOrDefault())@(review.User?.LastName?.FirstOrDefault())</div>
-                                        <div class="reviewer-info">
-                                            <strong>@review.User?.FirstName @review.User?.LastName</strong>
-                                            <span class="review-date">@review.CreatedAt.ToString("MMM dd, yyyy")</span>
-                                        </div>
+                        <div class="rating-bars">
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                var count = Model.Reviews.Count(r => r.Rating == i);
+                                var percent = Model.TotalReviews > 0 ? (count * 100 / Model.TotalReviews) : 0;
+                                <div class="bar-item">
+                                    <span class="label">@i <i class="fas fa-star"></i></span>
+                                    <div class="bar-bg">
+                                        <div class="bar-fill" style="width: @percent%"></div>
                                     </div>
-                                    <div class="review-rating">
-                                        @for (int i = 1; i <= 5; i++)
+                                    <span class="count-val">@percent%</span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <button class="btn-write-rev" onclick="document.getElementById('addReviewBox').style.display='block'">
+                                <i class="fas fa-pen-nib"></i> @(isArabic ? "اكتب تقييماً" : "Write a Review")
+                            </button>
+                        }
+                    </div>
+
+                    <!-- Main: Reviews List & Form -->
+                    <div class="reviews-main-feed">
+                        <!-- Add Review Form (Premium Style) -->
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <div id="addReviewBox" class="review-form-premium glass animate-fade-up" style="display: none;">
+                                <form asp-action="AddReview" method="post">
+                                    <input type="hidden" name="productId" value="@Model.Product.Id" />
+                                    <h3>@(isArabic ? "شاركنا تجربتك الفاخرة" : "Share Your Luxury Experience")</h3>
+
+                                    <div class="star-rating-input">
+                                        @for (int i = 5; i >= 1; i--)
                                         {
-                                            <i class="@(i <= review.Rating ? "fas" : "far") fa-star"></i>
+                                            <input type="radio" name="rating" value="@i" id="p-star@i" required />
+                                            <label for="p-star@i"><i class="fas fa-star"></i></label>
                                         }
                                     </div>
-                                </div>
-                                <p class="review-comment">@(isArabic? review.CommentAr: review.Comment)</p>
+
+                                    <div class="form-group-premium">
+                                        <textarea name="comment" rows="4" placeholder="@(isArabic ? "اكتب تعليقك هنا..." : "Write your premium feedback here...")" required></textarea>
+                                    </div>
+
+                                    <div class="form-footer-premium">
+                                        <button type="button" class="btn-cancel" onclick="document.getElementById('addReviewBox').style.display='none'">@(isArabic ? "إلغاء" : "Cancel")</button>
+                                        <button type="submit" class="btn-submit">@(isArabic ? "إرسال التقييم" : "Post Review")</button>
+                                    </div>
+                                </form>
                             </div>
                         }
-                    }
-                    else
-                    {
-                        <p class="no-reviews">@(isArabic ? "لا توجد تقييمات بعد" : "No reviews yet")</p>
-                    }
+
+                        <!-- Reviews Feed -->
+                        <div class="reviews-feed">
+                            @if (Model.Product.Reviews?.Any() == true)
+                            {
+                                foreach (var review in Model.Product.Reviews.Where(r => r.IsApproved).OrderByDescending(r => r.CreatedAt))
+                                {
+                                    <div class="review-card-pro animate-fade-up">
+                                        <div class="r-header">
+                                            <div class="r-user">
+                                                <div class="r-avatar">@(review.User?.FirstName?.FirstOrDefault())</div>
+                                                <div class="r-info">
+                                                    <strong>@review.User?.FirstName @review.User?.LastName</strong>
+                                                    <span class="r-date">@review.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                                </div>
+                                            </div>
+                                            <div class="r-stars">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="@(i <= review.Rating ? "fas" : "far") fa-star"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="r-body">
+                                            <p>@(isArabic && !string.IsNullOrEmpty(review.CommentAr) ? review.CommentAr : review.Comment)</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-reviews-state">
+                                    <i class="far fa-comments"></i>
+                                    <p>@(isArabic ? "لا توجد تقييمات لهذا المنتج بعد. كن أول من يشاركه تجربته!" : "No reviews yet. Be the first to share your experience!")</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -244,6 +306,7 @@
 </section>
 
 <style>
+    /* Original Core Styles */
     .product-details {
         padding: 6rem 0;
         margin-top: 80px;
@@ -257,10 +320,11 @@
     }
 
     .product-gallery .main-image {
-        background: rgba(26, 26, 46, 0.5);
+        background: #f8f9fa;
         border-radius: 20px;
         overflow: hidden;
         margin-bottom: 1rem;
+        border: 1px solid rgba(0,0,0,0.05);
     }
 
         .product-gallery .main-image img {
@@ -284,9 +348,8 @@
             transition: all 0.2s;
         }
 
-            .thumbnail-images img:hover,
-            .thumbnail-images img.active {
-                border-color: #d4af37;
+            .thumbnail-images img:hover, .thumbnail-images img.active {
+                border-color: #002855;
             }
 
     .breadcrumb {
@@ -298,23 +361,24 @@
     }
 
         .breadcrumb a {
-            color: #b8b8c8;
+            color: #6c757d;
         }
 
             .breadcrumb a:hover {
-                color: #d4af37;
+                color: #002855;
             }
 
     .product-title {
         font-family: 'Playfair Display', serif;
         font-size: 2.5rem;
         margin-bottom: 1rem;
+        color: #212529;
     }
 
     .product-meta {
         display: flex;
         gap: 0.5rem;
-        color: #b8b8c8;
+        color: #6c757d;
         margin-bottom: 1rem;
     }
 
@@ -326,7 +390,7 @@
     }
 
         .product-rating-large .stars {
-            color: #d4af37;
+            color: #002855;
         }
 
     .product-price-large {
@@ -339,7 +403,7 @@
         .product-price-large .current-price {
             font-size: 2rem;
             font-weight: 700;
-            color: #d4af37;
+            color: #002855;
         }
 
         .product-price-large .old-price {
@@ -356,33 +420,30 @@
         font-size: 0.875rem;
     }
 
-    .product-description {
-        margin-bottom: 1.5rem;
+    .product-description h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: #002855;
     }
 
-        .product-description h3 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            color: #d4af37;
-        }
-
-        .product-description p {
-            color: #b8b8c8;
-            line-height: 1.8;
-        }
+    .product-description p {
+        color: #495057;
+        line-height: 1.8;
+    }
 
     .product-attributes {
-        background: rgba(26, 26, 46, 0.5);
+        background: #f8f9fa;
         border-radius: 15px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 40, 85, 0.1);
     }
 
         .product-attributes .attribute {
             display: flex;
             gap: 1rem;
             padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            border-bottom: 1px solid rgba(0, 40, 85, 0.1);
         }
 
             .product-attributes .attribute:last-child {
@@ -395,7 +456,7 @@
         }
 
         .product-attributes .value {
-            color: #fff;
+            color: #212529;
         }
 
         .product-attributes .in-stock {
@@ -414,16 +475,16 @@
 
     .quantity-selector {
         display: flex;
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        border: 1px solid rgba(0, 40, 85, 0.2);
         border-radius: 10px;
         overflow: hidden;
     }
 
         .quantity-selector button {
             width: 50px;
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(0, 40, 85, 0.05);
             border: none;
-            color: #d4af37;
+            color: #002855;
             font-size: 1.25rem;
             cursor: pointer;
         }
@@ -433,7 +494,7 @@
             text-align: center;
             background: transparent;
             border: none;
-            color: #fff;
+            color: #212529;
             font-size: 1rem;
         }
 
@@ -451,140 +512,339 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: #b8b8c8;
+            color: #6c757d;
             font-size: 0.875rem;
         }
 
             .product-features .feature i {
-                color: #d4af37;
+                color: #002855;
             }
 
-    /* Tabs */
-    .product-tabs {
-        margin-top: 3rem;
+    /* ===================================
+           PREMIUM REVIEWS SECTION STYLES
+           =================================== */
+    .product-tabs-premium {
+        margin-top: 5rem;
     }
 
-    .tabs-header {
+    .tabs-header-premium {
         display: flex;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-        margin-bottom: 2rem;
+        gap: 3rem;
+        border-bottom: 1px solid #f1f1f1;
+        margin-bottom: 3rem;
     }
 
-    .tab-btn {
-        padding: 1rem 2rem;
-        background: transparent;
+    .tab-btn-premium {
+        background: none;
         border: none;
-        color: #b8b8c8;
-        font-size: 1rem;
+        padding-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #94a3b8;
         cursor: pointer;
         position: relative;
+        transition: 0.3s;
     }
 
-        .tab-btn.active {
-            color: #d4af37;
+        .tab-btn-premium.active {
+            color: #002855;
+            font-weight: 800;
         }
 
-            .tab-btn.active::after {
+            .tab-btn-premium.active::after {
                 content: '';
                 position: absolute;
                 bottom: -1px;
                 left: 0;
-                right: 0;
+                width: 100%;
                 height: 2px;
-                background: #d4af37;
+                background: #002855;
             }
 
-    .tab-content {
+    .rev-count-pill {
+        background: #f1f5f9;
+        color: #002855;
+        padding: 2px 8px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        margin-inline-start: 5px;
+    }
+
+    .tab-content-premium {
         display: none;
     }
 
-        .tab-content.active {
+        .tab-content-premium.active {
             display: block;
+            animation: fadeIn 0.5s ease;
         }
 
-    /* Reviews */
-    .review-form {
-        background: rgba(26, 26, 46, 0.5);
+    .premium-description-box {
         padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        border-radius: 20px;
+        border: 1px solid #f1f1f1;
+        line-height: 1.8;
+        color: #495057;
     }
 
-        .review-form h4 {
-            margin-bottom: 1rem;
-        }
+    .reviews-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 4rem;
+        align-items: start;
+    }
 
-    .star-rating {
+    .reviews-summary-card {
+        padding: 2.5rem;
+        border-radius: 24px;
+        border: 1px solid #f1f1f1;
+        text-align: center;
+        position: sticky;
+        top: 110px;
+    }
+
+    .overall-rating .rating-num {
+        font-size: 4.5rem;
+        font-weight: 900;
+        color: #002855;
+        line-height: 1;
+    }
+
+    .stars-visual {
+        color: #002855;
+        font-size: 1.2rem;
+        margin: 15px 0;
         display: flex;
-        flex-direction: row-reverse;
-        gap: 0.25rem;
-    }
-
-        .star-rating input {
-            display: none;
-        }
-
-        .star-rating label {
-            cursor: pointer;
-            color: #6c6c7c;
-            font-size: 1.5rem;
-        }
-
-            .star-rating input:checked ~ label,
-            .star-rating label:hover,
-            .star-rating label:hover ~ label {
-                color: #d4af37;
-            }
-
-    .review-item {
-        padding: 1.5rem;
-        background: rgba(26, 26, 46, 0.5);
-        border-radius: 15px;
-        margin-bottom: 1rem;
-    }
-
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .reviewer {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .reviewer-avatar {
-        width: 50px;
-        height: 50px;
-        background: #d4af37;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
         justify-content: center;
-        color: #0f0f1a;
+        gap: 4px;
+    }
+
+    .total-reviews-txt {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .rating-bars {
+        margin: 2rem 0;
+        text-align: start;
+    }
+
+    .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+        color: #64748b;
+        font-size: 0.85rem;
         font-weight: 700;
     }
 
-    .reviewer-info strong {
+        .bar-item .label {
+            width: 45px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+    .bar-bg {
+        flex: 1;
+        height: 6px;
+        background: #f1f5f9;
+        border-radius: 50px;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%;
+        background: #002855;
+        border-radius: 50px;
+    }
+
+    .bar-item .count-val {
+        width: 35px;
+        text-align: end;
+    }
+
+    .btn-write-rev {
+        width: 100%;
+        background: #002855;
+        color: #fff;
+        border: none;
+        padding: 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 5px 15px rgba(0,40,85,0.1);
+    }
+
+        .btn-write-rev:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,40,85,0.2);
+        }
+
+    .reviews-main-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .review-card-pro {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 20px;
+        border: 1px solid #f1f1f1;
+        transition: 0.3s;
+    }
+
+        .review-card-pro:hover {
+            border-color: #002855;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+    .r-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .r-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .r-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+    }
+
+    .r-info strong {
         display: block;
+        font-size: 1rem;
+        color: #212529;
     }
 
-    .review-date {
-        font-size: 0.875rem;
-        color: #6c6c7c;
+    .r-info .r-date {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 600;
     }
 
-    .review-rating {
-        color: #d4af37;
+    .r-stars {
+        color: #002855;
+        font-size: 0.85rem;
+        display: flex;
+        gap: 3px;
     }
 
-    .review-comment {
-        color: #b8b8c8;
+    .r-body p {
+        color: #495057;
         line-height: 1.8;
+        font-size: 1rem;
     }
+
+    .review-form-premium {
+        padding: 2.5rem;
+        border-radius: 24px;
+        border: 2px solid #002855;
+        margin-bottom: 3rem;
+    }
+
+        .review-form-premium h3 {
+            margin-bottom: 1rem;
+            color: #002855;
+            font-family: 'Playfair Display', serif;
+        }
+
+    .star-rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 8px;
+        margin: 1.5rem 0;
+    }
+
+        .star-rating-input input {
+            display: none;
+        }
+
+        .star-rating-input label {
+            font-size: 1.8rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .star-rating-input input:checked ~ label, .star-rating-input label:hover, .star-rating-input label:hover ~ label {
+                color: #002855;
+            }
+
+    .form-group-premium textarea {
+        width: 100%;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        font-family: inherit;
+        font-size: 1rem;
+        outline: none;
+        transition: 0.3s;
+        background: #fcfcfc;
+    }
+
+        .form-group-premium textarea:focus {
+            border-color: #002855;
+            box-shadow: 0 0 0 4px rgba(0,40,85,0.05);
+        }
+
+    .form-footer-premium {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    .btn-submit {
+        background: #002855;
+        color: #fff;
+        border: none;
+        padding: 0.8rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .empty-reviews-state {
+        text-align: center;
+        padding: 5rem 0;
+        color: #cbd5e1;
+    }
+
+        .empty-reviews-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
 
     /* Related Products */
     .related-products {
@@ -595,11 +855,123 @@
             font-family: 'Playfair Display', serif;
             font-size: 2rem;
             margin-bottom: 2rem;
+            color: #212529;
         }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .product-card {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+    .product-image {
+        position: relative;
+        height: 300px;
+        background: #f8f9fa;
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .product-actions {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: 0.3s;
+    }
+
+    .product-card:hover .product-actions {
+        opacity: 1;
+    }
+
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: none;
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .action-btn:hover {
+            background: #002855;
+            color: #fff;
+        }
+
+    .product-info {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .product-brand {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .product-name a {
+        color: #212529;
+        font-weight: 600;
+        font-size: 1rem;
+        display: block;
+        margin: 0.5rem 0;
+    }
+
+    .product-price .current-price {
+        color: #002855;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
     @@media (max-width: 992px) {
         .product-details-grid {
             grid-template-columns: 1fr;
+        }
+
+        .reviews-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .reviews-summary-card {
+            position: static;
         }
     }
 </style>
@@ -622,14 +994,22 @@
 
     function addToCartWithQty(productId) {
         const qty = document.getElementById('quantity').value;
-        // Add to cart logic with quantity
+        if(typeof window.addToCartWithQty === 'function') {
+            window.addToCartWithQty(productId, qty);
+        }
     }
 
-    // Tab functionality
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    function toggleWishlist(productId) {
+        if(typeof window.toggleWishlist === 'function') {
+            window.toggleWishlist(productId);
+        }
+    }
+
+    // Tab functionality for Premium Section
+    document.querySelectorAll('.tab-btn-premium').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn-premium').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content-premium').forEach(c => c.classList.remove('active'));
 
             this.classList.add('active');
             document.getElementById(this.dataset.tab).classList.add('active');

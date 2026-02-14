@@ -3,174 +3,151 @@
    =================================== */
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Sidebar Toggle
+    initSidebar();
+    initDeleteConfirmation();
+    initCustomSelects();
+    initImagePreview();
+});
+
+/**
+ * 1. Sidebar Toggle Logic (Desktop & Mobile)
+ */
+function initSidebar() {
     const sidebar = document.getElementById('sidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
+    const mainContent = document.querySelector('.admin-main');
 
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-        });
+    if (!sidebar || !sidebarToggle) return;
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1024) {
-                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-                    sidebar.classList.remove('active');
-                }
-            }
-        });
-    }
+    // Toggle Click Event
+    sidebarToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
 
-    // Delete Confirmation
-    document.querySelectorAll('.delete').forEach(btn => {
-        btn.addEventListener('click', async function (e) {
-            // If the button is inside a form, let the form submit logic handle it via onclick attribute in HTML
-            // This is mainly for AJAX calls if implemented later
-            if (!this.closest('form')) {
-                const isArabic = document.documentElement.lang === 'ar';
-                if (!confirm(isArabic ? 'هل أنت متأكد من الحذف؟' : 'Are you sure you want to delete?')) {
-                    e.preventDefault();
-                }
-            }
-        });
-    });
+        if (window.innerWidth > 1024) {
+            // --- Desktop Logic (Collapse/Expand) ---
+            sidebar.classList.toggle('collapsed');
 
-    // Status Filter
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', function () {
-            const status = this.value;
-            const url = new URL(window.location);
-
-            if (status) {
-                url.searchParams.set('status', status);
+            if (sidebar.classList.contains('collapsed')) {
+                // Sidebar is hidden -> Expand content
+                mainContent.style.marginInlineStart = '0';
+                mainContent.style.width = '100%';
             } else {
-                url.searchParams.delete('status');
+                // Sidebar is visible -> Shrink content
+                mainContent.style.marginInlineStart = '280px';
+                mainContent.style.width = 'calc(100% - 280px)';
             }
-
-            window.location.href = url.toString();
-        });
-
-        // Set current value
-        const currentStatus = new URLSearchParams(window.location.search).get('status');
-        if (currentStatus) {
-            statusFilter.value = currentStatus;
-        }
-    }
-
-    // Order Status Update (AJAX example)
-    document.querySelectorAll('.order-status-select').forEach(select => {
-        select.addEventListener('change', async function () {
-            const orderId = this.dataset.orderId;
-            const status = this.value;
-
-            try {
-                // If using AJAX:
-                /*
-                const response = await fetch('/Admin/UpdateOrderStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ orderId, status })
-                });
-                */
-                // Since we are submitting via form directly in HTML, this listener might just show visual feedback
-            } catch (error) {
-                console.error('Error updating order status:', error);
-            }
-        });
-    });
-
-    // Notification System
-    window.showNotification = function (message, type) {
-        const notification = document.createElement('div');
-        notification.className = `admin-notification ${type}`;
-        notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-        // Add styles if not exists
-        if (!document.querySelector('#admin-notification-styles')) {
-            const styles = document.createElement('style');
-            styles.id = 'admin-notification-styles';
-            styles.textContent = `
-                .admin-notification {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    padding: 1rem 1.5rem;
-                    background: var(--admin-card, #1a1a2e);
-                    border: 1px solid var(--admin-border, rgba(212, 175, 55, 0.2));
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.75rem;
-                    z-index: 1000;
-                    animation: slideUp 0.3s ease;
-                    color: #fff;
-                }
-                .admin-notification.success { border-color: #27ae60; }
-                .admin-notification.success i { color: #27ae60; }
-                .admin-notification.error { border-color: #e74c3c; }
-                .admin-notification.error i { color: #e74c3c; }
-                @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `;
-            document.head.appendChild(styles);
-        }
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideUp 0.3s ease reverse';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    // Data Tables Sorting
-    const dataTables = document.querySelectorAll('.data-table');
-    dataTables.forEach(table => {
-        const headers = table.querySelectorAll('th');
-        headers.forEach((header, index) => {
-            header.style.cursor = 'pointer';
-            header.addEventListener('click', () => sortTable(table, index));
-        });
-    });
-
-    function sortTable(table, columnIndex) {
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-
-        const isNumeric = !isNaN(parseFloat(rows[0].querySelectorAll('td')[columnIndex].innerText.replace(/[^0-9.-]/g, '')));
-
-        rows.sort((a, b) => {
-            const aCell = a.querySelectorAll('td')[columnIndex].innerText.trim();
-            const bCell = b.querySelectorAll('td')[columnIndex].innerText.trim();
-
-            if (isNumeric) {
-                const aNum = parseFloat(aCell.replace(/[^0-9.-]/g, ''));
-                const bNum = parseFloat(bCell.replace(/[^0-9.-]/g, ''));
-                return aNum - bNum;
-            }
-            return aCell.localeCompare(bCell);
-        });
-
-        if (table.dataset.sortDirection === 'asc') {
-            rows.reverse();
-            table.dataset.sortDirection = 'desc';
         } else {
-            table.dataset.sortDirection = 'asc';
+            // --- Mobile Logic (Off-canvas Overlay) ---
+            sidebar.classList.toggle('active');
+        }
+    });
+
+    // Close sidebar when clicking outside (Mobile only)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1024 && sidebar.classList.contains('active')) {
+            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        }
+    });
+
+    // Handle Window Resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            // Reset mobile state
+            sidebar.classList.remove('active');
+
+            // Apply desktop state based on 'collapsed' class
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginInlineStart = '0';
+                mainContent.style.width = '100%';
+            } else {
+                mainContent.style.marginInlineStart = '280px';
+                mainContent.style.width = 'calc(100% - 280px)';
+            }
+        } else {
+            // Reset desktop styles for mobile
+            mainContent.style.marginInlineStart = '0';
+            mainContent.style.width = '100%';
+        }
+    });
+}
+
+/**
+ * 2. Delete Confirmation
+ */
+function initDeleteConfirmation() {
+    document.querySelectorAll('.delete').forEach(btn => {
+        // Only attach if it doesn't already have an inline onclick
+        if (!btn.getAttribute('onclick')) {
+            btn.addEventListener('click', function (e) {
+                if (!this.closest('form')) {
+                    const isArabic = document.documentElement.lang === 'ar';
+                    if (!confirm(isArabic ? 'هل أنت متأكد من الحذف؟' : 'Are you sure you want to delete?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+    });
+}
+
+/**
+ * 3. Custom "Other" Option in Select Lists
+ */
+function initCustomSelects() {
+    const selects = document.querySelectorAll('select.allow-other');
+
+    selects.forEach(select => {
+        const input = select.nextElementSibling; // The hidden input field
+        if (!input || !input.classList.contains('custom-other-input')) return;
+
+        // Store original name
+        const originalName = select.getAttribute('name');
+        select.dataset.originalName = originalName;
+
+        // Check initial value (Edit Mode)
+        const currentValue = select.dataset.currentValue;
+        if (currentValue) {
+            let exists = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === currentValue) {
+                    exists = true;
+                    select.value = currentValue;
+                    break;
+                }
+            }
+
+            if (!exists && currentValue !== "") {
+                select.value = "Other";
+                input.value = currentValue;
+                input.style.display = 'block';
+                input.setAttribute('name', originalName);
+                select.removeAttribute('name');
+            }
         }
 
-        rows.forEach(row => tbody.appendChild(row));
-    }
+        // Handle Change
+        select.addEventListener('change', function () {
+            if (this.value === 'Other') {
+                input.style.display = 'block';
+                input.value = '';
+                input.focus();
+                input.setAttribute('name', this.dataset.originalName);
+                this.removeAttribute('name');
+            } else {
+                input.style.display = 'none';
+                this.setAttribute('name', this.dataset.originalName);
+                input.removeAttribute('name');
+            }
+        });
+    });
+}
 
-    // Image preview
+/**
+ * 4. Image Preview
+ */
+function initImagePreview() {
     const imageInput = document.getElementById('imageInput');
     if (imageInput) {
         imageInput.addEventListener('change', function (e) {
@@ -180,11 +157,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 reader.onload = function (e) {
                     const preview = document.getElementById('imagePreview');
                     if (preview) {
-                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; border-radius: 8px; margin-top: 10px;">`;
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; border-radius: 12px; border: 1px solid var(--gold-primary, #002855); margin-top: 10px;">`;
                     }
+
+                    // Update upload UI feedback
+                    const label = document.querySelector('.upload-label');
+                    if (label) label.style.borderColor = '#2ecc71';
+
+                    const icon = document.querySelector('.upload-icon');
+                    if (icon) {
+                        icon.className = 'fas fa-check-circle upload-icon';
+                        icon.style.color = '#2ecc71';
+                    }
+
+                    const text = document.querySelector('.upload-text');
+                    if (text) text.textContent = document.documentElement.lang === 'ar' ? 'تم اختيار الصورة' : 'Image Selected';
                 };
                 reader.readAsDataURL(file);
             }
         });
     }
-});
+}

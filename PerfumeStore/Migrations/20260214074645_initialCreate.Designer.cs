@@ -12,8 +12,8 @@ using PerfumeStore.Data;
 namespace PerfumeStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260212184818_new3")]
-    partial class new3
+    [Migration("20260214074645_initialCreate")]
+    partial class initialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -359,7 +359,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 2, 12, 20, 48, 18, 119, DateTimeKind.Local).AddTicks(9223),
+                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(947),
                             Description = "Premium men's fragrances",
                             DescriptionAr = "عطور رجالية فاخرة",
                             DisplayOrder = 1,
@@ -370,7 +370,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 2, 12, 20, 48, 18, 119, DateTimeKind.Local).AddTicks(9277),
+                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1026),
                             Description = "Elegant women's fragrances",
                             DescriptionAr = "عطور نسائية راقية",
                             DisplayOrder = 2,
@@ -381,7 +381,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 2, 12, 20, 48, 18, 119, DateTimeKind.Local).AddTicks(9352),
+                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1031),
                             Description = "Versatile unisex fragrances",
                             DescriptionAr = "عطور متنوعة للجنسين",
                             DisplayOrder = 3,
@@ -392,7 +392,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 2, 12, 20, 48, 18, 119, DateTimeKind.Local).AddTicks(9355),
+                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1036),
                             Description = "Exclusive luxury perfume collections",
                             DescriptionAr = "مجموعات عطور فاخرة حصرية",
                             DisplayOrder = 4,
@@ -403,7 +403,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 2, 12, 20, 48, 18, 119, DateTimeKind.Local).AddTicks(9358),
+                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1041),
                             Description = "Perfect gift sets for loved ones",
                             DescriptionAr = "مجموعات هدايا مثالية لأحبائك",
                             DisplayOrder = 5,
@@ -581,6 +581,9 @@ namespace PerfumeStore.Migrations
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("GrandTotal")
                         .HasColumnType("decimal(18,2)");
 
@@ -649,6 +652,12 @@ namespace PerfumeStore.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -872,6 +881,98 @@ namespace PerfumeStore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("PerfumeStore.Models.ShippingZone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("EstimatedDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ShippingZones");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Cost = 2.00m,
+                            EstimatedDays = 2,
+                            IsActive = true,
+                            NameAr = "مسقط",
+                            NameEn = "Muscat"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Cost = 3.00m,
+                            EstimatedDays = 3,
+                            IsActive = true,
+                            NameAr = "الداخلية",
+                            NameEn = "Ad Dakhiliyah"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Cost = 4.00m,
+                            EstimatedDays = 4,
+                            IsActive = true,
+                            NameAr = "ظفار",
+                            NameEn = "Dhofar"
+                        });
+                });
+
+            modelBuilder.Entity("PerfumeStore.Models.SiteSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsEnabled = true,
+                            Key = "AnnouncementBar",
+                            Value = "خصم 20% لفترة محدودة على جميع العطور!"
+                        });
                 });
 
             modelBuilder.Entity("PerfumeStore.Models.WishlistItem", b =>

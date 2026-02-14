@@ -86,10 +86,37 @@
                     <h3><i class="fas fa-tag"></i> @(isArabic ? "السعر والمخزون" : "Pricing & Stock")</h3>
                 </div>
                 <div class="card-body" style="padding: 2rem;">
+                    <!-- Price with Currency Switcher -->
                     <div class="form-group">
-                        <label asp-for="Price">@(isArabic ? "السعر (OMR)" : "Price (OMR)") <span style="color:var(--gold-primary)">*</span></label>
-                        <input asp-for="Price" type="number" step="0.01" style="font-weight: bold; color: var(--gold-primary);" />
+                        <label asp-for="Price">@(isArabic ? "السعر الأساسي (ريال عماني)" : "Base Price (OMR)") <span style="color:var(--gold-primary)">*</span></label>
+
+                        <div class="currency-control-group" style="display: flex; gap: 10px; align-items: flex-start;">
+                            <div class="input-icon-wrapper" style="flex: 1;">
+                                <input asp-for="Price" id="basePriceInput" type="number" step="0.01" style="font-weight: bold; color: var(--gold-primary);" />
+                                <!-- Hidden input to ensure value is sent correctly if needed, though asp-for handles it -->
+                            </div>
+
+                            <div class="currency-select-wrapper" style="width: 140px;">
+                                <select id="currencySelector" class="form-select" onchange="updateCurrencyPreview()" style="font-size: 0.9rem; padding: 0.6rem;">
+                                    <option value="OMR" data-rate="1" selected>🇴🇲 OMR</option>
+                                    <option value="SAR" data-rate="9.75">🇸🇦 SAR</option>
+                                    <option value="AED" data-rate="9.54">🇦🇪 AED</option>
+                                    <option value="KWD" data-rate="0.80">🇰🇼 KWD</option>
+                                    <option value="QAR" data-rate="9.47">🇶🇦 QAR</option>
+                                    <option value="BHD" data-rate="0.98">🇧🇭 BHD</option>
+                                    <option value="EGP" data-rate="125.00">🇪🇬 EGP</option>
+                                    <option value="USD" data-rate="2.60">🇺🇸 USD</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Converted Price Preview -->
+                        <div id="pricePreview" style="margin-top: 8px; font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-exchange-alt" style="font-size: 0.8rem;"></i>
+                            <span id="convertedPriceText">1.00 OMR</span>
+                        </div>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="OldPrice">@(isArabic ? "السعر القديم (اختياري)" : "Old Price (Optional)")</label>
                         <input asp-for="OldPrice" type="number" step="0.01" />
@@ -109,32 +136,52 @@
                 <div class="card-body" style="padding: 2rem;">
                     <div class="form-group">
                         <label asp-for="Size">@(isArabic ? "الحجم" : "Size")</label>
-                        <select asp-for="Size">
+                        <select asp-for="Size" class="form-select allow-other" data-current-value="@Model.Size">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="30ml">30ml</option>
                             <option value="50ml">50ml</option>
                             <option value="75ml">75ml</option>
                             <option value="100ml">100ml</option>
+                            <option value="125ml">125ml</option>
                             <option value="200ml">200ml</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                     <div class="form-group">
                         <label asp-for="Gender">@(isArabic ? "الجنس" : "Gender")</label>
-                        <select asp-for="Gender">
+                        <select asp-for="Gender" class="form-select allow-other" data-current-value="@Model.Gender">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Men">@(isArabic ? "رجالي" : "Men")</option>
                             <option value="Women">@(isArabic ? "نسائي" : "Women")</option>
                             <option value="Unisex">@(isArabic ? "للجنسين" : "Unisex")</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                     <div class="form-group">
                         <label asp-for="Concentration">@(isArabic ? "التركيز" : "Concentration")</label>
-                        <select asp-for="Concentration">
+                        <select asp-for="Concentration" class="form-select allow-other" data-current-value="@Model.Concentration">
                             <option value="">@(isArabic ? "اختر" : "Select")</option>
                             <option value="Parfum">Parfum</option>
                             <option value="EDP">EDP</option>
                             <option value="EDT">EDT</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
                         </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ScentFamily">@(isArabic ? "العائلة العطرية" : "Scent Family")</label>
+                        <select asp-for="ScentFamily" class="form-select allow-other" data-current-value="@Model.ScentFamily">
+                            <option value="">@(isArabic ? "اختر" : "Select")</option>
+                            <option value="Oud">Oud (عود)</option>
+                            <option value="Floral">Floral (زهري)</option>
+                            <option value="Woody">Woody (خشبي)</option>
+                            <option value="Fresh">Fresh (منعش)</option>
+                            <option value="Oriental">Oriental (شرقي)</option>
+                            <option value="Other">@(isArabic ? "أخرى..." : "Other...")</option>
+                        </select>
+                        <input type="text" class="form-control mt-2 custom-other-input" style="display:none;" placeholder="@(isArabic ? "يرجى تحديد القيمة" : "Please specify")" />
                     </div>
                 </div>
             </div>
@@ -210,6 +257,19 @@
         align-items: start;
     }
 
+    .custom-other-input {
+        border-color: var(--gold-primary);
+        background-color: #f0f8ff;
+    }
+
+    /* Currency Styles */
+    .currency-select-wrapper select {
+        cursor: pointer;
+        border-color: var(--gold-primary);
+        color: #002855;
+        font-weight: 600;
+    }
+
     @@media (max-width: 992px) {
         .form-grid {
             grid-template-columns: 1fr;
@@ -228,5 +288,40 @@
             };
             reader.readAsDataURL(file);
         }
+    });
+
+    // Currency Conversion Logic
+    const baseInput = document.getElementById('basePriceInput');
+    const currencySelect = document.getElementById('currencySelector');
+    const previewText = document.getElementById('convertedPriceText');
+
+    function updateCurrencyPreview() {
+        const basePrice = parseFloat(baseInput.value) || 0;
+        const selectedOption = currencySelect.options[currencySelect.selectedIndex];
+        const rate = parseFloat(selectedOption.getAttribute('data-rate'));
+        const currencyCode = selectedOption.value;
+        const flag = selectedOption.text.split(' ')[0]; // Extract flag
+
+        const convertedPrice = (basePrice * rate).toFixed(2);
+
+        // Update display text
+        previewText.innerHTML = `${convertedPrice} ${currencyCode} ${flag}`;
+
+        // Visual feedback
+        if (currencyCode === 'OMR') {
+            previewText.style.color = 'var(--text-secondary)';
+            previewText.style.fontWeight = 'normal';
+        } else {
+            previewText.style.color = 'var(--gold-primary)';
+            previewText.style.fontWeight = 'bold';
+        }
+    }
+
+    // Attach event listeners
+    baseInput.addEventListener('input', updateCurrencyPreview);
+
+    // Initial calculation on load
+    document.addEventListener("DOMContentLoaded", function() {
+        updateCurrencyPreview();
     });
 </script>

@@ -26,7 +26,7 @@ namespace PerfumeStore.Controllers
 
             if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
-                query = query.Where(p => 
+                query = query.Where(p =>
                     p.Name.Contains(filter.SearchTerm) ||
                     p.NameAr!.Contains(filter.SearchTerm) ||
                     p.Brand.Contains(filter.SearchTerm) ||

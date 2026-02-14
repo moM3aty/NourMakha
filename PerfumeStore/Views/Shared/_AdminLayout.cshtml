@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 @{
-    // التصحيح هنا أيضاً للوحة التحكم
     var currentCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
     var isArabic = currentCulture.StartsWith("ar");
 }
@@ -9,9 +8,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Admin Panel</title>
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
     <link rel="icon" type="image/x-icon" href="~/images/logo.png" />
     <link rel="stylesheet" href="~/css/admin.css" />
 </head>
@@ -21,8 +26,8 @@
         <aside class="admin-sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="/Admin" class="admin-logo">
-                    <i class="fas fa-spray-can"></i>
-                    <span>Perfume<span class="accent">Admin</span></span>
+                    <i class="fas fa-crown"></i>
+                    <span>Nour<span style="color:#64748b; font-weight:400;">Admin</span></span>
                 </a>
             </div>
 
@@ -41,14 +46,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/Admin/Categories" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Product") ?? false ? "active" : "")">
-                            <i class="fas fa-box"></i>
+                        <a href="/Admin/Categories" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Category") ?? false ? "active" : "")">
+                            <i class="fas fa-layer-group"></i>
                             <span>@(isArabic ? "الأقسام" : "Categories")</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="/Admin/Orders" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Order") ?? false ? "active" : "")">
-                            <i class="fas fa-shopping-cart"></i>
+                            <i class="fas fa-shopping-bag"></i>
                             <span>@(isArabic ? "الطلبات" : "Orders")</span>
                         </a>
                     </li>
@@ -62,6 +67,24 @@
                         <a href="/Admin/Coupons" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Coupon") ?? false ? "active" : "")">
                             <i class="fas fa-ticket-alt"></i>
                             <span>@(isArabic ? "الكوبونات" : "Coupons")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/ShippingZones" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Shipping") ?? false ? "active" : "")">
+                            <i class="fas fa-truck-moving"></i>
+                            <span>@(isArabic ? "مناطق الشحن" : "Shipping Zones")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Settings" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Setting") ?? false ? "active" : "")">
+                            <i class="fas fa-cog"></i>
+                            <span>@(isArabic ? "الإعدادات" : "Settings")</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Reviews" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Reviews" ? "active" : "")">
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>@(isArabic ? "تقييمات المنتجات" : "Product Reviews")</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -84,7 +107,7 @@
                     <li class="nav-item">
                         <form action="/Account/Logout" method="post" id="logoutForm">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="nav-link" style="background:none; border:none; width:100%; cursor:pointer; font-family: inherit;">
+                            <button type="submit" class="nav-link" style="background:none; border:none; width:100%; cursor:pointer; font-family: inherit; text-align: inherit; color: #ef4444;">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>@(isArabic ? "تسجيل الخروج" : "Logout")</span>
                             </button>
@@ -98,20 +121,27 @@
         <main class="admin-main">
             <!-- Top Bar -->
             <header class="admin-topbar">
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title">@ViewData["Title"]</h1>
+                <div style="display:flex; align-items:center; gap: 20px;">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">@ViewData["Title"]</h1>
+                </div>
 
                 <div class="topbar-right">
                     <div class="language-switcher">
                         <a href="/Home/SetLanguage?culture=ar&returnUrl=@Context.Request.Path" class="lang-btn @(isArabic ? "active" : "")">AR</a>
+                        <span class="lang-divider">|</span>
                         <a href="/Home/SetLanguage?culture=en&returnUrl=@Context.Request.Path" class="lang-btn @(!isArabic ? "active" : "")">EN</a>
                     </div>
+
                     <div class="user-menu">
                         <button class="user-btn">
-                            <img src="https://ui-avatars.com/api/?name=@(User.Identity?.Name)&background=d4af37&color=fff" alt="User" class="user-avatar" />
-                            <span>@User.Identity?.Name</span>
+                            <div class="user-info">
+                                <span class="user-name">@User.Identity?.Name</span>
+                                <span class="user-role">Admin</span>
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name=@(User.Identity?.Name)&background=002855&color=fff&bold=true" alt="User" class="user-avatar" />
                         </button>
                     </div>
                 </div>

@@ -199,8 +199,8 @@ namespace PerfumeStore.Services
             if (coupon.MinOrderAmount.HasValue && subtotal < coupon.MinOrderAmount.Value)
                 return (0, $"Minimum order amount is {coupon.MinOrderAmount.Value} OMR");
 
-            decimal discount = coupon.DiscountType == "Percentage" 
-                ? subtotal * coupon.DiscountValue / 100 
+            decimal discount = coupon.DiscountType == "Percentage"
+                ? subtotal * coupon.DiscountValue / 100
                 : coupon.DiscountValue;
 
             if (coupon.MaxDiscount.HasValue && discount > coupon.MaxDiscount.Value)

@@ -6,11 +6,11 @@ namespace PerfumeStore.Models
     public class Order
     {
         public int Id { get; set; }
-        
+
         [Required]
         [StringLength(50)]
         public string OrderNumber { get; set; } = string.Empty;
-        
+
         public string? UserId { get; set; }
 
         // Shipping Information
@@ -49,15 +49,25 @@ namespace PerfumeStore.Models
         // Order Details
         [Column(TypeName = "decimal(18,2)")]
         public decimal Subtotal { get; set; }
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal Discount { get; set; }
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal ShippingCost { get; set; }
-        
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal GrandTotal { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TotalAmount { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal DiscountAmount { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TaxAmount { get; set; }
 
         [StringLength(50)]
         public string? CouponCode { get; set; }
@@ -76,24 +86,17 @@ namespace PerfumeStore.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? ShippedAt { get; set; }
         public DateTime? DeliveredAt { get; set; }
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TotalAmount { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal DiscountAmount { get; set; }
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TaxAmount { get; set; }
         // Navigation Properties
         [ForeignKey("UserId")]
         public ApplicationUser? User { get; set; }
-        
+
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
         // Helper properties
         [NotMapped]
         public string CustomerName => $"{ShippingFirstName} {ShippingLastName}";
-        
+
         [NotMapped]
         public string StatusColor => Status switch
         {
