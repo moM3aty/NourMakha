@@ -92,7 +92,7 @@
                 <div class="products-grid">
                     @foreach (var product in Model.Products)
                     {
-                        <div class="product-card">
+                        <div class="product-card animate-fade-up">
                             <div class="product-image">
                                 <img src="@(product.ImageUrl ?? "/images/placeholder.jpg")" alt="@(isArabic? product.NameAr: product.Name)" />
                                 @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
@@ -105,13 +105,14 @@
                                     <span class="product-badge new">@(isArabic ? "جديد" : "New")</span>
                                 }
                                 <div class="product-actions">
-                                    <button class="action-btn wishlist-btn" onclick="toggleWishlist(@product.Id)">
+                                    <button class="action-btn wishlist-btn" onclick="toggleWishlist(@product.Id)" data-product-id="@product.Id">
                                         <i class="far fa-heart"></i>
                                     </button>
                                     <a href="/Products/Details/@product.Id" class="action-btn">
                                         <i class="far fa-eye"></i>
                                     </a>
-                                    <button class="action-btn add-to-cart-btn" onclick="addToCart(@product.Id)">
+                                    <!-- تم التصحيح هنا: استخدام data-product-id بدلاً من onclick -->
+                                    <button class="action-btn add-to-cart-btn" data-product-id="@product.Id">
                                         <i class="fas fa-shopping-bag"></i>
                                     </button>
                                 </div>
@@ -122,7 +123,6 @@
                                     <a href="/Products/Details/@product.Id">@(isArabic? product.NameAr: product.Name)</a>
                                 </h3>
                                 <div class="product-price">
-                                    <!-- UPDATED: Currency support -->
                                     <span class="current-price currency-price" data-base-price="@product.Price">@product.Price OMR</span>
                                     @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
                                     {
@@ -201,6 +201,7 @@
             font-size: 1rem;
             margin-bottom: 1rem;
             color: #002855;
+            font-weight: 700;
         }
 
     .search-form {
@@ -215,6 +216,7 @@
             border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 8px;
             color: #212529;
+            outline: none;
         }
 
         .search-form button {
@@ -224,7 +226,12 @@
             border-radius: 8px;
             color: #ffffff;
             cursor: pointer;
+            transition: 0.3s;
         }
+
+            .search-form button:hover {
+                background: #004080;
+            }
 
     .filter-list {
         list-style: none;
@@ -240,12 +247,14 @@
             color: #6c757d;
             border-radius: 8px;
             transition: all 0.2s;
+            font-size: 0.95rem;
         }
 
             .filter-list a:hover,
             .filter-list a.active {
                 background: rgba(0, 40, 85, 0.05);
                 color: #002855;
+                font-weight: 600;
             }
 
     .price-inputs {
@@ -262,6 +271,7 @@
             border-radius: 8px;
             color: #212529;
             width: 100%;
+            outline: none;
         }
 
     .products-header {
@@ -273,6 +283,7 @@
 
     .results-count {
         color: #6c757d;
+        font-weight: 500;
     }
 
     .sort-dropdown {
@@ -281,19 +292,167 @@
         gap: 0.5rem;
     }
 
+        .sort-dropdown label {
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
         .sort-dropdown select {
             padding: 0.5rem 1rem;
             background: #f8f9fa;
             border: 1px solid rgba(0, 40, 85, 0.2);
             border-radius: 8px;
-            color: #212529;
+            color: #002855;
+            cursor: pointer;
+            outline: none;
+            font-weight: 600;
         }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Product Card Premium */
+    .product-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04);
+        transition: 0.4s;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,40,85,0.08);
+        }
+
+    .product-image {
+        position: relative;
+        height: 320px;
+        background: #fcfcfc;
+        overflow: hidden;
+    }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.8s;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.08);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 2;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+        .product-badge.new {
+            background: #002855;
+            color: #fff;
+        }
+
+        .product-badge.sale {
+            background: #ef4444;
+            color: #fff;
+        }
+
+    .product-actions {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translate(-50%, 60px);
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        transition: 0.4s;
+        z-index: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .product-card:hover .product-actions {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+
+    .action-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #eee;
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: 0.3s;
+    }
+
+        .action-btn:hover {
+            background: #002855;
+            color: #fff;
+            border-color: #002855;
+        }
+
+    .product-info {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .product-brand {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .product-name {
+        margin: 8px 0;
+        font-size: 1.1rem;
+        font-family: 'Playfair Display', serif;
+    }
+
+        .product-name a {
+            color: #1e293b;
+            transition: 0.3s;
+        }
+
+            .product-name a:hover {
+                color: #002855;
+            }
+
+    .product-price .current-price {
+        font-weight: 800;
+        color: #002855;
+        font-size: 1.2rem;
+    }
+
+    .product-price .old-price {
+        color: #94a3b8;
+        text-decoration: line-through;
+        font-size: 0.9rem;
+        margin-inline-start: 8px;
+    }
 
     .pagination {
         display: flex;
         justify-content: center;
         gap: 0.5rem;
-        margin-top: 2rem;
+        margin-top: 3rem;
     }
 
     .page-btn {
@@ -332,6 +491,19 @@
 
         .filters-sidebar {
             position: static;
+            margin-bottom: 2rem;
         }
     }
 </style>
+
+<script>
+    function updateUrlParameter(param, value) {
+        const url = new URL(window.location.href);
+        if (value) {
+            url.searchParams.set(param, value);
+        } else {
+            url.searchParams.delete(param);
+        }
+        return url.toString();
+    }
+</script>

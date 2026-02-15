@@ -93,6 +93,12 @@
                             <span>@(isArabic ? "التقارير" : "Reports")</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/Admin/Messages" class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString()?.Contains("Message") ?? false ? "active" : "")">
+                            <i class="fas fa-envelope"></i>
+                            <span>@(isArabic ? "الرسائل" : "Messages")</span>
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="nav-divider"></div>

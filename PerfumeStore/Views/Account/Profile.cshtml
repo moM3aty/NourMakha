@@ -156,7 +156,7 @@
                                             <span>@(isArabic ? "الإجمالي" : "Total")</span>
                                             <strong class="currency-price" data-base-price="@order.GrandTotal">@order.GrandTotal OMR</strong>
                                         </div>
-                                        <a href="#" class="btn-track-order">@(isArabic ? "التفاصيل" : "Details") <i class="fas fa-arrow-right"></i></a>
+                                        <a href="/Account/OrderDetails/@order.Id" class="btn-track-order">@(isArabic ? "التفاصيل" : "Details") <i class="fas fa-arrow-right"></i></a>
                                     </div>
                                 </div>
                             }

@@ -42,7 +42,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOTPService, OTPService>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
-
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 // Add localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 

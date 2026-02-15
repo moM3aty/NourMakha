@@ -1,0 +1,169 @@
+﻿@model List<PerfumeStore.Models.ContactMessage>
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "رسائل العملاء" : "Customer Messages";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Header -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <div>
+                    <h1>@ViewData["Title"]</h1>
+                    <p>@(isArabic ? "متابعة استفسارات وشكاوى العملاء" : "View customer inquiries and feedback")</p>
+                </div>
+            </div>
+            <div class="header-stats-mini">
+                <div class="stat-mini">
+                    <span class="label">@(isArabic ? "الرسائل الجديدة" : "New Messages")</span>
+                    <span class="value">@Model.Count(m => !m.IsRead)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success animate-fade-up" style="background: #e8f5e9; color: #2e7d32; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #c8e6c9;">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- Messages Table -->
+    <div class="table-card animate-fade-up delay-1">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>@(isArabic ? "المرسل" : "Sender")</th>
+                        <th>@(isArabic ? "الموضوع" : "Subject")</th>
+                        <th width="40%">@(isArabic ? "الرسالة" : "Message")</th>
+                        <th>@(isArabic ? "التاريخ" : "Date")</th>
+                        <th class="text-end">@(isArabic ? "إجراءات" : "Actions")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var msg in Model)
+                    {
+                        <tr class="@(!msg.IsRead ? "unread-row" : "")">
+                            <td>
+                                <div class="sender-info">
+                                    <span class="name">@msg.Name</span>
+                                    <span class="email">@msg.Email</span>
+                                    <span class="phone">@msg.Phone</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="subject-badge">@msg.Subject</span>
+                            </td>
+                            <td>
+                                <p class="message-preview" title="@msg.Message">@msg.Message</p>
+                            </td>
+                            <td>
+                                <div class="date-cell">
+                                    <span class="day">@msg.CreatedAt.ToString("dd MMM")</span>
+                                    <span class="time">@msg.CreatedAt.ToString("HH:mm")</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <a href="mailto:@msg.Email" class="action-btn edit" title="@(isArabic ? "رد" : "Reply")">
+                                        <i class="fas fa-reply"></i>
+                                    </a>
+                                    <form action="/Admin/DeleteMessage/@msg.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="action-btn delete" onclick="return confirm('@(isArabic ? "تأكيد الحذف؟" : "Confirm delete?")')" title="@(isArabic ? "حذف" : "Delete")">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-data">
+                    <i class="far fa-paper-plane"></i>
+                    <h3>@(isArabic ? "لا توجد رسائل جديدة" : "No Messages Found")</h3>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .sender-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .sender-info .name {
+            font-weight: 700;
+            color: #002855;
+            font-size: 0.95rem;
+        }
+
+        .sender-info .email {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .sender-info .phone {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+    .subject-badge {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .message-preview {
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #334155;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .unread-row td {
+        background-color: rgba(0, 40, 85, 0.02);
+    }
+
+    .unread-row .name {
+        color: #002855;
+        position: relative;
+    }
+
+        .unread-row .name::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            inset-inline-end: -10px;
+        }
+
+    .empty-data i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+    }
+</style>

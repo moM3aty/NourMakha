@@ -5,253 +5,657 @@
     Layout = "_AdminLayout";
 }
 
-<div class="page-header">
-    <div class="header-left">
-        <h1>@(isArabic ? $"تفاصيل الطلب #{Model.Id}" : $"Order #{Model.Id} Details")</h1>
-    </div>
-    <div class="header-right">
-        <a href="/Admin/Invoice/@Model.Id" class="btn btn-outline" target="_blank">
-            <i class="fas fa-print"></i>
-            @(isArabic ? "طباعة الفاتورة" : "Print Invoice")
-        </a>
-    </div>
-</div>
-
-<div class="order-details-grid">
-    <!-- Order Info -->
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-info-circle"></i> @(isArabic ? "معلومات الطلب" : "Order Information")</h3>
-        </div>
-        <div class="card-body">
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>@(isArabic ? "رقم الطلب" : "Order ID")</label>
-                    <span style="color: var(--gold-primary); font-weight: bold;">#@Model.Id</span>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "التاريخ" : "Date")</label>
-                    <span>@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "الحالة" : "Status")</label>
-                    <form action="/Admin/UpdateOrderStatus" method="post" style="display: inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="orderId" value="@Model.Id" />
-                        <select name="status" onchange="this.form.submit()" class="status-select @Model.Status.ToLower()">
-                            <option value="Pending" selected="@(Model.Status == "Pending")">@(isArabic ? "قيد الانتظار" : "Pending")</option>
-                            <option value="Confirmed" selected="@(Model.Status == "Confirmed")">@(isArabic ? "مؤكد" : "Confirmed")</option>
-                            <option value="Processing" selected="@(Model.Status == "Processing")">@(isArabic ? "قيد المعالجة" : "Processing")</option>
-                            <option value="Shipped" selected="@(Model.Status == "Shipped")">@(isArabic ? "تم الشحن" : "Shipped")</option>
-                            <option value="Delivered" selected="@(Model.Status == "Delivered")">@(isArabic ? "تم التسليم" : "Delivered")</option>
-                            <option value="Cancelled" selected="@(Model.Status == "Cancelled")">@(isArabic ? "ملغي" : "Cancelled")</option>
-                        </select>
-                    </form>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "طريقة الدفع" : "Payment Method")</label>
-                    <span>@(Model.PaymentMethod ?? "Cash on Delivery")</span>
-                </div>
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Top Action Bar -->
+    <div class="order-action-bar">
+        <div class="order-title-group">
+            <a href="/Admin/Orders" class="btn-back-icon"><i class="fas fa-arrow-right"></i></a>
+            <div>
+                <h1>@(isArabic ? $"طلب رقم #{Model.OrderNumber}" : $"Order #{Model.OrderNumber}")</h1>
+                <span class="order-meta">
+                    <i class="far fa-calendar-alt"></i> @Model.CreatedAt.ToString("dd MMMM yyyy, hh:mm tt")
+                </span>
+            </div>
+            <div class="current-status-badge @Model.Status.ToLower()">
+                <span class="dot"></span> @Model.Status
             </div>
         </div>
+        <div class="order-actions">
+            <a href="/Admin/Invoice/@Model.Id" target="_blank" class="btn-action-premium">
+                <i class="fas fa-print"></i> @(isArabic ? "طباعة" : "Print")
+            </a>
+            <button class="btn-action-premium primary" onclick="document.getElementById('statusUpdateBox').classList.toggle('active')">
+                <i class="fas fa-edit"></i> @(isArabic ? "تحديث الحالة" : "Update Status")
+            </button>
+        </div>
     </div>
 
-    <!-- Customer Info -->
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-user"></i> @(isArabic ? "معلومات العميل" : "Customer Information")</h3>
-        </div>
-        <div class="card-body">
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>@(isArabic ? "الاسم" : "Name")</label>
-                    <span>@Model.ShippingFirstName @Model.ShippingLastName</span>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "البريد الإلكتروني" : "Email")</label>
-                    <span>@Model.User?.Email</span>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "الهاتف" : "Phone")</label>
-                    <span>@Model.ShippingPhone</span>
-                </div>
-                <div class="info-item">
-                    <label>@(isArabic ? "العنوان" : "Address")</label>
-                    <span>@Model.ShippingAddress, @Model.ShippingCity, @Model.ShippingCountry</span>
-                </div>
+    <!-- Hidden Status Update Box -->
+    <div id="statusUpdateBox" class="status-update-panel">
+        <form action="/Admin/UpdateOrderStatus" method="post" class="status-form-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" value="@Model.Id" />
+            <label>@(isArabic ? "تغيير حالة الطلب إلى:" : "Change Order Status to:")</label>
+            <div class="select-wrapper">
+                <select name="status">
+                    <option value="Pending" selected="@(Model.Status == "Pending")">@(isArabic ? "قيد الانتظار" : "Pending")</option>
+                    <option value="Confirmed" selected="@(Model.Status == "Confirmed")">@(isArabic ? "مؤكد" : "Confirmed")</option>
+                    <option value="Processing" selected="@(Model.Status == "Processing")">@(isArabic ? "قيد المعالجة" : "Processing")</option>
+                    <option value="Shipped" selected="@(Model.Status == "Shipped")">@(isArabic ? "تم الشحن" : "Shipped")</option>
+                    <option value="Delivered" selected="@(Model.Status == "Delivered")">@(isArabic ? "تم التسليم" : "Delivered")</option>
+                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">@(isArabic ? "ملغي" : "Cancelled")</option>
+                </select>
+                <i class="fas fa-chevron-down"></i>
             </div>
-        </div>
+            <button type="submit" class="btn-save-status">@(isArabic ? "حفظ" : "Save")</button>
+        </form>
     </div>
-</div>
 
-<!-- Order Items -->
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-box"></i> @(isArabic ? "المنتجات" : "Items")</h3>
-    </div>
-    <div class="card-body">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>@(isArabic ? "المنتج" : "Product")</th>
-                    <th>@(isArabic ? "السعر" : "Price")</th>
-                    <th>@(isArabic ? "الكمية" : "Qty")</th>
-                    <th>@(isArabic ? "الإجمالي" : "Total")</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.OrderItems)
-                {
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);" />
-                                <span>@item.ProductName</span>
+    <div class="order-layout-grid">
+        <!-- Main Column -->
+        <div class="main-column">
+            <div class="card premium-card">
+                <div class="card-header-simple">
+                    <h3>@(isArabic ? "المنتجات" : "Order Items")</h3>
+                    <span class="count-badge">@Model.OrderItems.Count @(isArabic ? "عنصر" : "Items")</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="items-table-clean">
+                            <thead>
+                                <tr>
+                                    <th>@(isArabic ? "المنتج" : "Product")</th>
+                                    <th>@(isArabic ? "السعر" : "Price")</th>
+                                    <th>@(isArabic ? "الكمية" : "Qty")</th>
+                                    <th class="text-end">@(isArabic ? "الإجمالي" : "Total")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="item-visual-row">
+                                                <div class="img-box">
+                                                    <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" />
+                                                </div>
+                                                <div class="txt">
+                                                    <span class="p-name">@item.ProductName</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.UnitPrice.ToString("N2") OMR</td>
+                                        <td>x @item.Quantity</td>
+                                        <td class="text-end font-weight-bold">@item.TotalPrice.ToString("N2") OMR</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Summary Footer -->
+                <div class="card-footer-summary">
+                    <div class="payment-note">
+                        <span class="label">@(isArabic ? "طريقة الدفع" : "Payment Method")</span>
+                        <span class="value"><i class="fas fa-credit-card"></i> @(Model.PaymentMethod ?? "Cash On Delivery")</span>
+                    </div>
+
+                    <div class="totals-block">
+                        <div class="t-row">
+                            <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
+                            <span>@Model.Subtotal.ToString("N2") OMR</span>
+                        </div>
+
+                        @if (Model.Discount > 0)
+                        {
+                            <div class="t-row discount" style="color: #27ae60; font-weight: 600;">
+                                <span>
+                                    @(isArabic ? "خصم الكوبون" : "Coupon Discount")
+                                    @if (!string.IsNullOrEmpty(Model.CouponCode))
+                                    {
+                                        <span class="coupon-badge">@Model.CouponCode</span>
+                                    }
+                                </span>
+                                <span>-@Model.Discount.ToString("N2") OMR</span>
                             </div>
-                        </td>
-                        <td>$@item.UnitPrice</td>
-                        <td>@item.Quantity</td>
-                        <td><strong>$@item.TotalPrice</strong></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        }
+
+                        <div class="t-row">
+                            <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                            <span>@Model.ShippingCost.ToString("N2") OMR</span>
+                        </div>
+
+                        <div class="t-divider"></div>
+
+                        <div class="t-row grand">
+                            <span>@(isArabic ? "الإجمالي الكلي" : "Grand Total")</span>
+                            <span class="grand-value">@Model.GrandTotal.ToString("N2") OMR</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="card premium-card mt-3">
+                    <div class="card-body">
+                        <h4 class="section-title-sm">@(isArabic ? "ملاحظات العميل" : "Customer Notes")</h4>
+                        <p class="notes-text">@Model.Notes</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="side-column">
+            <div class="card premium-card side-card">
+                <div class="card-body">
+                    <h4 class="section-title-sm">@(isArabic ? "العميل" : "Customer")</h4>
+                    <div class="customer-profile-box">
+                        <div class="avatar">@(Model.ShippingFirstName.Substring(0, 1))</div>
+                        <div class="c-info">
+                            <a href="#" class="c-link">@Model.ShippingFirstName @Model.ShippingLastName</a>
+                            <span class="c-orders">@(Model.User?.Email)</span>
+                        </div>
+                    </div>
+                    <div class="contact-list">
+                        <div class="contact-item"><i class="fas fa-phone"></i> @Model.ShippingPhone</div>
+                        <div class="contact-item"><i class="fas fa-map-marker-alt"></i> @Model.ShippingCity, @Model.ShippingCountry</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 </div>
-
-<!-- Order Summary -->
-<div class="card">
-    <div class="card-header">
-        <h3><i class="fas fa-receipt"></i> @(isArabic ? "ملخص الفاتورة" : "Invoice Summary")</h3>
-    </div>
-    <div class="card-body">
-        <div class="invoice-summary">
-            <div class="summary-row">
-                <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                <span>$@Model.TotalAmount</span>
-            </div>
-            <div class="summary-row">
-                <span>@(isArabic ? "الخصم" : "Discount")</span>
-                <span class="discount">-$@Model.DiscountAmount</span>
-            </div>
-            <div class="summary-row">
-                <span>@(isArabic ? "الشحن" : "Shipping")</span>
-                <span>$@Model.ShippingCost</span>
-            </div>
-            <div class="summary-row">
-                <span>@(isArabic ? "الضريبة" : "Tax")</span>
-                <span>$@Model.TaxAmount</span>
-            </div>
-            <div class="summary-total">
-                <span>@(isArabic ? "الإجمالي" : "Total")</span>
-                <span style="color: var(--gold-primary);">@Model.GrandTotal OMR</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (!string.IsNullOrEmpty(Model.Notes))
-{
-    <div class="card">
-        <div class="card-header">
-            <h3><i class="fas fa-sticky-note"></i> @(isArabic ? "ملاحظات" : "Notes")</h3>
-        </div>
-        <div class="card-body">
-            <p>@Model.Notes</p>
-        </div>
-    </div>
-}
 
 <style>
-    .order-details-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
+    /* Admin Premium Styles */
+    .coupon-badge {
+        background: #dcfce7;
+        color: #166534;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-inline-start: 8px;
+        border: 1px dashed #166534;
     }
 
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+    .t-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 10px 0;
+    }
+
+    .grand-value {
+        color: var(--primary-color);
+        font-size: 1.3rem;
+    }
+
+    .order-action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
         gap: 1rem;
     }
 
-    .info-item {
+    .order-title-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-back-icon {
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        transition: 0.2s;
+    }
+
+        .btn-back-icon:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+    .order-id {
+        font-size: 1.6rem;
+        color: #1e293b;
+        margin: 0;
+        font-family: 'Tajawal', sans-serif;
+    }
+
+    .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 5px;
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+
+    .current-status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        margin-inline-start: 1rem;
+    }
+
+        .current-status-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+    .pending .dot {
+        background: #ea580c;
+    }
+
+    .pending {
+        background: #fff7ed;
+        color: #c2410c;
+        border: 1px solid #ffedd5;
+    }
+
+    .shipped .dot {
+        background: #2563eb;
+    }
+
+    .shipped {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #dbeafe;
+    }
+
+    .delivered .dot {
+        background: #16a34a;
+    }
+
+    .delivered {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #dcfce7;
+    }
+
+    .cancelled .dot {
+        background: #dc2626;
+    }
+
+    .cancelled {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fee2e2;
+    }
+
+    .btn-action-premium {
+        padding: 0.7rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-action-premium {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+    }
+
+        .btn-action-premium:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .btn-action-premium.primary {
+            background: var(--primary-color);
+            color: #fff;
+            border: 1px solid var(--primary-color);
+        }
+
+            .btn-action-premium.primary:hover {
+                background: var(--primary-hover);
+                box-shadow: 0 4px 10px rgba(0,40,85,0.2);
+            }
+
+    .status-update-panel {
+        background: #f8fbff;
+        border: 1px dashed #bfdbfe;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+        .status-update-panel.active {
+            display: block;
+        }
+
+    .status-form-inline {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+        .status-form-inline label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+    .select-wrapper {
+        position: relative;
+        min-width: 200px;
+    }
+
+        .select-wrapper select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            appearance: none;
+            background: #fff;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .select-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #94a3b8;
+        }
+
+    body.rtl .select-wrapper i {
+        left: 1rem;
+        right: auto;
+    }
+
+    .btn-save-status {
+        background: var(--success-bg);
+        color: var(--success-text);
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-save-status:hover {
+            background: #bbf7d0;
+        }
+
+    .order-layout-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .premium-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    .card-header-simple {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .card-header-simple h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+    .count-badge {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+    }
+
+    .items-table-clean {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .items-table-clean th {
+            background: #fcfcfc;
+            padding: 1rem 1.5rem;
+            text-align: start;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .items-table-clean td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        .items-table-clean tr:last-child td {
+            border-bottom: none;
+        }
+
+    .item-visual-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .img-box {
+        width: 48px;
+        height: 48px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .p-name {
+        font-weight: 600;
+        color: var(--primary-color);
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .card-footer-summary {
+        background: #fdfdfd;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .payment-note .label {
+        display: block;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 5px;
+    }
+
+    .payment-note .value {
+        font-weight: 600;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .totals-block {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 8px;
     }
 
-        .info-item label {
-            font-size: 0.75rem;
-            color: #6c6c7c;
-            text-transform: uppercase;
-        }
-
-    .status-select {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        border: none;
-        cursor: pointer;
-    }
-
-        .status-select.pending {
-            background: rgba(241, 196, 15, 0.2);
-            color: #f1c40f;
-        }
-
-        .status-select.confirmed {
-            background: rgba(52, 152, 219, 0.2);
-            color: #3498db;
-        }
-
-        .status-select.processing {
-            background: rgba(155, 89, 182, 0.2);
-            color: #9b59b6;
-        }
-
-        .status-select.shipped {
-            background: rgba(230, 126, 34, 0.2);
-            color: #e67e22;
-        }
-
-        .status-select.delivered {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-        }
-
-        .status-select.cancelled {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-        }
-
-    .invoice-summary {
-        max-width: 400px;
-        margin-left: auto;
-    }
-
-    .summary-row {
+    .t-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(0, 40, 85, 0.1);
+        font-size: 0.95rem;
+        color: #64748b;
     }
 
-        .summary-row .discount {
-            color: #2ecc71;
+        .t-row.grand {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px dashed #e2e8f0;
         }
 
-    .summary-total {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 0 0;
-        font-size: 1.25rem;
+    .side-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title-sm {
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        margin-bottom: 1rem;
         font-weight: 700;
     }
 
+    .customer-profile-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .c-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .c-link {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .c-orders {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .contact-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+        .contact-item i {
+            width: 16px;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+    .address-display {
+        color: #334155;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .shipping-map-placeholder {
+        background: #f1f5f9;
+        height: 100px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .shipping-map-placeholder:hover {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+    .notes-text {
+        background: #fffbeb;
+        padding: 1rem;
+        border-radius: 8px;
+        color: #92400e;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
     @@media (max-width: 992px) {
-        .order-details-grid {
+        .order-layout-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card-footer-summary {
             grid-template-columns: 1fr;
         }
     }

@@ -79,7 +79,22 @@ namespace PerfumeStore.Controllers
                 _context.ContactMessages.Add(model);
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = IsArabic
+                var adminEmail = "Info@nourperfumes.com"; 
+                var subject = $"New Message from {model.Name}: {model.Subject}";
+                var body = $@"
+                    <h3>New Contact Message Received</h3>
+                    <p><strong>Name:</strong> {model.Name}</p>
+                    <p><strong>Email:</strong> {model.Email}</p>
+                    <p><strong>Phone:</strong> {model.Phone}</p>
+                    <hr/>
+                    <p><strong>Message:</strong></p>
+                    <p>{model.Message}</p>
+                ";
+
+                _ = _emailService.SendEmailAsync(adminEmail, subject, body);
+
+                var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+                TempData["Success"] = isArabic
                     ? "تم إرسال رسالتك بنجاح! سنقوم بالرد عليك قريباً."
                     : "Thank you for your message! We will get back to you soon.";
 

@@ -1,17 +1,22 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PerfumeStore.Data;
 using PerfumeStore.Models;
 using PerfumeStore.ViewModels;
+using System.Globalization;
 
 namespace PerfumeStore.Services
 {
+    public class OrderCreationResult
+    {
+        public Order Order { get; set; } = null!;
+        public string? RedirectUrl { get; set; }
+        public bool IsPaymentRequired { get; set; }
+    }
+
     public interface IOrderService
     {
         Task<Order?> GetOrderByIdAsync(int id);
-        Task<Order?> GetOrderByNumberAsync(string orderNumber);
-        Task<List<Order>> GetUserOrdersAsync(string userId);
-        Task<List<Order>> GetAllOrdersAsync();
-        Task<Order> CreateOrderAsync(string? userId, string? sessionId, CheckoutViewModel model, string? couponCode = null);
+        Task<OrderCreationResult> CreateOrderAsync(string? userId, string? sessionId, CheckoutViewModel model, string? couponCode = null);
         Task UpdateOrderStatusAsync(int orderId, string status);
         Task CancelOrderAsync(int orderId);
     }
@@ -27,51 +32,20 @@ namespace PerfumeStore.Services
             _cartService = cartService;
         }
 
-        public async Task<Order?> GetOrderByIdAsync(int id)
-        {
-            return await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(o => o.Id == id);
-        }
+        public async Task<Order?> GetOrderByIdAsync(int id) =>
+            await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
 
-        public async Task<Order?> GetOrderByNumberAsync(string orderNumber)
-        {
-            return await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
-        }
-
-        public async Task<List<Order>> GetUserOrdersAsync(string userId)
-        {
-            return await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<List<Order>> GetAllOrdersAsync()
-        {
-            return await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<Order> CreateOrderAsync(string? userId, string? sessionId, CheckoutViewModel model, string? couponCode = null)
+        public async Task<OrderCreationResult> CreateOrderAsync(string? userId, string? sessionId, CheckoutViewModel model, string? couponCode = null)
         {
             var cart = await _cartService.GetCartAsync(userId, sessionId);
             if (cart == null || !cart.Items.Any())
                 throw new InvalidOperationException("Cart is empty");
 
-            var orderNumber = GenerateOrderNumber();
-            var subtotal = cart.Items.Sum(i => i.Total);
+            var totals = await _cartService.CalculateCartTotalsAsync(userId, sessionId, couponCode, model.ShippingZoneId);
+            var orderNumber = $"NM-{DateTime.Now:yyMMdd}-{new Random().Next(1000, 9999)}";
+
+            // تحديد الحالة بناءً على نوع الدفع
+            string status = model.PaymentMethod == "CreditCard" ? "Awaiting Payment" : "Pending";
 
             var order = new Order
             {
@@ -86,107 +60,72 @@ namespace PerfumeStore.Services
                 ShippingCountry = model.Country,
                 ShippingPhone = model.Phone,
                 Notes = model.Notes,
-                Subtotal = subtotal,
-                ShippingCost = subtotal >= 100 ? 0 : 10,
                 PaymentMethod = model.PaymentMethod,
-                Status = "Pending",
-                CreatedAt = DateTime.Now
+                Status = status,
+                CreatedAt = DateTime.Now,
+                Subtotal = totals.Subtotal,
+                TotalAmount = totals.Subtotal,
+                ShippingCost = totals.ShippingCost,
+                Discount = totals.DiscountAmount,
+                DiscountAmount = totals.DiscountAmount,
+                CouponCode = totals.IsCouponValid ? totals.AppliedCouponCode : null,
+                GrandTotal = totals.GrandTotal,
+                TaxAmount = 0
             };
 
-            if (!string.IsNullOrEmpty(couponCode))
+            // تحديث الكوبون
+            if (totals.IsCouponValid && !string.IsNullOrEmpty(totals.AppliedCouponCode))
             {
-                var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == couponCode && c.IsValid);
-                if (coupon != null)
-                {
-                    order.CouponCode = couponCode;
-                    decimal discount = coupon.DiscountType == "Percentage"
-                        ? subtotal * coupon.DiscountValue / 100
-                        : coupon.DiscountValue;
-
-                    if (coupon.MaxDiscount.HasValue && discount > coupon.MaxDiscount.Value)
-                        discount = coupon.MaxDiscount.Value;
-
-                    order.Discount = discount;
-                    coupon.UsageCount++;
-                }
+                var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == totals.AppliedCouponCode);
+                if (coupon != null) { coupon.UsedCount++; _context.Coupons.Update(coupon); }
             }
 
-            order.GrandTotal = order.Subtotal - order.Discount + order.ShippingCost;
-
-            foreach (var cartItem in cart.Items)
+            // إضافة العناصر
+            foreach (var item in cart.Items)
             {
-                var orderItem = new OrderItem
+                order.OrderItems.Add(new OrderItem
                 {
-                    ProductId = cartItem.ProductId,
-                    ProductName = cartItem.Product?.GetLocalizedName(false) ?? "",
-                    ProductImage = cartItem.Product?.ImageUrl,
-                    Quantity = cartItem.Quantity,
-                    UnitPrice = cartItem.UnitPrice,
-                    TotalPrice = cartItem.Total
-                };
-                order.OrderItems.Add(orderItem);
+                    ProductId = item.ProductId,
+                    ProductName = item.Product?.GetLocalizedName(CultureInfo.CurrentUICulture.Name.StartsWith("ar")) ?? "Product",
+                    ProductImage = item.Product?.ImageUrl,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.Total
+                });
 
-                if (cartItem.Product != null)
+                if (item.Product != null)
                 {
-                    cartItem.Product.StockQuantity -= cartItem.Quantity;
+                    item.Product.StockQuantity -= item.Quantity;
+                    _context.Products.Update(item.Product);
                 }
             }
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-
             await _cartService.ClearCartAsync(userId, sessionId);
 
-            return order;
+            var result = new OrderCreationResult { Order = order };
+
+            // تفعيل رابط الدفع
+            if (model.PaymentMethod == "CreditCard")
+            {
+                result.IsPaymentRequired = true;
+                result.RedirectUrl = "/Payment/Gateway?orderId=" + order.Id;
+            }
+
+            return result;
         }
 
         public async Task UpdateOrderStatusAsync(int orderId, string status)
         {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order != null)
-            {
-                order.Status = status;
-                order.UpdatedAt = DateTime.Now;
-
-                if (status == "Shipped")
-                    order.ShippedAt = DateTime.Now;
-                else if (status == "Delivered")
-                    order.DeliveredAt = DateTime.Now;
-
-                await _context.SaveChangesAsync();
-            }
+            var o = await _context.Orders.FindAsync(orderId);
+            if (o != null) { o.Status = status; o.UpdatedAt = DateTime.Now; await _context.SaveChangesAsync(); }
         }
 
         public async Task CancelOrderAsync(int orderId)
         {
-            var order = await _context.Orders
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
-
-            if (order != null && order.Status == "Pending")
-            {
-                order.Status = "Cancelled";
-                order.UpdatedAt = DateTime.Now;
-
-                foreach (var item in order.OrderItems)
-                {
-                    if (item.ProductId.HasValue)
-                    {
-                        var product = await _context.Products.FindAsync(item.ProductId.Value);
-                        if (product != null)
-                        {
-                            product.StockQuantity += item.Quantity;
-                        }
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        private string GenerateOrderNumber()
-        {
-            return $"PS-{DateTime.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}";
+            var o = await _context.Orders.Include(x => x.OrderItems).FirstOrDefaultAsync(x => x.Id == orderId);
+            if (o != null) { o.Status = "Cancelled"; foreach (var i in o.OrderItems) if (i.ProductId.HasValue) { var p = await _context.Products.FindAsync(i.ProductId.Value); if (p != null) p.StockQuantity += i.Quantity; } await _context.SaveChangesAsync(); }
         }
     }
 }

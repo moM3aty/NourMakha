@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PerfumeStore.Data;
 using PerfumeStore.Models;
 
@@ -21,9 +21,16 @@ namespace PerfumeStore.Services
 
         public async Task<string> GenerateOTPAsync(string email, string purpose)
         {
-            // Generate 6-digit OTP
+            // توليد رمز مكون من 6 أرقام
             var random = new Random();
             var otp = random.Next(100000, 999999).ToString();
+
+            // إلغاء أي أكواد سابقة غير مستخدمة لهذا الإيميل لنفس الغرض
+            var oldCodes = await _context.OTPCodes
+                .Where(o => o.Email == email && o.Purpose == purpose && !o.IsUsed)
+                .ToListAsync();
+
+            foreach (var old in oldCodes) old.IsUsed = true;
 
             var otpCode = new OTPCode
             {
@@ -31,8 +38,8 @@ namespace PerfumeStore.Services
                 Code = otp,
                 Purpose = purpose,
                 IsUsed = false,
-                CreatedAt = DateTime.Now,
-                ExpiresAt = DateTime.Now.AddMinutes(10)
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(10)
             };
 
             _context.OTPCodes.Add(otpCode);
@@ -43,20 +50,20 @@ namespace PerfumeStore.Services
 
         public async Task<bool> VerifyOTPAsync(string email, string code, string purpose)
         {
+            // البحث عن آخر كود صالح
             var otpCode = await _context.OTPCodes
                 .Where(o => o.Email == email && o.Purpose == purpose && !o.IsUsed)
                 .OrderByDescending(o => o.CreatedAt)
                 .FirstOrDefaultAsync();
 
-            if (otpCode == null)
-                return false;
+            if (otpCode == null) return false;
 
-            if (otpCode.ExpiresAt < DateTime.Now)
-                return false;
+            // التحقق من انتهاء الصلاحية بالتوقيت العالمي
+            if (otpCode.ExpiresAt < DateTime.UtcNow) return false;
 
-            if (otpCode.Code != code)
-                return false;
+            if (otpCode.Code != code) return false;
 
+            // تم الاستخدام بنجاح
             otpCode.IsUsed = true;
             await _context.SaveChangesAsync();
 

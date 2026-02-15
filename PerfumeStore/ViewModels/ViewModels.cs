@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using PerfumeStore.Models;
 
 namespace PerfumeStore.ViewModels
 {
     // ===================================
-    // Account ViewModels (Fixed)
+    // Account ViewModels
     // ===================================
     public class LoginViewModel
     {
@@ -88,7 +88,7 @@ namespace PerfumeStore.ViewModels
     }
 
     // ===================================
-    // Dashboard ViewModels
+    // Dashboard & Reports ViewModels
     // ===================================
     public class DashboardViewModel
     {
@@ -281,6 +281,9 @@ namespace PerfumeStore.ViewModels
 
         [StringLength(500)]
         public string? Notes { get; set; }
+
+        [Required(ErrorMessage = "يرجى اختيار منطقة الشحن")]
+        public int ShippingZoneId { get; set; }
 
         public string? CouponCode { get; set; }
 

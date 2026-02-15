@@ -1,16 +1,26 @@
 @model PerfumeStore.ViewModels.CheckoutViewModel
+@using PerfumeStore.Data
+@inject ApplicationDbContext _context
 @{
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "إتمام الطلب" : "Checkout";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
+
+    // جلب مناطق الشحن
+    var shippingZones = _context.Set<PerfumeStore.Models.ShippingZone>().Where(z => z.IsActive).ToList();
+
+    // الكوبون المحفوظ إن وجد
+    var savedCoupon = ViewBag.SavedCoupon as string;
+    var cartSubtotal = (decimal)ViewBag.CartSubtotal;
 }
 
 <div class="checkout-page-wrapper animate-fade-up">
     <div class="container">
+        <!-- Header -->
         <div class="checkout-header-centered">
             <h1>@ViewData["Title"]</h1>
             <div class="trust-badges">
-                <span class="badge"><i class="fas fa-lock"></i> @(isArabic ? "تشفير SSL" : "SSL Encrypted")</span>
-                <span class="badge"><i class="fas fa-shield-alt"></i> @(isArabic ? "دفع آمن" : "Secure Payment")</span>
+                <span class="badge"><i class="fas fa-lock"></i> @(isArabic ? "دفع آمن ومحمي" : "Secure Encrypted Payment")</span>
+                <span class="badge"><i class="fas fa-shield-alt"></i> @(isArabic ? "بياناتك سرية" : "Data Privacy")</span>
             </div>
         </div>
 
@@ -18,14 +28,17 @@
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="UserId" />
 
+            <!-- هام: حقل مخفي للكوبون يتم تحديثه بالجافاسكريبت عند نجاح الخصم -->
+            <input type="hidden" name="CouponCode" id="hiddenCouponCode" value="@savedCoupon" />
+
             <div class="checkout-grid-premium">
-                <!-- Left Side: Information -->
+                <!-- Left Side: Information Form -->
                 <div class="checkout-main">
-                    <!-- Shipping Section -->
+                    <!-- 1. Shipping Details -->
                     <div class="checkout-card">
                         <div class="card-header-clean">
                             <span class="step-circle">1</span>
-                            <h2>@(isArabic ? "عنوان التوصيل" : "Shipping Address")</h2>
+                            <h2>@(isArabic ? "بيانات التوصيل" : "Shipping Details")</h2>
                         </div>
                         <div class="card-body">
                             <div class="form-grid-2">
@@ -53,6 +66,19 @@
                                 <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
 
+                            <!-- Shipping Zone Selection -->
+                            <div class="form-group-float">
+                                <select asp-for="ShippingZoneId" id="shippingZoneSelector" class="form-input" onchange="calculateTotals()" required>
+                                    <option value="" data-cost="0">@(isArabic ? "-- اختر المنطقة --" : "-- Select Zone --")</option>
+                                    @foreach (var zone in shippingZones)
+                                    {
+                                        <option value="@zone.Id" data-cost="@zone.Cost">@(isArabic? zone.NameAr: zone.NameEn) (+@zone.Cost OMR)</option>
+                                    }
+                                </select>
+                                <label asp-for="ShippingZoneId">@(isArabic ? "منطقة الشحن" : "Shipping Zone")</label>
+                                <span asp-validation-for="ShippingZoneId" class="text-danger"></span>
+                            </div>
+
                             <div class="form-grid-2">
                                 <div class="form-group-float">
                                     <select asp-for="Country" class="form-input" disabled>
@@ -63,24 +89,22 @@
                                 <div class="form-group-float">
                                     <input asp-for="City" class="form-input" placeholder=" " required />
                                     <label asp-for="City">@(isArabic ? "المدينة / الولاية" : "City / Wilayat")</label>
-                                    <span asp-validation-for="City" class="text-danger"></span>
                                 </div>
                             </div>
 
                             <div class="form-group-float">
                                 <input asp-for="Address" class="form-input" placeholder=" " required />
                                 <label asp-for="Address">@(isArabic ? "العنوان (الشارع، رقم المنزل)" : "Street Address")</label>
-                                <span asp-validation-for="Address" class="text-danger"></span>
                             </div>
 
                             <div class="form-group-float">
                                 <textarea asp-for="Notes" class="form-input" placeholder=" " rows="2"></textarea>
-                                <label asp-for="Notes">@(isArabic ? "ملاحظات التوصيل (اختياري)" : "Delivery Notes (Optional)")</label>
+                                <label asp-for="Notes">@(isArabic ? "ملاحظات إضافية" : "Additional Notes")</label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Payment Method Section -->
+                    <!-- 2. Payment Method -->
                     <div class="checkout-card mt-4">
                         <div class="card-header-clean">
                             <span class="step-circle">2</span>
@@ -88,20 +112,20 @@
                         </div>
                         <div class="card-body">
                             <div class="payment-selection-grid">
-                                <!-- Cash on Delivery -->
+                                <!-- Cash -->
                                 <label class="payment-method-card selected">
                                     <input type="radio" asp-for="PaymentMethod" value="CashOnDelivery" checked name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
                                         <div class="method-icon"><i class="fas fa-money-bill-wave"></i></div>
                                         <div class="method-details">
                                             <span class="title">@(isArabic ? "الدفع عند الاستلام" : "Cash on Delivery")</span>
-                                            <span class="subtitle">@(isArabic ? "ادفع نقداً عند وصول طلبك" : "Pay cash upon delivery")</span>
+                                            <span class="desc">@(isArabic ? "ادفع نقداً عند وصول طلبك" : "Pay cash upon delivery")</span>
                                         </div>
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
                                     </div>
                                 </label>
 
-                                <!-- Credit Card -->
+                                <!-- Credit Card (Amwal Pay) -->
                                 <label class="payment-method-card">
                                     <input type="radio" asp-for="PaymentMethod" value="CreditCard" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
@@ -109,8 +133,7 @@
                                         <div class="method-details">
                                             <span class="title">@(isArabic ? "بطاقة ائتمان / خصم" : "Credit / Debit Card")</span>
                                             <div class="card-logos">
-                                                <i class="fab fa-cc-visa"></i>
-                                                <i class="fab fa-cc-mastercard"></i>
+                                                <i class="fab fa-cc-visa"></i> <i class="fab fa-cc-mastercard"></i>
                                             </div>
                                         </div>
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
@@ -128,49 +151,50 @@
                             <h3>@(isArabic ? "ملخص الطلب" : "Order Summary")</h3>
                         </div>
 
-                        <div class="checkout-items-scroll">
-                            <div class="loader-placeholder" id="checkoutItemsLoader">
-                                <i class="fas fa-circle-notch fa-spin"></i>
-                            </div>
-                            <!-- Items would be injected here -->
-                        </div>
-
+                        <!-- Coupon Section -->
                         <div class="coupon-section">
+                            <label>@(isArabic ? "هل لديك كود خصم؟" : "Have a coupon?")</label>
                             <div class="coupon-input-wrapper">
-                                <i class="fas fa-tag"></i>
-                                <input asp-for="CouponCode" id="couponInput" placeholder="@(isArabic ? "كود الخصم" : "Coupon Code")" />
+                                <!-- حقل ظاهري فقط -->
+                                <input id="couponInput" value="@savedCoupon" placeholder="@(isArabic ? "ادخل الكود" : "Enter Code")" />
                                 <button type="button" onclick="validateCoupon()">@(isArabic ? "تطبيق" : "Apply")</button>
                             </div>
                             <span id="couponFeedback" class="coupon-feedback"></span>
                         </div>
 
+                        <!-- Totals -->
                         <div class="totals-section">
                             <div class="total-row">
                                 <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                                <span id="subtotalDisplay" class="currency-price" data-base-price="0">...</span>
+                                <!-- تخزين القيمة الأساسية في data attribute للحساب -->
+                                <span id="subtotalDisplay" class="currency-price" data-base-price="@cartSubtotal">@cartSubtotal OMR</span>
                             </div>
+
                             <div class="total-row">
                                 <span>@(isArabic ? "الشحن" : "Shipping")</span>
-                                <span id="shippingDisplay" class="currency-price" data-base-price="0">...</span>
+                                <span id="shippingDisplay" class="currency-price" data-base-price="0">0.00 OMR</span>
                             </div>
+
                             <div class="total-row discount" id="discountRow" style="display:none;">
                                 <span>@(isArabic ? "الخصم" : "Discount")</span>
                                 <span id="discountDisplay" class="currency-price" data-base-price="0">-0.00 OMR</span>
                             </div>
+
                             <div class="total-divider"></div>
+
                             <div class="total-row grand-total">
                                 <span>@(isArabic ? "الإجمالي" : "Total")</span>
-                                <span id="totalDisplay" class="currency-price" data-base-price="0">...</span>
+                                <span id="totalDisplay" class="gold-text currency-price" data-base-price="@cartSubtotal">@cartSubtotal OMR</span>
                             </div>
                         </div>
 
                         <button type="submit" class="btn-complete-order">
                             <span>@(isArabic ? "تأكيد الطلب" : "Place Order")</span>
-                            <i class="fas fa-arrow-left"></i>
+                            <i class="fas fa-lock"></i>
                         </button>
 
                         <div class="security-footer">
-                            <i class="fas fa-lock"></i> @(isArabic ? "بياناتك محمية ومشفرة" : "Your data is encrypted & secure")
+                            <i class="fas fa-shield-alt"></i> @(isArabic ? "جميع المعاملات مشفرة وآمنة" : "All transactions are secure and encrypted")
                         </div>
                     </div>
                 </aside>
@@ -180,11 +204,12 @@
 </div>
 
 <style>
-    /* Checkout Page Styles */
+    /* Premium Checkout Styles */
     .checkout-page-wrapper {
         padding: 3rem 0 5rem;
         background: #f8f9fa;
         min-height: 100vh;
+        margin-top: 80px;
     }
 
     .checkout-header-centered {
@@ -198,39 +223,32 @@
             margin-bottom: 0.5rem;
         }
 
-    .trust-badges {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
+    .trust-badges .badge {
+        background: #fff;
+        padding: 5px 12px;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         color: #6c757d;
         font-size: 0.9rem;
     }
 
-        .trust-badges .badge {
-            background: #fff;
-            padding: 5px 10px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
     .checkout-grid-premium {
         display: grid;
-        grid-template-columns: 1fr 400px;
+        grid-template-columns: 1fr 380px;
         gap: 2rem;
     }
 
-    /* Cards */
     .checkout-card, .summary-card-premium {
         background: #fff;
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        border: 1px solid rgba(0, 40, 85, 0.05);
+        border: 1px solid rgba(0,40,85,0.05);
         overflow: hidden;
     }
 
     .card-header-clean {
         padding: 1.5rem 2rem;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid #f1f5f9;
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -246,20 +264,19 @@
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 1rem;
     }
 
     .card-header-clean h2 {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         margin: 0;
-        color: #212529;
+        color: #1e293b;
     }
 
     .card-body {
         padding: 2rem;
     }
 
-    /* Floating Labels Form */
+    /* Inputs */
     .form-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -275,8 +292,8 @@
     .form-input {
         width: 100%;
         padding: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
         font-size: 1rem;
         transition: 0.2s;
         background: #fff;
@@ -285,22 +302,21 @@
         .form-input:focus {
             border-color: #002855;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 40, 85, 0.1);
+            box-shadow: 0 0 0 3px rgba(0,40,85,0.05);
         }
 
     .form-group-float label {
         position: absolute;
         left: 1rem;
         top: 1rem;
-        color: #6c757d;
+        color: #94a3b8;
         transition: 0.2s;
         pointer-events: none;
         background: #fff;
         padding: 0 5px;
     }
 
-    .form-input:focus ~ label,
-    .form-input:not(:placeholder-shown) ~ label {
+    .form-input:focus ~ label, .form-input:not(:placeholder-shown) ~ label {
         top: -0.6rem;
         left: 0.8rem;
         font-size: 0.8rem;
@@ -308,14 +324,13 @@
         font-weight: 600;
     }
 
-    /* RTL specific for floating labels */
+    /* RTL Adjustments */
     body.rtl .form-group-float label {
         left: auto;
         right: 1rem;
     }
 
-    body.rtl .form-input:focus ~ label,
-    body.rtl .form-input:not(:placeholder-shown) ~ label {
+    body.rtl .form-input:focus ~ label, body.rtl .form-input:not(:placeholder-shown) ~ label {
         right: 0.8rem;
         left: auto;
     }
@@ -341,14 +356,14 @@
         align-items: center;
         gap: 1.5rem;
         padding: 1.5rem;
-        border: 2px solid #f1f3f5;
+        border: 2px solid #f8f9fa;
         border-radius: 12px;
         transition: 0.2s;
     }
 
     .payment-method-card input:checked + .card-content {
         border-color: #002855;
-        background: rgba(0, 40, 85, 0.02);
+        background: rgba(0,40,85,0.02);
     }
 
     .method-icon {
@@ -358,46 +373,36 @@
         text-align: center;
     }
 
-    .method-details {
-        flex: 1;
+    .method-details .title {
+        display: block;
+        font-weight: 700;
+        color: #1e293b;
     }
 
-        .method-details .title {
-            display: block;
-            font-weight: 700;
-            color: #212529;
-        }
-
-        .method-details .subtitle {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-
-    .card-logos {
-        margin-top: 5px;
-        font-size: 1.2rem;
-        color: #495057;
+    .method-details .desc {
+        font-size: 0.85rem;
+        color: #64748b;
     }
 
     .check-circle {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        border: 2px solid #dee2e6;
-        color: transparent;
+        border: 2px solid #e2e8f0;
+        margin-inline-start: auto;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8rem;
     }
 
     .payment-method-card input:checked + .card-content .check-circle {
         background: #002855;
         border-color: #002855;
         color: #fff;
+        font-size: 0.8rem;
     }
 
-    /* Summary Sidebar */
+    /* Sidebar Summary */
     .summary-card-premium {
         padding: 2rem;
         position: sticky;
@@ -405,32 +410,33 @@
     }
 
     .summary-header h3 {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
         margin-bottom: 1.5rem;
         color: #002855;
+        font-weight: 700;
     }
 
     .coupon-section {
         margin-bottom: 2rem;
     }
 
+        .coupon-section label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #64748b;
+        }
+
     .coupon-input-wrapper {
         display: flex;
-        align-items: center;
-        border: 1px solid #dee2e6;
+        border: 1px solid #e2e8f0;
         border-radius: 8px;
-        padding: 5px;
-        background: #f8f9fa;
+        overflow: hidden;
     }
-
-        .coupon-input-wrapper i {
-            padding: 0 10px;
-            color: #6c757d;
-        }
 
         .coupon-input-wrapper input {
             border: none;
-            background: transparent;
+            padding: 0.8rem;
             flex: 1;
             outline: none;
         }
@@ -439,35 +445,40 @@
             background: #002855;
             color: #fff;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 0 1.2rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-    .totals-section {
-        font-size: 0.95rem;
-    }
+            .coupon-input-wrapper button:hover {
+                background: #004080;
+            }
 
     .total-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 1rem;
-        color: #495057;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+        color: #64748b;
     }
 
     .total-divider {
         height: 1px;
-        background: #e9ecef;
+        background: #e2e8f0;
         margin: 1rem 0;
     }
 
     .total-row.grand-total {
-        font-size: 1.25rem;
-        font-weight: 700;
+        font-size: 1.3rem;
+        font-weight: 800;
         color: #002855;
         margin-bottom: 0;
+    }
+
+    .total-row.discount {
+        color: #166534;
+        font-weight: 600;
     }
 
     .btn-complete-order {
@@ -478,7 +489,7 @@
         border: none;
         border-radius: 12px;
         font-size: 1.1rem;
-        font-weight: 600;
+        font-weight: 700;
         margin-top: 2rem;
         cursor: pointer;
         transition: 0.3s;
@@ -486,22 +497,36 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        box-shadow: 0 5px 15px rgba(0, 40, 85, 0.2);
+        box-shadow: 0 4px 15px rgba(0,40,85,0.2);
     }
 
         .btn-complete-order:hover {
-            background: #004080;
             transform: translateY(-2px);
+            background: #003377;
         }
 
     .security-footer {
         text-align: center;
         margin-top: 1.5rem;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #2ecc71;
+        font-weight: 600;
     }
 
-    /* Responsive */
+    .coupon-feedback {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.85rem;
+    }
+
+        .coupon-feedback.success {
+            color: #166534;
+        }
+
+        .coupon-feedback.error {
+            color: #dc2626;
+        }
+
     @@media (max-width: 992px) {
         .checkout-grid-premium {
             grid-template-columns: 1fr;
@@ -514,10 +539,15 @@
 </style>
 
 <script>
+    // متغير لتخزين قيمة الخصم الحالية في الجافاسكريبت للحساب
+    let currentDiscountAmount = 0;
+
     document.addEventListener("DOMContentLoaded", function() {
-        // Mock fetch details for UI demo
-        // In real app, razor should populate these or AJAX
-        document.getElementById('subtotalDisplay').setAttribute('data-base-price', '0');
+        // إذا كان هناك كوبون محفوظ، قم بالتحقق منه تلقائياً
+        const savedCode = document.getElementById('couponInput').value;
+        if(savedCode) {
+            validateCoupon();
+        }
     });
 
     function updatePaymentSelection(radio) {
@@ -527,7 +557,97 @@
         }
     }
 
+    // دالة الحساب الفوري
+    function calculateTotals() {
+        // 1. المجموع الفرعي (ثابت)
+        const subtotalEl = document.getElementById('subtotalDisplay');
+        const subtotal = parseFloat(subtotalEl.getAttribute('data-base-price'));
+
+        // 2. تكلفة الشحن
+        const shippingSelect = document.getElementById('shippingZoneSelector');
+        let shippingCost = 0;
+        if(shippingSelect && shippingSelect.selectedIndex > 0) {
+            const option = shippingSelect.options[shippingSelect.selectedIndex];
+            shippingCost = parseFloat(option.getAttribute('data-cost')) || 0;
+        }
+
+        // 3. الحساب النهائي
+        let total = subtotal + shippingCost - currentDiscountAmount;
+        if (total < 0) total = 0;
+
+        // 4. تحديث الواجهة
+        // الشحن
+        const shipEl = document.getElementById('shippingDisplay');
+        shipEl.innerText = shippingCost.toFixed(2) + " OMR";
+        shipEl.setAttribute('data-base-price', shippingCost);
+
+        // الخصم
+        const discRow = document.getElementById('discountRow');
+        const discEl = document.getElementById('discountDisplay');
+        if (currentDiscountAmount > 0) {
+            discRow.style.display = 'flex';
+            discEl.innerText = "-" + currentDiscountAmount.toFixed(2) + " OMR";
+            discEl.setAttribute('data-base-price', currentDiscountAmount);
+        } else {
+            discRow.style.display = 'none';
+        }
+
+        // الإجمالي
+        const totalEl = document.getElementById('totalDisplay');
+        totalEl.innerText = total.toFixed(2) + " OMR";
+        totalEl.setAttribute('data-base-price', total);
+
+        // تحديث العملة إذا لزم الأمر
+        if(typeof changeCurrency === 'function') {
+            const current = localStorage.getItem('selectedCurrency') || 'OMR';
+            changeCurrency(current);
+        }
+    }
+
     async function validateCoupon() {
-        // ... (Same validation logic as before) ...
+        const code = document.getElementById('couponInput').value;
+        const hiddenInput = document.getElementById('hiddenCouponCode');
+        const feedback = document.getElementById('couponFeedback');
+
+        // إذا كان الحقل فارغاً، نلغي الكوبون
+        if(!code) {
+             hiddenInput.value = "";
+             currentDiscountAmount = 0;
+             calculateTotals();
+             feedback.innerText = "";
+             return;
+        }
+
+        feedback.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+            const response = await fetch(`/Cart/ValidateCoupon?code=${code}`, { method: 'POST' });
+            const result = await response.json();
+
+            if (result.valid) {
+                feedback.innerText = result.message;
+                feedback.className = 'coupon-feedback success';
+
+                // تحديث قيمة الخصم العالمية
+                currentDiscountAmount = parseFloat(result.discountAmount);
+
+                // **تحديث الحقل المخفي ليتم إرساله للسيرفر عند الحفظ**
+                hiddenInput.value = code;
+
+                calculateTotals();
+            } else {
+                feedback.innerText = result.message;
+                feedback.className = 'coupon-feedback error';
+
+                currentDiscountAmount = 0;
+                hiddenInput.value = ""; // إلغاء الكود من الحقل المخفي
+                calculateTotals();
+            }
+        } catch (e) {
+            feedback.innerText = "Error connecting to server";
+            currentDiscountAmount = 0;
+            hiddenInput.value = "";
+            calculateTotals();
+        }
     }
 </script>

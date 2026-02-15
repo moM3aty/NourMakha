@@ -1,0 +1,280 @@
+﻿@model PerfumeStore.Models.Order
+@{
+    ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name == "ar" ? "تفاصيل الطلب" : "Order Details";
+    var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name == "ar";
+}
+
+<div class="order-details-page animate-fade-up">
+    <div class="container">
+        <!-- Header -->
+        <div class="details-header">
+            <a href="/Account/Profile" class="btn-back">
+                <i class="fas fa-arrow-right"></i> @(isArabic ? "العودة لحسابي" : "Back to Profile")
+            </a>
+            <div class="order-id-block">
+                <h1>@(isArabic ? "طلب" : "Order") #@Model.OrderNumber</h1>
+                <span class="status-pill @Model.Status.ToLower()">@Model.Status</span>
+            </div>
+            <span class="order-date">@Model.CreatedAt.ToString("dd MMMM yyyy")</span>
+        </div>
+
+        <div class="details-grid">
+            <!-- Items -->
+            <div class="items-section card-box">
+                <h3>@(isArabic ? "المنتجات" : "Items")</h3>
+                <div class="items-list">
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <div class="order-item-row">
+                            <div class="item-img">
+                                <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" />
+                            </div>
+                            <div class="item-info">
+                                <h4>@item.ProductName</h4>
+                                <span class="qty">x @item.Quantity</span>
+                            </div>
+                            <div class="item-price">
+                                <span class="currency-price" data-base-price="@item.TotalPrice">@item.TotalPrice.ToString("N2") OMR</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Sidebar Info -->
+            <aside class="info-sidebar">
+                <div class="summary-section card-box">
+                    <h3>@(isArabic ? "ملخص الدفع" : "Payment Summary")</h3>
+
+                    <div class="sum-row">
+                        <span>@(isArabic ? "المجموع" : "Subtotal")</span>
+                        <span class="currency-price" data-base-price="@Model.Subtotal">@Model.Subtotal.ToString("N2") OMR</span>
+                    </div>
+
+                    @if (Model.Discount > 0)
+                    {
+                        <div class="sum-row discount" style="color: #27ae60; font-weight: 600;">
+                            <span>
+                                @(isArabic ? "خصم الكوبون" : "Coupon Discount")
+                                @if (!string.IsNullOrEmpty(Model.CouponCode))
+                                {
+                                    <small>(@Model.CouponCode)</small>
+                                }
+                            </span>
+                            <span class="currency-price" data-base-price="@Model.Discount">-@Model.Discount.ToString("N2") OMR</span>
+                        </div>
+                    }
+
+                    <div class="sum-row">
+                        <span>@(isArabic ? "الشحن" : "Shipping")</span>
+                        <span class="currency-price" data-base-price="@Model.ShippingCost">@Model.ShippingCost.ToString("N2") OMR</span>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="sum-row total">
+                        <span>@(isArabic ? "الإجمالي" : "Total")</span>
+                        <span class="currency-price" data-base-price="@Model.GrandTotal">@Model.GrandTotal.ToString("N2") OMR</span>
+                    </div>
+                </div>
+
+                <div class="shipping-section card-box">
+                    <h3>@(isArabic ? "عنوان التوصيل" : "Delivery Address")</h3>
+                    <div class="address-box">
+                        <strong>@Model.ShippingFirstName @Model.ShippingLastName</strong>
+                        <p>@Model.ShippingAddress</p>
+                        <p>@Model.ShippingCity, @Model.ShippingCountry</p>
+                        <p class="phone"><i class="fas fa-phone"></i> @Model.ShippingPhone</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-details-page {
+        padding: 4rem 0 6rem;
+        background: #f8f9fa;
+        min-height: 100vh;
+        margin-top: 80px;
+    }
+
+    .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .btn-back {
+        color: #64748b;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+    }
+
+        .btn-back:hover {
+            color: #002855;
+            gap: 12px;
+        }
+
+    .order-id-block h1 {
+        font-size: 1.8rem;
+        color: #002855;
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .status-pill {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-inline-start: 10px;
+    }
+
+        .status-pill.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pill.shipped {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-pill.delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pill.cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+    .order-date {
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    .card-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid rgba(0,40,85,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        margin-bottom: 1.5rem;
+    }
+
+        .card-box h3 {
+            font-size: 1.1rem;
+            color: #002855;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+    .order-item-row {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px dashed #f1f5f9;
+        margin-bottom: 1.5rem;
+    }
+
+        .order-item-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+    .item-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+        .item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .item-info h4 {
+        margin: 0 0 5px;
+        font-size: 1rem;
+        color: #1e293b;
+    }
+
+    .item-info .qty {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .item-price {
+        font-weight: 700;
+        color: #002855;
+        font-size: 1.1rem;
+        margin-inline-start: auto;
+    }
+
+    .sum-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+        .sum-row.total {
+            color: #002855;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+
+    .address-box strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #212529;
+    }
+
+    .address-box p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .address-box .phone {
+        margin-top: 10px;
+        color: #002855;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 992px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

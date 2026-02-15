@@ -5,7 +5,7 @@
     ViewData["Title"] = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "حقيبة التسوق" : "Shopping Bag";
     var isArabic = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar");
 
-    // جلب مناطق الشحن النشطة
+    // جلب مناطق الشحن النشطة لعرضها في القائمة
     var shippingZones = _context.Set<PerfumeStore.Models.ShippingZone>().Where(z => z.IsActive).ToList();
 }
 
@@ -90,7 +90,7 @@
 
                         <!-- Premium Shipping Selector -->
                         <div class="shipping-box-premium">
-                            <label><i class="fas fa-truck"></i> @(isArabic ? "منطقة الشحن" : "Shipping Zone")</label>
+                            <label><i class="fas fa-truck"></i> @(isArabic ? "تقدير الشحن" : "Estimate Shipping")</label>
                             <div class="custom-select-wrapper">
                                 <select id="shippingZone" onchange="updateShippingTotal(this)">
                                     <option value="0" data-cost="0">@(isArabic ? "-- اختر منطقتك --" : "-- Select Area --")</option>
@@ -104,14 +104,14 @@
                         </div>
 
                         <div class="s-row">
-                            <span>@(isArabic ? "تكلفة الشحن" : "Shipping Cost")</span>
+                            <span>@(isArabic ? "الشحن" : "Shipping Cost")</span>
                             <span class="val" id="shipCostDisplay">0.00 OMR</span>
                         </div>
 
                         <div class="divider"></div>
 
                         <div class="s-row total-row">
-                            <span>@(isArabic ? "الإجمالي الكلي" : "Grand Total")</span>
+                            <span>@(isArabic ? "الإجمالي التقديري" : "Estimated Total")</span>
                             <span class="val gold-text" id="finalTotalDisplay" data-base-total="@Model.Total">@Model.Total.ToString("N2") OMR</span>
                         </div>
                     </div>
@@ -364,10 +364,6 @@
         font-weight: 800;
     }
 
-    .gold-text {
-        color: #002855;
-    }
-
     .shipping-box-premium {
         margin-bottom: 2rem;
     }
@@ -516,24 +512,18 @@
 </style>
 
 <script>
-    /**
-     * تحديث تكلفة الشحن والإجمالي في الواجهة
-     */
     function updateShippingTotal(select) {
         const option = select.options[select.selectedIndex];
         const cost = parseFloat(option.getAttribute('data-cost')) || 0;
         const subtotal = parseFloat(document.querySelector('.s-row span.val').parentElement.querySelector('.currency-price').getAttribute('data-base-price'));
 
-        // عرض تكلفة الشحن
         document.getElementById('shipCostDisplay').textContent = cost.toFixed(2) + " OMR";
 
-        // حساب وتحديث الإجمالي الكلي
         const newTotal = subtotal + cost;
         const totalEl = document.getElementById('finalTotalDisplay');
         totalEl.textContent = newTotal.toFixed(2) + " OMR";
         totalEl.setAttribute('data-base-price', newTotal);
 
-        // إذا كان هناك نظام تبديل عملة، نقوم بتحديثه فوراً
         if(typeof changeCurrency === 'function') {
             const currentCurr = localStorage.getItem('selectedCurrency') || 'OMR';
             changeCurrency(currentCurr);

@@ -5,7 +5,6 @@ using PerfumeStore.Data;
 using PerfumeStore.Models;
 using PerfumeStore.Services;
 using PerfumeStore.ViewModels;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 
 namespace PerfumeStore.Controllers
@@ -33,6 +32,7 @@ namespace PerfumeStore.Controllers
         }
 
         private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -53,7 +53,9 @@ namespace PerfumeStore.Controllers
                 return View(model);
             }
 
+            // محاولة تسجيل الدخول
             var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+
             if (result.Succeeded)
             {
                 user.LastLoginAt = DateTime.Now;
@@ -64,6 +66,41 @@ namespace PerfumeStore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // === التحقق إذا كان سبب الفشل هو عدم تفعيل الإيميل ===
+            if (result.IsNotAllowed && !user.EmailConfirmed)
+            {
+                // تحسين: التحقق من وجود كود حديث قبل إرسال كود جديد لتجنب إبطال الكود السابق إذا ضغط المستخدم مرتين
+                // نفحص إذا كان هناك كود غير مستخدم تم إنشاؤه في آخر دقيقتين
+                var recentOtp = await _context.OTPCodes
+                    .Where(o => o.Email == model.Email && o.Purpose == "Register" && !o.IsUsed)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                bool shouldGenerateNew = true;
+
+                if (recentOtp != null && recentOtp.CreatedAt > DateTime.UtcNow.AddMinutes(-2))
+                {
+                    // يوجد كود حديث، لا داعي لإرسال جديد، فقط وجهه للتحقق
+                    shouldGenerateNew = false;
+                }
+
+                if (shouldGenerateNew)
+                {
+                    try
+                    {
+                        var otp = await _otpService.GenerateOTPAsync(model.Email, "Register");
+                        await _emailService.SendOtpEmailAsync(model.Email, otp, "Register");
+                    }
+                    catch (Exception ex)
+                    {
+                        // تسجيل الخطأ أو عرضه للمستخدم
+                        ModelState.AddModelError("", "حدث خطأ أثناء إرسال رمز التحقق. يرجى المحاولة لاحقاً.");
+                    }
+                }
+
+                return RedirectToAction("VerifyOTP", new { email = model.Email, purpose = "Register" });
+            }
+
             ModelState.AddModelError("", IsArabic ? "البريد الإلكتروني أو كلمة المرور غير صحيحة" : "Invalid email or password");
             return View(model);
         }
@@ -72,54 +109,6 @@ namespace PerfumeStore.Controllers
         public IActionResult Register()
         {
             return View();
-        }
-        [HttpGet]
-        public async Task<IActionResult> Profile()
-        {
-            if (!User.Identity?.IsAuthenticated ?? true)
-                return RedirectToAction(nameof(Login));
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
-
-            var orders = await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .Where(o => o.UserId == user.Id)
-                .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
-
-            ViewBag.Orders = orders;
-            return View(user);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ApplicationUser model)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login");
-
-            // تحديث البيانات الأساسية
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.PhoneNumber = model.PhoneNumber;
-
-            // تحديث العنوان إذا تم إرساله
-            if (!string.IsNullOrEmpty(model.Address)) user.Address = model.Address;
-            if (!string.IsNullOrEmpty(model.City)) user.City = model.City;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-            {
-                TempData["Success"] = IsArabic ? "تم تحديث البيانات بنجاح" : "Profile updated successfully";
-            }
-            else
-            {
-                TempData["Error"] = IsArabic ? "حدث خطأ أثناء التحديث" : "Error updating profile";
-            }
-
-            return RedirectToAction(nameof(Profile));
         }
 
         [HttpPost]
@@ -151,9 +140,16 @@ namespace PerfumeStore.Controllers
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
 
-                // Generate and send OTP
-                var otp = await _otpService.GenerateOTPAsync(model.Email, "Register");
-                await _emailService.SendOtpEmailAsync(model.Email, otp, "Register");
+                try
+                {
+                    // توليد وإرسال الـ OTP
+                    var otp = await _otpService.GenerateOTPAsync(model.Email, "Register");
+                    await _emailService.SendOtpEmailAsync(model.Email, otp, "Register");
+                }
+                catch (Exception)
+                {
+                    // في حال فشل الإرسال، لا نوقف عملية التسجيل ولكن المستخدم سيحتاج لطلب إعادة الإرسال
+                }
 
                 return RedirectToAction("VerifyOTP", new { email = model.Email, purpose = "Register" });
             }
@@ -166,8 +162,71 @@ namespace PerfumeStore.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            if (!User.Identity?.IsAuthenticated ?? true)
+                return RedirectToAction(nameof(Login));
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Where(o => o.UserId == user.Id)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.Orders = orders;
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ApplicationUser model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.PhoneNumber = model.PhoneNumber;
+
+            if (!string.IsNullOrEmpty(model.Address)) user.Address = model.Address;
+            if (!string.IsNullOrEmpty(model.City)) user.City = model.City;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["Success"] = IsArabic ? "تم تحديث البيانات بنجاح" : "Profile updated successfully";
+            }
+            else
+            {
+                TempData["Error"] = IsArabic ? "حدث خطأ أثناء التحديث" : "Error updating profile";
+            }
+
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login");
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == user.Id);
+
+            if (order == null) return NotFound();
+
+            return View(order);
+        }
+
+        [HttpGet]
         public IActionResult VerifyOTP(string email, string purpose)
         {
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Login");
             return View(new OTPVerificationViewModel { Email = email, Purpose = purpose });
         }
 
@@ -175,8 +234,11 @@ namespace PerfumeStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyOTP(OTPVerificationViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.OTPCode))
+            {
+                ModelState.AddModelError("", IsArabic ? "البيانات غير مكتملة" : "Missing data");
                 return View(model);
+            }
 
             var isValid = await _otpService.VerifyOTPAsync(model.Email, model.OTPCode, model.Purpose);
             if (!isValid)
@@ -197,8 +259,43 @@ namespace PerfumeStore.Controllers
                 }
                 return RedirectToAction("Index", "Home");
             }
+            else if (model.Purpose == "ResetPassword")
+            {
+                return RedirectToAction("ResetPassword", new { email = model.Email, token = model.OTPCode });
+            }
 
-            return RedirectToAction("ResetPassword", new { email = model.Email });
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResendOTP([FromBody] OTPVerificationViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Purpose))
+            {
+                return Json(new { success = false, message = "Invalid data" });
+            }
+
+            try
+            {
+                // التحقق من وجود كود حديث قبل إعادة الإرسال لتجنب السبام
+                var recentOtp = await _context.OTPCodes
+                    .Where(o => o.Email == model.Email && o.Purpose == model.Purpose && !o.IsUsed)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (recentOtp != null && recentOtp.CreatedAt > DateTime.UtcNow.AddMinutes(-1))
+                {
+                    return Json(new { success = false, message = IsArabic ? "يرجى الانتظار قليلاً قبل طلب كود جديد" : "Please wait before requesting a new code" });
+                }
+
+                var otp = await _otpService.GenerateOTPAsync(model.Email, model.Purpose);
+                await _emailService.SendOtpEmailAsync(model.Email, otp, model.Purpose);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -222,16 +319,20 @@ namespace PerfumeStore.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                var otp = await _otpService.GenerateOTPAsync(email, "ResetPassword");
-                await _emailService.SendOtpEmailAsync(email, otp, "ResetPassword");
+                try
+                {
+                    var otp = await _otpService.GenerateOTPAsync(email, "ResetPassword");
+                    await _emailService.SendOtpEmailAsync(email, otp, "ResetPassword");
+                }
+                catch { /* Log error */ }
             }
             return RedirectToAction("VerifyOTP", new { email = email, purpose = "ResetPassword" });
         }
 
         [HttpGet]
-        public IActionResult ResetPassword(string email)
+        public IActionResult ResetPassword(string email, string? token)
         {
-            return View(new ResetPasswordViewModel { Email = email });
+            return View(new ResetPasswordViewModel { Email = email, Token = token });
         }
 
         [HttpPost]
@@ -245,11 +346,14 @@ namespace PerfumeStore.Controllers
             if (user == null)
                 return RedirectToAction("Login");
 
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
 
             if (result.Succeeded)
             {
+                TempData["Success"] = IsArabic ? "تم تغيير كلمة المرور بنجاح" : "Password reset successfully";
                 return RedirectToAction("Login");
             }
 
@@ -259,21 +363,5 @@ namespace PerfumeStore.Controllers
             }
             return View(model);
         }
-    }
-
-    public class ResetPasswordViewModel
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "New password is required")]
-        [StringLength(100, MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        public string NewPassword { get; set; } = string.Empty;
-
-        [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
-        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

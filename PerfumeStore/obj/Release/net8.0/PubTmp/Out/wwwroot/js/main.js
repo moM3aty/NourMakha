@@ -127,8 +127,10 @@ async function toggleWishlist(productId) {
 /**
  * إضافة منتج للسلة مع الكمية المحددة
  */
+
 async function addToCartWithQty(productId, quantity = 1) {
     const qtyInput = document.getElementById('quantity');
+    // إذا كانت الكمية محددة في الصفحة نستخدمها، وإلا نستخدم الافتراضي
     const finalQty = qtyInput ? parseInt(qtyInput.value) : quantity;
 
     try {
@@ -145,12 +147,19 @@ async function addToCartWithQty(productId, quantity = 1) {
 
         if (result.success) {
             showToast('success', getLocalizedString('addedToCart'));
-            updateCartCount();
+
+            // تحديث العداد مباشرة من القيمة الراجعة من السيرفر
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = result.count;
+                el.classList.add('bump'); // إضافة أنيميشن بسيط
+                setTimeout(() => el.classList.remove('bump'), 300);
+            });
+
         } else {
             showToast('error', result.message || getLocalizedString('errorOccurred'));
         }
     } catch (error) {
-        console.error('Error adding to cart:', error);
+        console.error(error);
         showToast('error', getLocalizedString('errorOccurred'));
     }
 }

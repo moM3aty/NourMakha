@@ -395,6 +395,10 @@ namespace PerfumeStore.Controllers
             {
                 model.CreatedAt = DateTime.Now;
                 model.Code = model.Code.ToUpper();
+
+                model.MinOrderAmount = model.MinimumOrderAmount;
+                model.MaxDiscount = model.MaximumDiscountAmount;
+
                 _context.Coupons.Add(model);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = IsArabic ? "تم إضافة الكوبون بنجاح" : "Coupon added successfully";
@@ -403,7 +407,6 @@ namespace PerfumeStore.Controllers
             return View(model);
         }
 
-        // --- مضافة حديثاً: تعديل الكوبون (GET) ---
         [HttpGet]
         public async Task<IActionResult> EditCoupon(int id)
         {
@@ -415,7 +418,6 @@ namespace PerfumeStore.Controllers
             return View(coupon);
         }
 
-        // --- مضافة حديثاً: تعديل الكوبون (POST) ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCoupon(Coupon model)
@@ -427,14 +429,19 @@ namespace PerfumeStore.Controllers
                     var existingCoupon = await _context.Coupons.FindAsync(model.Id);
                     if (existingCoupon == null) return NotFound();
 
-                    // تحديث البيانات
+                    // تحديث البيانات الأساسية
                     existingCoupon.Code = model.Code.ToUpper();
                     existingCoupon.Description = model.Description;
                     existingCoupon.DescriptionAr = model.DescriptionAr;
                     existingCoupon.DiscountType = model.DiscountType;
                     existingCoupon.DiscountValue = model.DiscountValue;
+
                     existingCoupon.MinimumOrderAmount = model.MinimumOrderAmount;
+                    existingCoupon.MinOrderAmount = model.MinimumOrderAmount; // Sync Legacy Field
+
                     existingCoupon.MaximumDiscountAmount = model.MaximumDiscountAmount;
+                    existingCoupon.MaxDiscount = model.MaximumDiscountAmount; // Sync Legacy Field
+
                     existingCoupon.UsageLimit = model.UsageLimit;
                     existingCoupon.StartDate = model.StartDate;
                     existingCoupon.EndDate = model.EndDate;
@@ -473,7 +480,6 @@ namespace PerfumeStore.Controllers
         {
             return _context.Coupons.Any(e => e.Id == id);
         }
-
         // ==========================================
         //  Reports
         // ==========================================
@@ -708,6 +714,40 @@ namespace PerfumeStore.Controllers
 
             TempData["Success"] = IsArabic ? "تم حذف التقييم بنجاح" : "Review deleted successfully";
             return RedirectToAction(nameof(Reviews));
+        }
+        public async Task<IActionResult> Messages()
+        {
+            var messages = await _context.ContactMessages
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();
+            return View(messages);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMessage(int id)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message != null)
+            {
+                _context.ContactMessages.Remove(message);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = IsArabic ? "تم حذف الرسالة بنجاح" : "Message deleted successfully";
+            }
+            return RedirectToAction(nameof(Messages));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message != null)
+            {
+                message.IsRead = true;
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true });
+            }
+            return NotFound();
         }
     }
 }

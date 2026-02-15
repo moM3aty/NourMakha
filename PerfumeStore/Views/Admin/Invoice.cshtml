@@ -21,6 +21,7 @@
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #f5f5f5;
             padding: 2rem;
+            color: #333;
         }
 
         .invoice {
@@ -36,159 +37,154 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             padding-bottom: 2rem;
             border-bottom: 2px solid #002855;
         }
 
         .company-info h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #002855;
             margin-bottom: 0.5rem;
         }
 
         .company-info p {
             color: #666;
-            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
         }
 
         .invoice-info {
-            text-align: right;
+            text-align: @(isArabic ? "left" : "right");
         }
 
             .invoice-info h2 {
+                font-size: 1.8rem;
                 color: #002855;
-                font-size: 1.5rem;
                 margin-bottom: 0.5rem;
+                letter-spacing: 1px;
             }
 
             .invoice-info p {
-                color: #666;
-                font-size: 0.875rem;
+                color: #555;
+                margin-bottom: 0.25rem;
+                font-size: 1rem;
             }
 
         .customer-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #eee;
         }
 
-        .info-box h3 {
-            font-size: 0.875rem;
-            color: #999;
-            text-transform: uppercase;
-            margin-bottom: 0.75rem;
-        }
+            .customer-info p {
+                margin-bottom: 0.4rem;
+                color: #444;
+                line-height: 1.5;
+            }
 
-        .info-box p {
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
+            .customer-info strong {
+                color: #002855;
+                display: block;
+                margin-bottom: 0.8rem;
+                font-size: 1.2rem;
+            }
 
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
             .items-table th {
-                background: #f8f8f8;
-                padding: 1rem;
-                text-align: left;
-                font-size: 0.75rem;
-                text-transform: uppercase;
-                color: #666;
-                border-bottom: 2px solid #eee;
+                background: #002855;
+                color: #fff;
+                padding: 12px 15px;
+                text-align: start;
+                font-weight: 600;
+                font-size: 0.95rem;
             }
 
             .items-table td {
-                padding: 1rem;
+                padding: 15px;
                 border-bottom: 1px solid #eee;
-                color: #333;
+                color: #444;
+                vertical-align: middle;
             }
 
-            .items-table .product-cell {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
+            .items-table tr:last-child td {
+                border-bottom: 2px solid #002855;
             }
-
-                .items-table .product-cell img {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 8px;
-                    object-fit: cover;
-                }
 
         .totals {
-            max-width: 300px;
+            max-width: 350px;
             margin-left: auto;
+            margin-right: 0;
+        }
+
+        body[dir="rtl"] .totals {
+            margin-left: 0;
+            margin-right: auto;
         }
 
         .totals-row {
             display: flex;
             justify-content: space-between;
-            padding: 0.75rem 0;
+            padding: 0.8rem 0;
             border-bottom: 1px solid #eee;
+            color: #555;
+            font-size: 0.95rem;
         }
 
-            .totals-row span:first-child {
-                color: #666;
-            }
-
-            .totals-row span:last-child {
-                font-weight: 500;
+            .totals-row.discount {
+                color: #166534;
+                font-weight: 600;
+                background-color: #f0fdf4;
+                padding: 0.8rem 10px;
+                border-radius: 4px;
+                margin: 5px 0;
+                border-bottom: none;
             }
 
         .totals-total {
             display: flex;
             justify-content: space-between;
-            padding: 1rem 0;
-            font-size: 1.25rem;
-            font-weight: 700;
+            padding: 1.2rem 0;
+            font-size: 1.4rem;
+            font-weight: 800;
             border-bottom: none;
+            color: #002855;
+            border-top: 3px solid #002855;
+            margin-top: 15px;
         }
-
-            .totals-total span:last-child {
-                color: #002855;
-            }
 
         .footer {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #eee;
             text-align: center;
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 0.9rem;
         }
-
-            .footer p {
-                color: #666;
-                font-size: 0.875rem;
-                margin-bottom: 0.5rem;
-            }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .status- @Model.Status.ToLower() {
-            background: rgba(0, 40, 85, 0.1);
-            color: #002855;
-        }
-
         @@media print {
-            body {
-                background: white;
-                padding: 0;
-            }
+            body
 
-            .invoice {
-                box-shadow: none;
-            }
+        {
+            background: white;
+            padding: 0;
+            margin: 0;
+        }
+
+        .invoice {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            max-width: 100%;
+            margin: 0;
+        }
+
         }
     </style>
 </head>
@@ -197,53 +193,39 @@
         <div class="invoice-header">
             <div class="company-info">
                 <h1>NourMakha</h1>
-                <p>@(isArabic ? "شارع الملك فهد، الرياض، السعودية" : "King Fahd Road, Riyadh, Saudi Arabia")</p>
-                <p>@(isArabic ? "هاتف: +966 50 123 4567" : "Phone: +966 50 123 4567")</p>
-                <p>Email: info@nourmakha.com</p>
+                <p>Oman, Muscat</p>
+                <p>+968 98185589</p>
+                <p>info@nourmakha.com</p>
             </div>
             <div class="invoice-info">
                 <h2>@(isArabic ? "فاتورة" : "INVOICE")</h2>
-                <p><strong>#@Model.Id</strong></p>
-                <p>@(isArabic ? "التاريخ:" : "Date:") @Model.CreatedAt.ToString("MMM dd, yyyy")</p>
-                <span class="status-badge status-@Model.Status.ToLower()">@Model.Status</span>
+                <p><strong>#@Model.OrderNumber</strong></p>
+                <p>@Model.CreatedAt.ToString("dd MMM yyyy")</p>
             </div>
         </div>
 
         <div class="customer-info">
-            <div class="info-box">
-                <h3>@(isArabic ? "معلومات العميل" : "Customer Information")</h3>
-                <p><strong>@Model.ShippingFirstName @Model.ShippingLastName</strong></p>
-                <p>@Model.User?.Email</p>
-                <p>@Model.ShippingPhone</p>
-            </div>
-            <div class="info-box">
-                <h3>@(isArabic ? "عنوان الشحن" : "Shipping Address")</h3>
-                <p>@Model.ShippingAddress</p>
-                <p>@Model.ShippingCity, @Model.ShippingPostalCode</p>
-                <p>@Model.ShippingCountry</p>
-            </div>
+            <p><strong>@Model.ShippingFirstName @Model.ShippingLastName</strong></p>
+            <p>@Model.ShippingAddress</p>
+            <p>@Model.ShippingCity, @Model.ShippingCountry</p>
+            <p>@Model.ShippingPhone</p>
         </div>
 
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>@(isArabic ? "المنتج" : "Product")</th>
-                    <th>@(isArabic ? "السعر" : "Price")</th>
-                    <th>@(isArabic ? "الكمية" : "Qty")</th>
-                    <th>@(isArabic ? "الإجمالي" : "Total")</th>
+                    <th width="50%">@(isArabic ? "المنتج" : "Product")</th>
+                    <th width="20%" style="text-align:center;">@(isArabic ? "الكمية" : "Qty")</th>
+                    <th width="30%" style="text-align:end;">@(isArabic ? "الإجمالي" : "Total")</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model.OrderItems)
                 {
                     <tr>
-                        <td class="product-cell">
-                            <img src="@(item.ProductImage ?? "/images/placeholder.jpg")" alt="@item.ProductName" />
-                            <span>@item.ProductName</span>
-                        </td>
-                        <td>$@item.UnitPrice</td>
-                        <td>@item.Quantity</td>
-                        <td><strong>$@item.TotalPrice</strong></td>
+                        <td>@item.ProductName</td>
+                        <td style="text-align:center;">@item.Quantity</td>
+                        <td style="text-align:end;">@item.TotalPrice.ToString("N2") OMR</td>
                     </tr>
                 }
             </tbody>
@@ -252,36 +234,47 @@
         <div class="totals">
             <div class="totals-row">
                 <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                <span>$@Model.TotalAmount</span>
+                <span>@Model.Subtotal.ToString("N2") OMR</span>
             </div>
-            <div class="totals-row">
-                <span>@(isArabic ? "الخصم" : "Discount")</span>
-                <span>$@Model.DiscountAmount</span>
-            </div>
+
+            @if (Model.Discount > 0)
+            {
+                <div class="totals-row discount">
+                    <span>
+                        @(isArabic ? "الخصم" : "Discount")
+                        @if (!string.IsNullOrEmpty(Model.CouponCode))
+                        {
+                            <small>(@Model.CouponCode)</small>
+                        }
+                    </span>
+                    <span>-@Model.Discount.ToString("N2") OMR</span>
+                </div>
+            }
+
             <div class="totals-row">
                 <span>@(isArabic ? "الشحن" : "Shipping")</span>
-                <span>$@Model.ShippingCost</span>
+                <span>@Model.ShippingCost.ToString("N2") OMR</span>
             </div>
-            <div class="totals-row">
-                <span>@(isArabic ? "الضريبة" : "Tax")</span>
-                <span>$@Model.TaxAmount</span>
-            </div>
+
+            @if (Model.TaxAmount > 0)
+            {
+                <div class="totals-row">
+                    <span>@(isArabic ? "الضريبة" : "Tax")</span>
+                    <span>@Model.TaxAmount.ToString("N2") OMR</span>
+                </div>
+            }
+
             <div class="totals-total">
-                <span>@(isArabic ? "الإجمالي" : "Total")</span>
-                <span>$@Model.GrandTotal</span>
+                <span>@(isArabic ? "الإجمالي المستحق" : "Total Due")</span>
+                <span>@Model.GrandTotal.ToString("N2") OMR</span>
             </div>
         </div>
 
         <div class="footer">
-            <p>@(isArabic ? "شكراً لتسوقكم معنا!" : "Thank you for shopping with us!")</p>
-            <p>@(isArabic ? "للاستفسارات، يرجى التواصل على info@nourmakha.com" : "For inquiries, please contact info@nourmakha.com")</p>
+            <p>@(isArabic ? "شكراً لتسوقكم معنا" : "Thank you for shopping with us")</p>
+            <p>NourMakha Perfumes &copy; @DateTime.Now.Year</p>
         </div>
     </div>
-
-    <script>
-        window.onload = function() {
-            window.print();
-        };
-    </script>
+    <script>window.onload = function() { window.print(); };</script>
 </body>
 </html>

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Configuration;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace PerfumeStore.Services
@@ -24,145 +26,60 @@ namespace PerfumeStore.Services
         {
             var subject = purpose switch
             {
-                "Register" => "Verify Your Email - NourMakha",
-                "ResetPassword" => "Reset Your Password - NourMakha",
-                "Login" => "Your Login Code - NourMakha",
-                _ => "Your OTP Code - NourMakha"
+                "Register" => "تفعيل حسابك - NourMakha",
+                "ResetPassword" => "استعادة كلمة المرور - NourMakha",
+                _ => "رمز التحقق الخاص بك - NourMakha"
             };
 
-            // تم تحديث الألوان إلى الأزرق الملكي #002855
             var body = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
-        .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
-        .header h1 {{ color: white; margin: 0; }}
-        .content {{ padding: 40px 30px; text-align: center; }}
-        .otp-code {{ font-size: 32px; font-weight: bold; color: #002855; letter-spacing: 8px; margin: 20px 0; }}
-        .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; font-size: 12px; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>🌟 NourMakha</h1>
-        </div>
-        <div class='content'>
-            <h2>Your verification code is:</h2>
-            <div class='otp-code'>{otpCode}</div>
-            <p style='color: #666; font-size: 14px;'>This code will expire in 10 minutes.</p>
-        </div>
-        <div class='footer'>
-            <p>© 2024 NourMakha. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>";
+            <div style='font-family: Arial, sans-serif; text-align: center; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 500px; margin: auto;'>
+                <h2 style='color: #002855;'>NourMakha Perfumes</h2>
+                <p style='font-size: 1.1rem;'>رمز التحقق الخاص بك هو:</p>
+                <div style='background: #f8f9fa; padding: 15px; font-size: 2rem; font-weight: bold; letter-spacing: 10px; color: #002855; border: 1px dashed #002855; margin: 20px 0;'>
+                    {otpCode}
+                </div>
+                <p style='color: #666;'>هذا الرمز صالح لمدة 10 دقائق فقط. يرجى عدم مشاركته مع أي شخص.</p>
+            </div>";
 
             await SendEmailAsync(email, subject, body);
         }
 
         public async Task SendOrderConfirmationAsync(string email, int orderId, string orderNumber)
         {
-            var subject = $"Order Confirmation - {orderNumber} - NourMakha";
-            // تم تحديث الألوان إلى الأزرق الملكي #002855
-            var body = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
-        .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }}
-        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
-        .header h1 {{ color: white; margin: 0; }}
-        .content {{ padding: 40px 30px; }}
-        .order-number {{ font-size: 24px; color: #002855; font-weight: bold; }}
-        .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>🌟 Order Confirmed!</h1>
-        </div>
-        <div class='content'>
-            <h2>Thank you for your order!</h2>
-            <p>Your order has been confirmed and is being processed.</p>
-            <p>Order Number: <span class='order-number'>{orderNumber}</span></p>
-        </div>
-        <div class='footer'>
-            <p>© 2024 NourMakha. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>";
-
+            var subject = $"تأكيد الطلب رقم {orderNumber} - NourMakha";
+            var body = $"<h1>شكراً لتسوقك معنا!</h1><p>تم استلام طلبك رقم {orderNumber} وهو قيد المعالجة الآن.</p>";
             await SendEmailAsync(email, subject, body);
         }
 
         public async Task SendOrderStatusUpdateAsync(string email, int orderId, string orderNumber, string status)
         {
-            var subject = $"Order Update - {orderNumber} - {status} - NourMakha";
-            // تم تحديث الألوان إلى الأزرق الملكي #002855
-            var body = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }}
-        .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }}
-        .header {{ background: linear-gradient(135deg, #002855, #004080); padding: 30px; text-align: center; }}
-        .header h1 {{ color: white; margin: 0; }}
-        .content {{ padding: 40px 30px; text-align: center; }}
-        .status {{ font-size: 28px; color: #002855; font-weight: bold; }}
-        .footer {{ background: #f8f8f8; padding: 20px; text-align: center; color: #666; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>🌟 Order Update</h1>
-        </div>
-        <div class='content'>
-            <h2>Your Order Status Has Changed</h2>
-            <p>Order Number: {orderNumber}</p>
-            <p>New Status: <span class='status'>{status}</span></p>
-        </div>
-        <div class='footer'>
-            <p>© 2024 NourMakha. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>";
-
+            var subject = $"تحديث حالة الطلب {orderNumber}";
+            var body = $"<h2>تم تحديث حالة طلبك إلى: {status}</h2>";
             await SendEmailAsync(email, subject, body);
         }
 
         public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var smtpServer = _configuration["Email:SmtpServer"];
-            var smtpPortStr = _configuration["Email:SmtpPort"];
-            var smtpUsername = _configuration["Email:Username"];
-            var smtpPassword = _configuration["Email:Password"];
-            var fromEmail = _configuration["Email:FromEmail"];
+            // تصحيح: جلب الإعدادات بناءً على هيكلة appsettings.json
+            var smtpServer = _configuration["EmailSettings:SmtpServer"];
+            var smtpPortStr = _configuration["EmailSettings:SmtpPort"];
+            var smtpUsername = _configuration["EmailSettings:SenderEmail"];
+            var smtpPassword = _configuration["EmailSettings:SenderPassword"];
+            var enableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"] ?? "true");
 
             if (string.IsNullOrEmpty(smtpServer) || string.IsNullOrEmpty(smtpUsername))
-            {
-                // Email not configured - skip sending
                 return;
-            }
 
-            // Use System.Net.Mail for sending emails
-            using var client = new System.Net.Mail.SmtpClient(smtpServer, int.Parse(smtpPortStr ?? "587"));
-            client.EnableSsl = true;
-            client.Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword);
-
-            var mailMessage = new System.Net.Mail.MailMessage
+            using var client = new SmtpClient(smtpServer, int.Parse(smtpPortStr ?? "587"))
             {
-                From = new System.Net.Mail.MailAddress(fromEmail ?? smtpUsername, "NourMakha"),
+                EnableSsl = enableSsl,
+                Credentials = new NetworkCredential(smtpUsername, smtpPassword),
+                DeliveryMethod = SmtpDeliveryMethod.Network
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(smtpUsername, "NourMakha Perfumes"),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true
