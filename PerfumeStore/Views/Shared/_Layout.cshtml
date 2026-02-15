@@ -166,9 +166,36 @@
                     <div class="header-top-nav">
                         <!-- Currency Selector -->
                         <select id="globalCurrencySelector" class="nav-currency-select">
-                            <option value="OMR">🇴🇲 OMR</option>
-                            <option value="SAR">🇸🇦 SAR</option>
-                            <option value="USD">🇺🇸 USD</option>
+                            <optgroup label="الخليج العربي">
+                                <option value="OMR">🇴🇲 OMR - ريال عماني</option>
+                                <option value="SAR">🇸🇦 SAR - ريال سعودي</option>
+                                <option value="AED">🇦🇪 AED - درهم إماراتي</option>
+                                <option value="KWD">🇰🇼 KWD - دينار كويتي</option>
+                                <option value="QAR">🇶🇦 QAR - ريال قطري</option>
+                                <option value="BHD">🇧🇭 BHD - دينار بحريني</option>
+                            </optgroup>
+                            <optgroup label="الشمال الأفريقي">
+                                <option value="EGP">🇪🇬 EGP - جنيه مصري</option>
+                                <option value="LYD">🇱🇾 LYD - دينار ليبي</option>
+                                <option value="MAD">🇲🇦 MAD - درهم مغربي</option>
+                                <option value="DZD">🇩🇿 DZD - دينار جزائري</option>
+                                <option value="TND">🇹🇳 TND - دينار تونسي</option>
+                                <option value="SDG">🇸🇩 SDG - جنيه سوداني</option>
+                                <option value="MRU">🇲🇷 MRU - أوقية موريتانية</option>
+                            </optgroup>
+                            <optgroup label="بلاد الشام والعراق واليمن">
+                                <option value="JOD">🇯🇴 JOD - دينار أردني</option>
+                                <option value="IQD">🇮🇶 IQD - دينار عراقي</option>
+                                <option value="LBP">🇱🇧 LBP - ليرة لبنانية</option>
+                                <option value="SYP">🇸🇾 SYP - ليرة سورية</option>
+                                <option value="YER">🇾🇪 YER - ريال يمني</option>
+                            </optgroup>
+                            <optgroup label="أخرى">
+                                <option value="DJF">🇩🇯 DJF - فرنك جيبوتي</option>
+                                <option value="SOS">🇸🇴 SOS - شلن صومالي</option>
+                                <option value="KMF">🇰🇲 KMF - فرنك قمري</option>
+                                <option value="USD">🇺🇸 USD - دولار أمريكي</option>
+                            </optgroup>
                         </select>
 
                         <!-- Language Toggle -->
@@ -215,7 +242,7 @@
                     </a>
                     <p class="footer-desc">
                         @(isArabic
-                                                ? "نور مخا للعود والعطور، علامة تجارية عمانية رائدة في مجال العود والبخور والعطور الفرنسية."
+                                                ? "نور للعود والعطور للعود والعطور، علامة تجارية عمانية رائدة في مجال العود والبخور والعطور الفرنسية."
                                                 : "NourMakha Oud & Perfumes, a leading Omani brand in Oud, Incense, and French Perfumes.")
                     </p>
                     <div class="social-links">

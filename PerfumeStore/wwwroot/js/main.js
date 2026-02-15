@@ -30,18 +30,29 @@ const currencyRates = {
     "OMR": {
         rate: 1,
         symbol: '<svg width="25" height="25" viewBox="0 0 500 500" fill="currentColor" style="vertical-align: middle; margin-inline-start: 5px;"><path d="M241.67,213.77c-.63-49.2,11.44-95.41,35.76-137.75C313.47,13.28,353.02-6.48,421.55,28.87c10.67,5.5,53.6,35.43,57.81,44.54,5.03,10.87-27.48,103.87-29.11,122.3-34.69-37.51-99.37-98.66-154.85-69.62-45.05,23.58-12.02,62.54,11.46,87.68h409.36l-26.41,47.64h-332.5c-.31,1.8.87,3.3,2.53,4.6,12.44,9.72,80.97,39.54,94.75,39.54h210.71l-26.89,48.94H13.37l26.91-48.94h253.38l-37.11-44.13H64.75l26.41-47.64h150.51Z"/></svg>',
-        flag: "🇴🇲"
+        flag: "🇴🇲", name: "ريال عماني"
     },
-    "SAR": {
-        rate: 9.75,
-        symbol: '<span style="font-weight:bold; font-size:0.8em; margin-inline-start:5px;">SAR</span>',
-        flag: "🇸🇦"
-    },
-    "USD": {
-        rate: 2.60,
-        symbol: '<i class="fas fa-dollar-sign" style="font-size:0.9em; margin-inline-start:5px;"></i>',
-        flag: "🇺🇸"
-    }
+    "SAR": { rate: 9.74, symbol: "SAR", flag: "🇸🇦", name: "ريال سعودي" },
+    "AED": { rate: 9.54, symbol: "AED", flag: "🇦🇪", name: "درهم إماراتي" },
+    "KWD": { rate: 0.80, symbol: "KWD", flag: "🇰🇼", name: "دينار كويتي" },
+    "QAR": { rate: 9.46, symbol: "QAR", flag: "🇶🇦", name: "ريال قطري" },
+    "BHD": { rate: 0.98, symbol: "BHD", flag: "🇧🇭", name: "دينار بحريني" },
+    "EGP": { rate: 125.50, symbol: "EGP", flag: "🇪🇬", name: "جنيه مصري" },
+    "JOD": { rate: 1.84, symbol: "JOD", flag: "🇯🇴", name: "دينار أردني" },
+    "IQD": { rate: 3405, symbol: "IQD", flag: "🇮🇶", name: "دينار عراقي" },
+    "LYD": { rate: 12.60, symbol: "LYD", flag: "🇱🇾", name: "دينار ليبي" },
+    "MAD": { rate: 26.20, symbol: "MAD", flag: "🇲🇦", name: "درهم مغربي" },
+    "DZD": { rate: 348.50, symbol: "DZD", flag: "🇩🇿", name: "دينار جزائري" },
+    "TND": { rate: 8.15, symbol: "TND", flag: "🇹🇳", name: "دينار تونسي" },
+    "LBP": { rate: 232500, symbol: "LBP", flag: "🇱🇧", name: "ليرة لبنانية" },
+    "SDG": { rate: 1560, symbol: "SDG", flag: "🇸🇩", name: "جنيه سوداني" },
+    "YER": { rate: 650.50, symbol: "YER", flag: "🇾🇪", name: "ريال يمني" },
+    "SYP": { rate: 33800, symbol: "SYP", flag: "🇸🇾", name: "ليرة سورية" },
+    "MRU": { rate: 104.20, symbol: "MRU", flag: "🇲🇷", name: "أوقية موريتانية" },
+    "DJF": { rate: 462.50, symbol: "DJF", flag: "🇩🇯", name: "فرنك جيبوتي" },
+    "SOS": { rate: 1485, symbol: "SOS", flag: "🇸🇴", name: "شلن صومالي" },
+    "KMF": { rate: 1180, symbol: "KMF", flag: "🇰🇲", name: "فرنك قمري" },
+    "USD": { rate: 2.60, symbol: "$", flag: "🇺🇸", name: "دولار أمريكي" }
 };
 
 function initCurrencySwitcher() {
