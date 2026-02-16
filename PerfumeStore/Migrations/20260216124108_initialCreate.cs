@@ -62,6 +62,31 @@ namespace PerfumeStore.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Banners",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TitleAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Subtitle = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubtitleAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DescriptionAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LinkUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ButtonText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ButtonTextAr = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Banners", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -533,11 +558,11 @@ namespace PerfumeStore.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "DescriptionAr", "DisplayOrder", "ImageUrl", "IsActive", "Name", "NameAr" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(947), "Premium men's fragrances", "عطور رجالية فاخرة", 1, null, true, "Men's Perfumes", "عطور رجالية" },
-                    { 2, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1026), "Elegant women's fragrances", "عطور نسائية راقية", 2, null, true, "Women's Perfumes", "عطور نسائية" },
-                    { 3, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1031), "Versatile unisex fragrances", "عطور متنوعة للجنسين", 3, null, true, "Unisex Perfumes", "عطور للجنسين" },
-                    { 4, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1036), "Exclusive luxury perfume collections", "مجموعات عطور فاخرة حصرية", 4, null, true, "Luxury Collections", "مجموعات فاخرة" },
-                    { 5, new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1041), "Perfect gift sets for loved ones", "مجموعات هدايا مثالية لأحبائك", 5, null, true, "Gift Sets", "هدايا" }
+                    { 1, new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9047), "Premium men's fragrances", "عطور رجالية فاخرة", 1, null, true, "Men's Perfumes", "عطور رجالية" },
+                    { 2, new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9097), "Elegant women's fragrances", "عطور نسائية راقية", 2, null, true, "Women's Perfumes", "عطور نسائية" },
+                    { 3, new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9100), "Versatile unisex fragrances", "عطور متنوعة للجنسين", 3, null, true, "Unisex Perfumes", "عطور للجنسين" },
+                    { 4, new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9103), "Exclusive luxury perfume collections", "مجموعات عطور فاخرة حصرية", 4, null, true, "Luxury Collections", "مجموعات فاخرة" },
+                    { 5, new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9105), "Perfect gift sets for loved ones", "مجموعات هدايا مثالية لأحبائك", 5, null, true, "Gift Sets", "هدايا" }
                 });
 
             migrationBuilder.InsertData(
@@ -694,6 +719,9 @@ namespace PerfumeStore.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Banners");
 
             migrationBuilder.DropTable(
                 name: "CartItems");

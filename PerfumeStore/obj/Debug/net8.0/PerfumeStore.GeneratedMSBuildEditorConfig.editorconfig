@@ -9,213 +9,225 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = PerfumeStore
 build_property.RootNamespace = PerfumeStore
-build_property.ProjectDir = C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\
+build_property.ProjectDir = D:\Dev\NourMakha\PerfumeStore\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore
+build_property.MSBuildProjectDirectory = D:\Dev\NourMakha\PerfumeStore
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/AccessDenied.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/ForgotPassword.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/ForgotPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/Login.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/OrderDetails.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/OrderDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxPcmRlckRldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/Profile.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQcm9maWxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/Register.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/ResetPassword.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/ResetPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Account/VerifyOTP.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Account/VerifyOTP.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlPVFAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Categories.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Banners.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQmFubmVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Categories.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ2F0ZWdvcmllcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Coupons.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Coupons.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ291cG9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/CreateCategory.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CreateBanner.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlQmFubmVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CreateCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlQ2F0ZWdvcnkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/CreateCoupon.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CreateCoupon.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlQ291cG9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/CreateProduct.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CreateProduct.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlUHJvZHVjdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/CreateShippingZone.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CreateShippingZone.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlU2hpcHBpbmdab25lLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/CustomerDetails.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/CustomerDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3VzdG9tZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Customers.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Customers.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3VzdG9tZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/EditCategory.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/EditBanner.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdEJhbm5lci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/EditCategory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdENhdGVnb3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/EditCoupon.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/EditCoupon.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdENvdXBvbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/EditProduct.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/EditProduct.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFByb2R1Y3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/EditShippingZone.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/EditShippingZone.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFNoaXBwaW5nWm9uZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Index.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Invoice.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Invoice.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW52b2ljZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Messages.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Messages.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWVzc2FnZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/OrderDetails.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/OrderDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cT3JkZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Orders.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Orders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cT3JkZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Products.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Products.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUHJvZHVjdHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Reports.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Reports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmVwb3J0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Reviews.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Reviews.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUmV2aWV3cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/Settings.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/Settings.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU2V0dGluZ3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Admin/ShippingZones.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Admin/ShippingZones.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cU2hpcHBpbmdab25lcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Cart/Checkout.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Cart/Checkout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxDaGVja291dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Cart/Index.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Cart/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Cart/OrderConfirmation.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Cart/OrderConfirmation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxPcmRlckNvbmZpcm1hdGlvbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/About.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/Contact.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/Contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/Index.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/Privacy.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/Returns.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/Returns.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxSZXR1cm5zLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Home/Terms.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Home/Terms.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxUZXJtcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Payment/Gateway.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Payment/Gateway.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGF5bWVudFxHYXRld2F5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Products/Details.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Products/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Products/Index.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Products/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Shared/Error.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Shared/_AdminLayout.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Shared/_AdminLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Shared/_ProductCard.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Shared/_ProductCard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Qcm9kdWN0Q2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Shared/_ValidationScriptsPartial.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Wishlist/Index.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Wishlist/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2lzaGxpc3RcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/_ViewImports.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/_ViewStart.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/MOHAMED ABO-ELM3ATY/Downloads/NourMakha/PerfumeStore/Views/Shared/_Layout.cshtml]
+[D:/Dev/NourMakha/PerfumeStore/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-5qwsduiwwl

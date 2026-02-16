@@ -749,5 +749,82 @@ namespace PerfumeStore.Controllers
             }
             return NotFound();
         }
+
+        public async Task<IActionResult> Banners()
+        {
+            var banners = await _context.Set<Banner>().OrderBy(b => b.DisplayOrder).ToListAsync();
+            return View(banners);
+        }
+
+        public IActionResult CreateBanner() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBanner(Banner model, IFormFile? image)
+        {
+            ModelState.Remove("ImageUrl");
+            if (ModelState.IsValid)
+            {
+                if (image != null)
+                {
+                    model.ImageUrl = await SaveImage(image, "banners");
+                }
+                _context.Add(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Banners));
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> EditBanner(int id)
+        {
+            var banner = await _context.Set<Banner>().FindAsync(id);
+            if (banner == null) return NotFound();
+            return View(banner);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBanner(Banner model, IFormFile? image)
+        {
+            if (ModelState.IsValid)
+            {
+                var existing = await _context.Set<Banner>().FindAsync(model.Id);
+                if (existing == null) return NotFound();
+
+                existing.Title = model.Title;
+                existing.TitleAr = model.TitleAr;
+                existing.Subtitle = model.Subtitle;
+                existing.SubtitleAr = model.SubtitleAr;
+                existing.Description = model.Description;
+                existing.DescriptionAr = model.DescriptionAr;
+                existing.LinkUrl = model.LinkUrl;
+                existing.ButtonText = model.ButtonText;
+                existing.ButtonTextAr = model.ButtonTextAr;
+                existing.DisplayOrder = model.DisplayOrder;
+                existing.IsActive = model.IsActive;
+
+                if (image != null)
+                {
+                    existing.ImageUrl = await SaveImage(image, "banners");
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Banners));
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteBanner(int id)
+        {
+            var banner = await _context.Set<Banner>().FindAsync(id);
+            if (banner != null)
+            {
+                _context.Remove(banner);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Banners));
+        }
     }
 }

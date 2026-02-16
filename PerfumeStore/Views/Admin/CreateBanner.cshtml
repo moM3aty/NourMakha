@@ -1,0 +1,225 @@
+﻿@model PerfumeStore.Models.Banner
+@{
+    ViewData["Title"] = "إضافة بنر جديد";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-content-wrapper animate-fade-up">
+    <form asp-action="CreateBanner" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="form-header-action">
+            <div class="header-text">
+                <h1>إضافة بنر جديد</h1>
+                <p>تخصيص محتوى الواجهة الرئيسية</p>
+            </div>
+            <div class="header-btns">
+                <a href="/Admin/Banners" class="btn-cancel">إلغاء</a>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-check"></i> حفظ ونشر
+                </button>
+            </div>
+        </div>
+
+        <div class="form-layout-grid">
+            <!-- Left: Image & General Settings -->
+            <div class="col-visual">
+                <div class="card premium-card">
+                    <div class="card-header-clean">
+                        <h3>الصورة</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-area" id="uploadZone">
+                            <input type="file" name="image" id="imageInput" accept="image/*" class="file-input" required />
+                            <div class="upload-placeholder">
+                                <div class="icon-wrap"><i class="fas fa-cloud-upload-alt"></i></div>
+                                <span>اضغط للرفع أو اسحب الصورة هنا</span>
+                                <small>يفضل مقاس 1920x800 بكسل</small>
+                            </div>
+                            <div id="previewContainer" class="preview-box">
+                                <img id="imgPreview" src="" />
+                                <button type="button" class="btn-remove" onclick="clearImage()"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <span asp-validation-for="ImageUrl" class="validation-msg"></span>
+                    </div>
+                </div>
+
+                <div class="card premium-card mt-3">
+                    <div class="card-header-clean">
+                        <h3>الإعدادات</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group-modern">
+                            <label>رابط التوجيه</label>
+                            <input asp-for="LinkUrl" placeholder="/Products/Sale" dir="ltr" />
+                        </div>
+                        <div class="form-group-modern">
+                            <label>ترتيب العرض</label>
+                            <input asp-for="DisplayOrder" type="number" value="0" />
+                        </div>
+                        <div class="toggle-row">
+                            <span class="label">تفعيل البنر</span>
+                            <label class="switch">
+                                <input asp-for="IsActive" type="checkbox" checked />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Content Tabs -->
+            <div class="col-content">
+                <div class="card premium-card h-100">
+                    <div class="tabs-header">
+                        <button type="button" class="tab-btn active" onclick="openTab('ar')">
+                            <img src="https://flagcdn.com/w20/om.png" alt="AR" /> المحتوى العربي
+                        </button>
+                        <button type="button" class="tab-btn" onclick="openTab('en')">
+                            <img src="https://flagcdn.com/w20/gb.png" alt="EN" /> المحتوى الإنجليزي
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Arabic Tab -->
+                        <div id="tab-ar" class="tab-content active">
+                            <div class="form-group-modern">
+                                <label>العنوان الرئيسي <span class="req">*</span></label>
+                                <input asp-for="TitleAr" placeholder="مثال: عطور الصيف" dir="rtl" />
+                                <span asp-validation-for="TitleAr" class="validation-msg"></span>
+                            </div>
+                            <div class="form-group-modern">
+                                <label>العنوان الفرعي (فوق العنوان)</label>
+                                <input asp-for="SubtitleAr" placeholder="مثال: مجموعة 2026" dir="rtl" />
+                            </div>
+                            <div class="form-group-modern">
+                                <label>الوصف</label>
+                                <textarea asp-for="DescriptionAr" rows="4" dir="rtl"></textarea>
+                            </div>
+                            <div class="form-group-modern">
+                                <label>نص الزر</label>
+                                <input asp-for="ButtonTextAr" placeholder="تسوق الآن" dir="rtl" />
+                            </div>
+                        </div>
+
+                        <!-- English Tab -->
+                        <div id="tab-en" class="tab-content">
+                            <div class="form-group-modern">
+                                <label>Main Title <span class="req">*</span></label>
+                                <input asp-for="Title" placeholder="e.g. Summer Collection" dir="ltr" required />
+                                <span asp-validation-for="Title" class="validation-msg"></span>
+                            </div>
+                            <div class="form-group-modern">
+                                <label>Subtitle (Eyebrow)</label>
+                                <input asp-for="Subtitle" placeholder="e.g. New Arrival" dir="ltr" />
+                            </div>
+                            <div class="form-group-modern">
+                                <label>Description</label>
+                                <textarea asp-for="Description" rows="4" dir="ltr"></textarea>
+                            </div>
+                            <div class="form-group-modern">
+                                <label>Button Text</label>
+                                <input asp-for="ButtonText" placeholder="Shop Now" dir="ltr" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* --- Premium Forms CSS --- */
+    .form-header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .header-text h1 { font-size: 1.8rem; color: #002855; margin: 0; }
+    .header-text p { color: #64748b; margin: 5px 0 0; }
+    
+    .header-btns { display: flex; gap: 10px; }
+    .btn-save { background: #002855; color: #fff; padding: 0.8rem 2rem; border-radius: 50px; font-weight: 700; border: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,40,85,0.2); }
+    .btn-save:hover { transform: translateY(-2px); background: #003377; }
+    .btn-cancel { background: #fff; border: 1px solid #cbd5e1; color: #64748b; padding: 0.8rem 2rem; border-radius: 50px; font-weight: 600; transition: 0.3s; }
+    .btn-cancel:hover { background: #f1f5f9; color: #1e293b; }
+
+    .form-layout-grid { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; }
+    .premium-card { background: #fff; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow: hidden; }
+    .card-header-clean { padding: 1.2rem 1.5rem; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #002855; }
+    .card-body { padding: 1.5rem; }
+
+    /* Upload */
+    .upload-area { position: relative; height: 220px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; transition: 0.3s; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .upload-area:hover { border-color: #002855; background: #eff6ff; }
+    .file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 5; }
+    .upload-placeholder { text-align: center; pointer-events: none; }
+    .icon-wrap { font-size: 2.5rem; color: #94a3b8; margin-bottom: 10px; }
+    .upload-placeholder span { display: block; font-weight: 600; color: #475569; }
+    .upload-placeholder small { color: #94a3b8; font-size: 0.8rem; }
+    
+    .preview-box { position: absolute; inset: 0; background: #fff; z-index: 4; display: none; }
+    .preview-box.show { display: block; }
+    .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+    .btn-remove { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(255,255,255,0.9); border-radius: 50%; border: none; color: #ef4444; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+    /* Inputs */
+    .form-group-modern { margin-bottom: 1.2rem; }
+    .form-group-modern label { display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    .form-group-modern input, .form-group-modern textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.3s; font-size: 0.95rem; }
+    .form-group-modern input:focus, .form-group-modern textarea:focus { border-color: #002855; outline: none; box-shadow: 0 0 0 3px rgba(0,40,85,0.05); }
+    .req { color: #ef4444; }
+    .validation-msg { font-size: 0.8rem; color: #ef4444; margin-top: 4px; display: block; }
+
+    /* Switch */
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #10b981; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* Tabs */
+    .tabs-header { display: flex; border-bottom: 1px solid #f1f5f9; background: #fafbfc; border-radius: 16px 16px 0 0; overflow: hidden; }
+    .tab-btn { flex: 1; padding: 1rem; border: none; background: transparent; font-weight: 700; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; border-bottom: 3px solid transparent; }
+    .tab-btn img { width: 20px; border-radius: 4px; }
+    .tab-btn:hover { background: #f1f5f9; color: #002855; }
+    .tab-btn.active { color: #002855; border-bottom-color: #002855; background: #fff; }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @@media (max-width: 992px) { .form-layout-grid { grid-template-columns: 1fr; } .form-header-action { flex-direction: column; align-items: flex-start; gap: 1rem; } .header-btns { width: 100%; justify-content: space-between; } }
+</style>
+
+<script>
+    // Image Preview
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreview').src = e.target.result;
+                document.getElementById('previewContainer').classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function clearImage() {
+        document.getElementById('imageInput').value = '';
+        document.getElementById('previewContainer').classList.remove('show');
+        document.getElementById('imgPreview').src = '';
+    }
+
+    // Tabs
+    function openTab(lang) {
+        // Hide all
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        // Show selected
+        document.getElementById('tab-' + lang).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>

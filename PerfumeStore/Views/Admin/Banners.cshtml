@@ -1,0 +1,257 @@
+﻿@model List<PerfumeStore.Models.Banner>
+@{
+    ViewData["Title"] = "إدارة البنرات";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-content-wrapper animate-fade-up">
+    <!-- Premium Header -->
+    <div class="page-header-premium">
+        <div class="header-content">
+            <div class="title-wrapper">
+                <div class="icon-box">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1>واجهة المتجر</h1>
+                    <p>إدارة الشرائح والعروض الترويجية</p>
+                </div>
+            </div>
+            <a href="/Admin/CreateBanner" class="btn-add-new">
+                <i class="fas fa-plus"></i>
+                <span>بنر جديد</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Banners Gallery Grid -->
+    <div class="banners-gallery">
+        @if (Model.Any())
+        {
+            @foreach (var banner in Model.OrderBy(b => b.DisplayOrder))
+            {
+                <div class="banner-card @(banner.IsActive ? "" : "disabled")">
+                    <!-- Image Area -->
+                    <div class="card-visual">
+                        <img src="@(banner.ImageUrl ?? "/images/placeholder.jpg")" alt="Banner" loading="lazy" />
+                        <div class="visual-overlay">
+                            <span class="order-tag">#@banner.DisplayOrder</span>
+                            <div class="action-buttons">
+                                <a href="/Admin/EditBanner/@banner.Id" class="btn-circle edit" title="تعديل">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <form asp-action="DeleteBanner" asp-route-id="@banner.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-circle delete" title="حذف" onclick="return confirm('حذف هذا البنر؟')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="card-info">
+                        <div class="status-dot @(banner.IsActive ? "active" : "inactive")" title="@(banner.IsActive ? "نشط" : "معطل")"></div>
+                        <div class="info-text">
+                            <span class="eyebrow">@banner.SubtitleAr</span>
+                            <h3 class="headline">@banner.TitleAr</h3>
+                            <span class="lang-indicator">EN: @banner.Title</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state-box">
+                <div class="empty-icon"><i class="far fa-images"></i></div>
+                <h3>لا يوجد محتوى للعرض</h3>
+                <p>قم بإضافة بنرات لتحسين واجهة متجرك</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* Gallery Grid */
+    .banners-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Card Design */
+    .banner-card {
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+    .banner-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 40, 85, 0.1);
+        border-color: rgba(0, 40, 85, 0.1);
+    }
+ .page-header-premium {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #002855, #004080);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0, 40, 85, 0.2);
+    }
+
+    .title-wrapper h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        font-family: 'Tajawal', sans-serif;
+    }
+
+    .title-wrapper p {
+        color: var(--secondary-text);
+        margin: 4px 0 0;
+        font-size: 0.9rem;
+    }
+
+    .btn-add-new {
+        background: #002855;
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 40, 85, 0.15);
+    }
+
+        .btn-add-new:hover {
+            background: #003377;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 40, 85, 0.25);
+            color: #fff;
+        }
+    .banner-card.disabled { opacity: 0.7; filter: grayscale(1); }
+    .banner-card.disabled:hover { filter: grayscale(0); opacity: 1; }
+
+    /* Visual Area */
+    .card-visual {
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-visual img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .banner-card:hover .card-visual img { transform: scale(1.08); }
+
+    .visual-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 15px;
+        opacity: 0;
+        transition: 0.3s;
+    }
+
+    .banner-card:hover .visual-overlay { opacity: 1; }
+
+    .order-tag {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .action-buttons { display: flex; gap: 8px; }
+
+    .btn-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #fff;
+        color: #002855;
+        display: flex; align-items: center; justify-content: center;
+        border: none; cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .btn-circle:hover { transform: scale(1.1); }
+    .btn-circle.delete { color: #ef4444; }
+
+    /* Info Area */
+    .card-info {
+        padding: 1.5rem;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .status-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        margin-top: 6px;
+        box-shadow: 0 0 0 2px #fff;
+    }
+    .status-dot.active { background: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+    .status-dot.inactive { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
+
+    .info-text { flex: 1; }
+    .eyebrow { display: block; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+    .headline { font-size: 1.1rem; color: #1e293b; margin: 0 0 8px; font-family: 'Tajawal', sans-serif; font-weight: 700; line-height: 1.3; }
+    .lang-indicator { display: block; font-size: 0.8rem; color: #94a3b8; background: #f8fafc; padding: 4px 8px; border-radius: 6px; width: fit-content; }
+
+    /* Empty State */
+    .empty-state-box {
+        text-align: center; padding: 4rem; grid-column: 1 / -1;
+        background: #fff; border-radius: 20px; border: 2px dashed #e2e8f0;
+    }
+    .empty-icon { font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem; }
+    .empty-state-box h3 { font-size: 1.2rem; color: #1e293b; margin-bottom: 0.5rem; }
+    .empty-state-box p { color: #64748b; }
+</style>

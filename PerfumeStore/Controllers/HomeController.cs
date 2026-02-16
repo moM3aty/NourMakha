@@ -41,6 +41,11 @@ namespace PerfumeStore.Controllers
                 Categories = await _context.Categories
                     .Where(c => c.IsActive)
                     .OrderBy(c => c.DisplayOrder)
+                    .ToListAsync(),
+
+                Banners = await _context.Set<Banner>()
+                    .Where(b => b.IsActive)
+                    .OrderBy(b => b.DisplayOrder)
                     .ToListAsync()
             };
 
@@ -144,5 +149,6 @@ namespace PerfumeStore.Controllers
         public List<Product> FeaturedProducts { get; set; } = new();
         public List<Product> NewArrivals { get; set; } = new();
         public List<Category> Categories { get; set; } = new();
+        public List<Banner> Banners { get; set; } = new();
     }
 }

@@ -26,6 +26,7 @@ namespace PerfumeStore.Data
         public DbSet<OTPCode> OTPCodes { get; set; } = null!;
         public DbSet<SiteSetting> SiteSettings { get; set; } = null!;
         public DbSet<ShippingZone> ShippingZones { get; set; } = null!;
+        public DbSet<Banner> Banners { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -11,6 +11,8 @@ wwwroot\images\6.jpg
 wwwroot\images\7.jpg
 wwwroot\images\77.jpg
 wwwroot\images\banner.jpg
+wwwroot\images\banners\76d9a9ae-b1f3-41a7-b4c9-83f24f8a0d37.jpg
+wwwroot\images\banners\f6e2f9b7-2e63-46b4-a29c-42601df77220.jpg
 wwwroot\images\categories\07bc3793-f679-4783-b873-fd20f7499218.jpg
 wwwroot\images\categories\0e816b90-7890-405f-8222-06cf42f5c92f.jpg
 wwwroot\images\categories\33d915fd-2db8-498f-b971-530d008a4ce4.jpg
@@ -18,6 +20,7 @@ wwwroot\images\categories\7606d7f0-0ae8-4146-92da-a6f56ceedddb.jpg
 wwwroot\images\categories\a555f486-345b-4bbd-904b-a7532ad681e3.jpg
 wwwroot\images\categories\de8329d6-b14f-4dd3-a082-9dbb9f7c97d5.jpg
 wwwroot\images\categories\e197c5a6-1f4b-42a9-a5d4-9a77d9edbe2f.jpg
+wwwroot\images\DIOR HOMME, THE NEW PARFUM.mp4
 wwwroot\images\logo.png
 wwwroot\images\products\0d1492bc-3b84-4cce-a83b-5e5e40927f51.jpg
 wwwroot\images\products\14817251-ba93-4a43-a986-4b1a5b749925.jpg

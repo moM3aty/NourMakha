@@ -12,7 +12,7 @@ using PerfumeStore.Data;
 namespace PerfumeStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260214074645_initialCreate")]
+    [Migration("20260216124108_initialCreate")]
     partial class initialCreate
     {
         /// <inheritdoc />
@@ -252,6 +252,60 @@ namespace PerfumeStore.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PerfumeStore.Models.Banner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ButtonText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ButtonTextAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subtitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubtitleAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TitleAr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners");
+                });
+
             modelBuilder.Entity("PerfumeStore.Models.Cart", b =>
                 {
                     b.Property<int>("Id")
@@ -359,7 +413,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(947),
+                            CreatedAt = new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9047),
                             Description = "Premium men's fragrances",
                             DescriptionAr = "عطور رجالية فاخرة",
                             DisplayOrder = 1,
@@ -370,7 +424,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1026),
+                            CreatedAt = new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9097),
                             Description = "Elegant women's fragrances",
                             DescriptionAr = "عطور نسائية راقية",
                             DisplayOrder = 2,
@@ -381,7 +435,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1031),
+                            CreatedAt = new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9100),
                             Description = "Versatile unisex fragrances",
                             DescriptionAr = "عطور متنوعة للجنسين",
                             DisplayOrder = 3,
@@ -392,7 +446,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1036),
+                            CreatedAt = new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9103),
                             Description = "Exclusive luxury perfume collections",
                             DescriptionAr = "مجموعات عطور فاخرة حصرية",
                             DisplayOrder = 4,
@@ -403,7 +457,7 @@ namespace PerfumeStore.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 2, 14, 9, 46, 45, 105, DateTimeKind.Local).AddTicks(1041),
+                            CreatedAt = new DateTime(2026, 2, 16, 14, 41, 8, 126, DateTimeKind.Local).AddTicks(9105),
                             Description = "Perfect gift sets for loved ones",
                             DescriptionAr = "مجموعات هدايا مثالية لأحبائك",
                             DisplayOrder = 5,
