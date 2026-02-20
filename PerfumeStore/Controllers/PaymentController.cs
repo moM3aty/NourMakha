@@ -10,9 +10,13 @@ namespace PerfumeStore.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IPaymentService _paymentService;
         private readonly IEmailService _emailService;
-        private readonly IConfiguration _configuration;
 
-        public PaymentController(ApplicationDbContext c, IPaymentService p, IEmailService e, IConfiguration conf) { _context = c; _paymentService = p; _emailService = e; _configuration = conf; }
+        public PaymentController(ApplicationDbContext context, IPaymentService paymentService, IEmailService emailService)
+        {
+            _context = context;
+            _paymentService = paymentService;
+            _emailService = emailService;
+        }
 
         [HttpGet]
         public async Task<IActionResult> Gateway(int orderId)
@@ -20,32 +24,58 @@ namespace PerfumeStore.Controllers
             var order = await _context.Orders.Include(o => o.User).FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null || order.Status != "Awaiting Payment") return RedirectToAction("Index", "Home");
 
-            var lang = System.Globalization.CultureInfo.CurrentCulture.Name.StartsWith("ar") ? "AR" : "EN";
-            var paymentParams = _paymentService.PreparePaymentRequest(order.OrderNumber, order.GrandTotal, lang);
-            ViewBag.PaymentUrl = _configuration["AmwalPaySettings:BaseUrl"];
-            return View(paymentParams);
+            try
+            {
+                // جلب الدومين الخاص بالموقع (مثال: https://www.nourmakha.com)
+                string hostUrl = $"{Request.Scheme}://{Request.Host}";
+
+                // إنشاء جلسة الدفع في ثواني وجلب رابط صفحة الدفع
+                var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(order, hostUrl);
+
+                // توجيه العميل فوراً إلى صفحة الدفع الخاصة بثواني
+                return Redirect(checkoutUrl);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "حدث خطأ أثناء الاتصال ببوابة الدفع (Thawani). " + ex.Message;
+                return RedirectToAction("Checkout", "Cart");
+            }
         }
 
-        [Route("Payment/Response")]
-        public async Task<IActionResult> Response(string response_code, string response_message, string trackid)
+        [Route("Payment/Success")]
+        public async Task<IActionResult> Success(string session_id)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == trackid);
+            if (string.IsNullOrEmpty(session_id)) return RedirectToAction("Index", "Home");
+
+            // التحقق من حالة الدفع من خوادم ثواني
+            var verification = await _paymentService.VerifyPaymentAsync(session_id);
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == verification.OrderNumber);
+
             if (order == null) return NotFound();
 
-            if (response_code == "000" || response_code == "00")
+            if (verification.IsPaid)
             {
                 order.Status = "Confirmed";
-                order.PaymentMethod = "CreditCard (Paid)";
+                order.PaymentMethod = "Thawani Pay (Paid)";
                 order.UpdatedAt = DateTime.Now;
+
                 await _context.SaveChangesAsync();
                 await _emailService.SendOrderConfirmationAsync(order.ShippingEmail, order.Id, order.OrderNumber);
+
                 return RedirectToAction("OrderConfirmation", "Cart", new { id = order.Id });
             }
             else
             {
-                TempData["Error"] = "Payment Failed: " + response_message;
+                TempData["Error"] = "عذراً، عملية الدفع لم تكتمل بنجاح.";
                 return RedirectToAction("Checkout", "Cart");
             }
+        }
+
+        [Route("Payment/Cancel")]
+        public IActionResult Cancel()
+        {
+            TempData["Error"] = "تم إلغاء عملية الدفع من قبل العميل.";
+            return RedirectToAction("Checkout", "Cart");
         }
     }
 }
