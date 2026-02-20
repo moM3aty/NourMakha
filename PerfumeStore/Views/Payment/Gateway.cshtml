@@ -5,28 +5,338 @@
 <!DOCTYPE html>
 <html lang="@(isArabic ? "ar" : "en")" dir="@(isArabic ? "rtl" : "ltr")">
 <head>
-    <title>Redirecting to Secure Payment...</title>
+    <meta charset="utf-8" />
+    <title>@(isArabic ? "جاري التحويل للدفع الآمن..." : "Redirecting to Secure Payment...")</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa; margin: 0; color: #333; }
-        .loader-container { text-align: center; background: white; padding: 3rem 2rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,40,85,0.05); max-width: 400px; width: 90%; }
-        .thawani-logo { font-size: 3rem; color: #002855; margin-bottom: 20px; animation: pulse 1.5s infinite; }
-        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #10b981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        h3 { color: #002855; margin-bottom: 10px; font-size: 1.2rem; }
-        p { color: #64748b; font-size: 0.9rem; line-height: 1.5; margin: 0; }
-        @@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        :root {
+            --p-blue: #002855;
+            --p-blue-light: #004080;
+            --p-silver: #cbd5e1;
+            --p-bg: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--p-bg);
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 40, 85, 0.05) 0%, transparent 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #1e293b;
+            overflow: hidden;
+        }
+
+        .gateway-wrapper {
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .gateway-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 40, 85, 0.08), 0 0 0 1px rgba(0, 40, 85, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gateway-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--p-blue-light), var(--p-blue));
+        }
+
+        .brand-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--p-blue);
+            letter-spacing: 1px;
+        }
+
+        /* --- Custom Secure Loader --- */
+        .loader-visual {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .secure-shield {
+            position: relative;
+            z-index: 2;
+            width: 60px;
+            height: 60px;
+            background: var(--p-blue);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.8rem;
+            box-shadow: 0 10px 20px rgba(0, 40, 85, 0.2);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .ripple-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ripple-rings::before, .ripple-rings::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid var(--p-blue);
+            animation: ripple 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+
+        .ripple-rings::after {
+            animation-delay: 1s;
+        }
+
+        @@keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @@keyframes ripple {
+            0% { transform: scale(0.6); opacity: 0.8; border-width: 4px; }
+            100% { transform: scale(1.5); opacity: 0; border-width: 1px; }
+        }
+
+        /* --- Text & Progress --- */
+        .gateway-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--p-blue);
+            margin-bottom: 0.8rem;
+        }
+
+        .gateway-desc {
+            font-size: 0.95rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, var(--p-blue-light), var(--p-blue));
+            border-radius: 10px;
+            animation: loadingBar 1.5s infinite ease-in-out;
+        }
+
+        @@keyframes loadingBar {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+
+        .security-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #10b981;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            width: fit-content;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        /* --- Supported Cards --- */
+        .supported-cards-wrapper {
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .supported-text {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cards-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .card-logo {
+            height: 28px;
+            width: auto;
+            opacity: 0.6;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .cards-row:hover .card-logo,
+        .cards-row:hover .omannet-badge {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .omannet-badge {
+            height: 28px;
+            background: #0076a8; /* OmanNet primary color */
+            color: #fff;
+            padding: 0 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .thawani-logo {
+            height: 24px;
+            opacity: 0.6;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+            margin-inline-start: 10px;
+            border-inline-start: 1px solid #cbd5e1;
+            padding-inline-start: 15px;
+        }
+
+        /* Animated Background Elements */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .shape-1 { width: 300px; height: 300px; background: #cbd5e1; top: -100px; left: -100px; }
+        .shape-2 { width: 400px; height: 400px; background: rgba(0, 40, 85, 0.1); bottom: -150px; right: -150px; }
+
+        @@media (max-width: 480px) {
+            .gateway-card { padding: 2.5rem 1.5rem; }
+            .gateway-title { font-size: 1.2rem; }
+            .cards-row { flex-wrap: wrap; }
+            .thawani-logo { border: none; padding: 0; margin: 0; width: 100%; object-fit: contain; margin-top: 10px; }
+        }
     </style>
 </head>
 <body>
-    <div class="loader-container">
-        <div class="thawani-logo">
-            <i class="fas fa-shield-alt"></i>
+    <!-- Background Decor -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <div class="gateway-wrapper">
+        <div class="gateway-card">
+
+            <div class="brand-header">
+                <h2>NourMakha</h2>
+            </div>
+
+            <div class="loader-visual">
+                <div class="ripple-rings"></div>
+                <div class="secure-shield">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+
+            <h1 class="gateway-title">
+                @(isArabic ? "جاري تحضير بيئة الدفع..." : "Preparing Payment Gateway...")
+            </h1>
+
+            <p class="gateway-desc">
+                @(isArabic
+                                ? "يرجى الانتظار، سيتم تحويلك لصفحة الدفع الآمنة لإتمام معاملتك بنجاح."
+                                : "Please wait, redirecting to the secure checkout to safely complete your transaction.")
+            </p>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="security-footer">
+                <i class="fas fa-lock"></i>
+                <span>@(isArabic ? "اتصال مشفر وآمن 100%" : "100% Secure & Encrypted Connection")</span>
+            </div>
+
+            <!-- Supported Cards Section -->
+            <div class="supported-cards-wrapper">
+                <div class="supported-text">
+                    @(isArabic ? "طرق الدفع المدعومة" : "Supported Payment Methods")
+                </div>
+                <div class="cards-row">
+                    <!-- Visa -->
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" class="card-logo" />
+
+                    <!-- Mastercard -->
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="card-logo" />
+
+                    <!-- OmanNet -->
+                    <div class="omannet-badge" title="OmanNet / بطاقة الخصم المباشر">
+                        OmanNet
+                    </div>
+
+                    <!-- Thawani Logo -->
+                    <img src="https://thawani.om/wp-content/uploads/2023/07/thawani-logo-blue.svg" alt="Thawani" class="thawani-logo" title="Powered by Thawani" />
+                </div>
+            </div>
+
         </div>
-        <div class="spinner"></div>
-        <h3>@(isArabic ? "جاري تحويلك لبوابة الدفع..." : "Redirecting to Payment Gateway...")</h3>
-        <p>@(isArabic ? "يرجى الانتظار، سيتم توجيهك إلى بوابة ثواني الآمنة لإتمام عملية الدفع." : "Please wait, you are being redirected to Thawani secure checkout.")</p>
     </div>
 </body>
 </html>

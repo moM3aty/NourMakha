@@ -275,3 +275,4 @@ C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\obj\Debug\net8.0\r
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\obj\Debug\net8.0\PerfumeStore.pdb
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\obj\Debug\net8.0\PerfumeStore.genruntimeconfig.cache
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\obj\Debug\net8.0\ref\PerfumeStore.dll
+C:\Users\MOHAMED ABO-ELM3ATY\Downloads\NourMakha\PerfumeStore\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

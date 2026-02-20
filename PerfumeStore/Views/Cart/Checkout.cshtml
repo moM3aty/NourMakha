@@ -125,16 +125,22 @@
                                     </div>
                                 </label>
 
-                                <!-- Credit Card (Amwal Pay) -->
+                                <!-- Credit Card / Thawani Pay -->
                                 <label class="payment-method-card">
                                     <input type="radio" asp-for="PaymentMethod" value="CreditCard" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
                                         <div class="method-icon"><i class="far fa-credit-card"></i></div>
                                         <div class="method-details">
-                                            <span class="title">@(isArabic ? "بطاقة ائتمان / خصم" : "Credit / Debit Card")</span>
-                                            <div class="card-logos">
-                                                <i class="fab fa-cc-visa"></i> <i class="fab fa-cc-mastercard"></i>
+                                            <span class="title">@(isArabic ? "بطاقة ائتمان / خصم مباشر" : "Credit / Debit Card")</span>
+
+                                            <!-- أرقام وصور البطاقات المدعومة -->
+                                            <div class="card-logos-wrapper">
+                                                <img src="https://www.logo.wine/a/logo/Visa_Inc./Visa_Inc.-Logo.wine.svg" alt="Visa" class="pay-logo" />
+                                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="pay-logo" />
+                                                <div class="omannet-badge-mini" title="OmanNet">OmanNet</div>
+                                                <img src="https://thawani.om/wp-content/uploads/2022/12/Outlook-A-green-an.png" alt="Thawani" class="pay-logo thawani" title="Powered by Thawani" />
                                             </div>
+
                                         </div>
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
                                     </div>
@@ -400,6 +406,55 @@
         border-color: #002855;
         color: #fff;
         font-size: 0.8rem;
+    }
+
+    /* --- Payment Logos CSS --- */
+    .card-logos-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pay-logo {
+        height: 16px;
+        width: auto;
+        object-fit: contain;
+        opacity: 0.5;
+        filter: grayscale(100%);
+        transition: 0.3s;
+    }
+
+    .omannet-badge-mini {
+        height: 16px;
+        background: #0076a8;
+        color: #fff;
+        padding: 0 6px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 0.6rem;
+        letter-spacing: 0.5px;
+        opacity: 0.5;
+        filter: grayscale(100%);
+        transition: 0.3s;
+    }
+
+    .pay-logo.thawani {
+        height: 14px;
+        margin-inline-start: 5px;
+        border-inline-start: 1px solid #e2e8f0;
+        padding-inline-start: 8px;
+    }
+
+    /* Colorize on select */
+    .payment-method-card input:checked + .card-content .pay-logo,
+    .payment-method-card input:checked + .card-content .omannet-badge-mini {
+        opacity: 1;
+        filter: grayscale(0%);
     }
 
     /* Sidebar Summary */
