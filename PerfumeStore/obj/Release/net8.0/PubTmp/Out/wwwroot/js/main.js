@@ -107,6 +107,12 @@ async function toggleWishlist(productId) {
 
         const result = await response.json();
 
+        // === توجيه لصفحة تسجيل الدخول إذا تطلب الأمر ===
+        if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+            return;
+        }
+
         if (result.success) {
             // إظهار تنبيه Premium
             showToast('success', result.message || getLocalizedString('addedToWishlist'));
@@ -117,9 +123,11 @@ async function toggleWishlist(productId) {
                 if (icon) {
                     if (icon.classList.contains('far')) {
                         icon.classList.replace('far', 'fas');
+                        icon.classList.add('text-danger');
                         btn.classList.add('active');
                     } else {
                         icon.classList.replace('fas', 'far');
+                        icon.classList.remove('text-danger');
                         btn.classList.remove('active');
                     }
                 }
@@ -135,9 +143,12 @@ async function toggleWishlist(productId) {
     }
 }
 
-/**
- * إضافة منتج للسلة مع الكمية المحددة
- */
+/* ===================================
+   إضافة منتج للسلة
+   =================================== */
+
+// جعل الدالة عالمية حتى تعمل مع onclick في الـ HTML 
+window.addToCart = addToCartWithQty;
 
 async function addToCartWithQty(productId, quantity = 1) {
     const qtyInput = document.getElementById('quantity');
@@ -155,6 +166,12 @@ async function addToCartWithQty(productId, quantity = 1) {
         });
 
         const result = await response.json();
+
+        // === التعديل هنا: توجيه المستخدم فوراً لصفحة الدخول إذا طلب السيرفر ذلك ===
+        if (result.redirectUrl) {
+            window.location.href = result.redirectUrl;
+            return;
+        }
 
         if (result.success) {
             showToast('success', getLocalizedString('addedToCart'));
@@ -268,11 +285,15 @@ function initSearch() {
 function initCart() {
     updateCartCount();
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const id = btn.dataset.productId;
-            if (id) addToCartWithQty(id);
-        });
+        // لتجنب تكرار الحدث إذا تم تعريفه سابقاً
+        if (!btn.getAttribute('data-listener-attached')) {
+            btn.setAttribute('data-listener-attached', 'true');
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = btn.dataset.productId;
+                if (id) addToCartWithQty(id);
+            });
+        }
     });
 }
 
@@ -285,5 +306,5 @@ function initAnimations() {
             }
         });
     }, { threshold: 0.1 });
-    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    document.querySelectorAll('.animate-on-scroll, .animate-fade-up').forEach(el => observer.observe(el));
 }

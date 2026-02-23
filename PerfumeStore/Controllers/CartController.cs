@@ -5,9 +5,11 @@ using PerfumeStore.Data;
 using PerfumeStore.Models;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PerfumeStore.Controllers
 {
+  
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
@@ -23,7 +25,7 @@ namespace PerfumeStore.Controllers
 
         private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
         private string? GetUserId() => User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
-
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var u = GetUserId();
@@ -32,7 +34,6 @@ namespace PerfumeStore.Controllers
             var t = await _cartService.GetCartTotalAsync(u, s);
             return View(new CartIndexViewModel { Cart = c, Subtotal = c.Subtotal, Total = t });
         }
-
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CartAddRequest request)
         {
@@ -42,6 +43,12 @@ namespace PerfumeStore.Controllers
                     return Json(new { success = false, message = IsArabic ? "بيانات المنتج غير صحيحة" : "Invalid product data" });
 
                 var userId = GetUserId();
+
+                // إضافة هذا الشرط: توجيه المستخدم لصفحة الدخول إذا لم يكن مسجلاً
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(new { success = false, redirectUrl = "/Account/Login" });
+                }
 
                 // تثبيت الجلسة (مهم جداً لعدم تصفير السلة)
                 HttpContext.Session.SetString("SessionInitialized", "true");
