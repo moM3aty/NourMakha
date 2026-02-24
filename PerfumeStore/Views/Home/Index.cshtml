@@ -301,8 +301,8 @@
         width: 100%;
         overflow: hidden;
         background: #fff;
-        margin-top: 0; /* Remove top margin to fit under header properly if fixed */
-        padding-top: 85px; /* Add padding to account for fixed header */
+        margin-top: 0;
+        padding-top: 85px; 
     }
 
     .main-slider {
@@ -377,10 +377,7 @@
     .hero-display-title { margin: 2rem 0 0 0; line-height: 1; }
     .hero-display-title span { display: block; font-family: 'Playfair Display', serif; }
     .hero-display-title .thin { font-size: 3rem; font-weight: 400; color: var(--p-text-light); }
-    .hero-display-title .bold { font-size: 3.1rem;
-    font-weight: 900;
-    color: var(--p-blue);
-    margin-top: 10px; }
+    .hero-display-title .bold { font-size: 3.1rem; font-weight: 900; color: var(--p-blue); margin-top: 10px; }
     .hero-display-title .sub { font-size: 1.5rem; font-weight: 400; color: var(--p-text-light); font-family: 'Tajawal', sans-serif; margin-top: 1rem; }
 
     .hero-lead { font-size: 1.2rem; color: var(--p-text-light); line-height: 1.8; margin-bottom: 3.5rem; max-width: 550px; }
@@ -443,10 +440,14 @@
     .craft-stats { display: flex; gap: 4rem; }
     .s-item strong { display: block; font-size: 2.5rem; color: var(--p-blue); font-family: 'Playfair Display', serif; }
     .s-item span { color: var(--p-text-light); font-weight: 600; }
-    .HeadSeller{gap: 20px;
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;}
+    
+    .HeadSeller {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 0 20px 0;
+    }
+
     /* 3. MASONRY CATEGORIES */
     .section-masonry-cats { padding: 8rem 0; background: var(--p-platinum); }
     .centered-header { text-align: center; margin-bottom: 5rem; }
@@ -463,7 +464,7 @@
     .card-gradient { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(0,25,50,0.9) 100%); }
     .card-body-content { position: absolute; inset: 0; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
     .card-body-content .tag { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 5px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; width: fit-content; }
-    .card-body-content h3 { font-size: 2.2rem; color: #fff; font-family: 'Playfair Display', serif; }
+    .card-body-content h3 { font-size: 2.2rem; color: #fff; font-family: 'Playfair Display', serif; margin: 0; }
     .explore-link { font-weight: 700; display: flex; align-items: center; gap: 10px; opacity: 0.7; }
     
     .masonry-card:hover { transform: translateY(-15px); }
@@ -505,12 +506,72 @@
     }
     .btn-silver-outline:hover { background: var(--p-silver); color: var(--p-blue); }
 
-    @@media (max-width: 1024px) {
-        .hero-inner-grid { grid-template-columns: 1fr; text-align: center; }
-        .hero-display-title .bold { font-size: 3.5rem; }
-        .hero-visual { order: -1; max-width: 400px; margin: 0 auto; }
+    /* ==========================================================
+       RESPONSIVE DESIGN (Media Queries)
+       ========================================================== */
+    @@media (max-width: 1200px) {
+        .slide-content-grid, .hero-inner-grid { gap: 2rem; }
+        .hero-display-title .thin { font-size: 2.5rem; }
+        .hero-display-title .bold { font-size: 2.8rem; }
+        .craft-grid { gap: 3rem; }
+    }
+
+    @@media (max-width: 992px) {
+        .slide-content-grid, .hero-inner-grid { 
+            grid-template-columns: 1fr; 
+            text-align: center; 
+            align-content: center;
+        }
+        
+        /* Dynamic Banner adjustments */
+        .slide-content-grid .content-text { order: 2; }
+        .slide-content-grid .slide-visual { order: 1; margin-bottom: 2rem; }
+        
+        /* Fallback Hero adjustments */
+        .hero-visual { order: -1; max-width: 350px; margin: 0 auto 2rem; }
+        
+        .hero-cta-wrapper { justify-content: center; flex-direction: column; gap: 1rem; }
+        .hero-lead { margin: 0 auto 2rem; }
+
+        .craft-grid { grid-template-columns: 1fr; text-align: center; }
+        .craft-visual { order: -1; }
+        .video-mockup { height: 400px; }
+        .craft-stats { justify-content: center; gap: 2rem; }
+        
         .masonry-wrapper { grid-template-columns: 1fr; }
-        .trust-grid { grid-template-columns: 1fr; }
+        .trust-grid { grid-template-columns: 1fr; gap: 3rem; }
+        
+        .HeadSeller { flex-direction: column; align-items: center; text-align: center; gap: 15px; }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-slider-wrapper { min-height: 100vh; }
+        .hero-display-title .thin { font-size: 2rem; }
+        .hero-display-title .bold { font-size: 2.2rem; }
+        .hero-display-title .sub { font-size: 1.2rem; }
+        
+        .section-craft, .section-masonry-cats, .section-products-premium { padding: 5rem 0; }
+        .section-dark-pro { padding: 4rem 0; }
+        
+        .masonry-card { height: 350px; }
+        .video-mockup { height: 300px; }
+        
+        .slider-nav { bottom: 20px; }
+        .nav-btn { width: 40px; height: 40px; }
+    }
+
+    @@media (max-width: 480px) {
+        .hero-display-title .thin { font-size: 1.5rem; }
+        .hero-display-title .bold { font-size: 1.8rem; }
+        .btn-premium-main { padding: 1rem 2rem; width: 100%; justify-content: center; }
+        
+        .craft-text h2 { font-size: 2rem; }
+        .centered-header h2 { font-size: 2.5rem; }
+        .card-body-content h3 { font-size: 1.8rem; }
+        
+        .info-tag-pro { padding: 0.8rem 1rem; font-size: 0.75rem; }
+        .t1 { top: 10%; right: -10px; }
+        .t2 { bottom: 10%; left: -10px; }
     }
 </style>
 

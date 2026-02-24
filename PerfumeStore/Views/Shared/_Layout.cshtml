@@ -112,6 +112,63 @@
             font-weight: 700;
             color: #002855;
             cursor: pointer;
+            max-width: 120px;
+        }
+
+        /* --- إعدادات التجاوب (Media Queries) للهيدر والفروع --- */
+        .branches-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: no-wrap; /* السماح بالالتفاف في الشاشات الصغيرة */
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .branch-col {
+            flex: 1;
+            min-width: 150px; /* لضمان عدم ضغط الكلمات بشكل مبالغ فيه */
+        }
+
+        .branch-title {
+            color: #002855;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        @@media (max-width: 992px) {
+            .header-top-nav {
+                gap: 8px;
+            }
+
+            .nav-currency-select {
+                padding: 4px;
+                font-size: 0.75rem;
+                max-width: 90px;
+            }
+
+            .language-switcher {
+                padding: 2px;
+                gap: 0;
+            }
+
+            .lang-btn {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .branches-container {
+                flex-direction: column; /* ترتيب הפروع فوق بعضها في الموبايل */
+                gap: 1rem;
+            }
+
+            .branch-title {
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
@@ -238,7 +295,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="/" class="logo">
-                        <img style="padding:10px;width:150px;" src="~/images/logo.png" />
+                        <img style="padding:10px;width:150px;" src="~/images/logo.png" alt="NourMakha" />
                     </a>
                     <p class="footer-desc">
                         @(isArabic
@@ -260,42 +317,39 @@
                     </ul>
                 </div>
 
-                <div class="footer-links" >
+                <div class="footer-links">
                     <h4>@(isArabic ? "الفروع" : "Branches")</h4>
-                    <div style="display:flex; flex-direction:row; flex-wrap:nowrap;justify-content: space-between;">
-
-                    <div>
-
-                    <!-- فروع سلطنة عمان -->
-                    <strong style="color: #002855; display: block; margin-top: 10px; margin-bottom: 8px; font-size: 0.95rem;">
-                        @(isArabic ? "سلطنة عمان" : "Oman")
-                    </strong>
-                    <ul style="margin-bottom: 15px;">
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "مسقط" : "Muscat")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صور" : "Sur")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صحار" : "Sohar")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صلالة" : "Salalah")</li>
-                    </ul>
-                    </div>
-                    <div>
-
-                    <!-- فروع المملكة العربية السعودية -->
-                    <strong style="color: #002855; display: block; margin-top: 15px; margin-bottom: 8px; font-size: 0.95rem;">
-                        @(isArabic ? "المملكة العربية السعودية" : "Saudi Arabia")
-                    </strong>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "مكة المكرمة" : "Mecca")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "المدينة المنورة" : "Medina")</li>
-                        <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "جدة" : "Jeddah")</li>
-                    </ul>
-                    </div>
+                    <!-- تم التعديل هنا ليكون متجاوباً (Responsive) بالكامل -->
+                    <div class="branches-container">
+                        <div class="branch-col">
+                            <strong class="branch-title">
+                                @(isArabic ? "🇴🇲 سلطنة عمان" : "🇴🇲 Oman")
+                            </strong>
+                            <ul style="margin-bottom: 15px;">
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "مسقط" : "Muscat")</li>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صور" : "Sur")</li>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صحار" : "Sohar")</li>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "صلالة" : "Salalah")</li>
+                            </ul>
+                        </div>
+                        <div class="branch-col">
+                            <strong class="branch-title">
+                                @(isArabic ? "🇸🇦 السعودية" : "🇸🇦 Saudi Arabia")
+                            </strong>
+                            <ul>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "مكة المكرمة" : "Mecca")</li>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "المدينة المنورة" : "Medina")</li>
+                                <li><i class="fas fa-map-marker-alt" style="color: #002855; margin-inline-end: 8px;"></i> @(isArabic ? "جدة" : "Jeddah")</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+
                 <div class="footer-contact">
                     <h4>@(isArabic ? "تواصل معنا" : "Contact")</h4>
                     <ul>
-                        <li><i class="fas fa-phone"></i> 98185589 | 96366332</li>
-                        <li><i class="fas fa-phone"></i>966535488493</li>
+                        <li dir="ltr"><i class="fas fa-phone"></i> 98185589 | 96366332</li>
+                        <li dir="ltr"><i class="fas fa-phone"></i> 966535488493</li>
                         <li><i class="fas fa-envelope"></i> info@nourmakha.com</li>
                     </ul>
                 </div>
