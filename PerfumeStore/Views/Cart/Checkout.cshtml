@@ -170,6 +170,45 @@
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
                                     </div>
                                 </label>
+
+                                <!-- Direct Bank Transfer -->
+                                <label class="payment-method-card bank-transfer-option">
+                                    <input type="radio" asp-for="PaymentMethod" value="BankTransfer" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
+                                    <div class="card-content">
+                                        <div class="method-icon"><i class="fas fa-university"></i></div>
+                                        <div class="method-details">
+                                            <span class="title">@(isArabic ? "تحويل بنكي مباشر" : "Direct Bank Transfer")</span>
+                                            <span class="desc">@(isArabic ? "قم بتحويل قيمة الطلب إلى حسابنا البنكي" : "Transfer the order amount to our bank account")</span>
+                                        </div>
+                                        <div class="check-circle"><i class="fas fa-check"></i></div>
+                                    </div>
+
+                                    <!-- تفاصيل الحساب البنكي تظهر فقط عند اختيار التحويل -->
+                                    <div class="bank-details-box" style="display: none;">
+                                        <div class="bank-alert">
+                                            <i class="fas fa-info-circle"></i>
+                                            @(isArabic ? "الرجاء تحويل الإجمالي إلى الحساب أدناه، واستخدام رقم الطلب كمرجع للتحويل." : "Please transfer the total to the account below, and use your Order ID as the payment reference.")
+                                        </div>
+                                        <div class="bank-info-grid">
+                                            <div class="b-row">
+                                                <span class="b-label">@(isArabic ? "اسم الحساب:" : "Account Name:")</span>
+                                                <strong class="b-val" dir="ltr">sohar international</strong>
+                                            </div>
+                                            <div class="b-row">
+                                                <span class="b-label">@(isArabic ? "رقم الحساب:" : "Account No:")</span>
+                                                <strong class="b-val copy-val" onclick="copyToClipboard('030020014988', this)" title="@(isArabic ? "انسخ الرقم" : "Copy Number")">030020014988 <i class="far fa-copy"></i></strong>
+                                            </div>
+                                            <div class="b-row">
+                                                <span class="b-label">الآيبان (IBAN):</span>
+                                                <strong class="b-val copy-val" onclick="copyToClipboard('OM220300000030020014988', this)" title="@(isArabic ? "انسخ الآيبان" : "Copy IBAN")">OM22 0300 0000 3002 0014 988 <i class="far fa-copy"></i></strong>
+                                            </div>
+                                            <div class="b-row">
+                                                <span class="b-label">@(isArabic ? "الفرع:" : "Branch:")</span>
+                                                <strong class="b-val" dir="ltr">Maabela</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -433,6 +472,109 @@
         font-size: 0.8rem;
     }
 
+    /* --- Bank Details Box Styles --- */
+    .bank-details-box {
+        background: #f8fafc;
+        border-top: 1px dashed #cbd5e1;
+        padding: 1.5rem;
+        border-radius: 0 0 12px 12px;
+        animation: slideDown 0.3s ease-out forwards;
+    }
+
+    .payment-method-card.selected.bank-transfer-option .card-content {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom: none;
+    }
+
+    .payment-method-card.selected.bank-transfer-option {
+        border: 2px solid #002855;
+        border-radius: 14px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .bank-alert {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        background: rgba(0, 40, 85, 0.05);
+        color: #002855;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .bank-info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .b-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 8px;
+    }
+
+        .b-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+    .b-label {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .b-val {
+        color: #1e293b;
+        font-family: monospace;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .copy-val {
+        cursor: pointer;
+        color: #002855;
+        transition: 0.2s;
+        background: rgba(0,40,85,0.05);
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+        .copy-val:hover {
+            color: #fff;
+            background: #002855;
+        }
+
+        .copy-val i {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .copy-val.copied {
+            background: #10b981;
+            color: #fff;
+        }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* --- Payment Logos CSS --- */
     .card-logos-wrapper {
         display: flex;
@@ -628,13 +770,43 @@
         if(savedCode) {
             validateCoupon();
         }
+
+        // تشغيل دالة تحديد الدفع الافتراضية
+        const checkedRadio = document.querySelector('input[name="PaymentMethod"]:checked');
+        if (checkedRadio) updatePaymentSelection(checkedRadio);
     });
 
     function updatePaymentSelection(radio) {
-        document.querySelectorAll('.payment-method-card').forEach(el => el.classList.remove('selected'));
+        document.querySelectorAll('.payment-method-card').forEach(el => {
+            el.classList.remove('selected');
+            // إخفاء صندوق البنك من الجميع
+            const bankBox = el.querySelector('.bank-details-box');
+            if(bankBox) bankBox.style.display = 'none';
+        });
+
         if(radio.checked) {
-            radio.closest('.payment-method-card').classList.add('selected');
+            const card = radio.closest('.payment-method-card');
+            card.classList.add('selected');
+            // إظهار صندوق البنك إذا كان موجوداً في الكارد المحددة
+            const bankBox = card.querySelector('.bank-details-box');
+            if(bankBox) bankBox.style.display = 'block';
         }
+    }
+
+    // دالة نسخ النص (رقم الحساب / الآيبان)
+    function copyToClipboard(text, element) {
+        navigator.clipboard.writeText(text).then(() => {
+            const icon = element.querySelector('i');
+            icon.className = 'fas fa-check';
+            element.classList.add('copied');
+
+            setTimeout(() => {
+                icon.className = 'far fa-copy';
+                element.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
     }
 
     // دالة الحساب الفوري
