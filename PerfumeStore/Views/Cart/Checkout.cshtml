@@ -81,8 +81,33 @@
 
                             <div class="form-grid-2">
                                 <div class="form-group-float">
-                                    <select asp-for="Country" class="form-input" disabled>
-                                        <option value="Oman" selected>@(isArabic ? "سلطنة عمان" : "Sultanate of Oman")</option>
+                                    <select asp-for="Country" class="form-input" required>
+                                        <optgroup label="@(isArabic ? "دول الخليج" : "GCC Countries")">
+                                            <option value="Oman" selected>@(isArabic ? "سلطنة عمان" : "Sultanate of Oman")</option>
+                                            <option value="Saudi Arabia">@(isArabic ? "المملكة العربية السعودية" : "Saudi Arabia")</option>
+                                            <option value="United Arab Emirates">@(isArabic ? "الإمارات العربية المتحدة" : "United Arab Emirates")</option>
+                                            <option value="Kuwait">@(isArabic ? "الكويت" : "Kuwait")</option>
+                                            <option value="Qatar">@(isArabic ? "قطر" : "Qatar")</option>
+                                            <option value="Bahrain">@(isArabic ? "البحرين" : "Bahrain")</option>
+                                        </optgroup>
+                                        <optgroup label="@(isArabic ? "باقي الدول العربية" : "Other Arab Countries")">
+                                            <option value="Egypt">@(isArabic ? "مصر" : "Egypt")</option>
+                                            <option value="Jordan">@(isArabic ? "الأردن" : "Jordan")</option>
+                                            <option value="Iraq">@(isArabic ? "العراق" : "Iraq")</option>
+                                            <option value="Yemen">@(isArabic ? "اليمن" : "Yemen")</option>
+                                            <option value="Syria">@(isArabic ? "سوريا" : "Syria")</option>
+                                            <option value="Lebanon">@(isArabic ? "لبنان" : "Lebanon")</option>
+                                            <option value="Palestine">@(isArabic ? "فلسطين" : "Palestine")</option>
+                                            <option value="Libya">@(isArabic ? "ليبيا" : "Libya")</option>
+                                            <option value="Sudan">@(isArabic ? "السودان" : "Sudan")</option>
+                                            <option value="Morocco">@(isArabic ? "المغرب" : "Morocco")</option>
+                                            <option value="Algeria">@(isArabic ? "الجزائر" : "Algeria")</option>
+                                            <option value="Tunisia">@(isArabic ? "تونس" : "Tunisia")</option>
+                                            <option value="Mauritania">@(isArabic ? "موريتانيا" : "Mauritania")</option>
+                                            <option value="Somalia">@(isArabic ? "الصومال" : "Somalia")</option>
+                                            <option value="Djibouti">@(isArabic ? "جيبوتي" : "Djibouti")</option>
+                                            <option value="Comoros">@(isArabic ? "جزر القمر" : "Comoros")</option>
+                                        </optgroup>
                                     </select>
                                     <label asp-for="Country">@(isArabic ? "الدولة" : "Country")</label>
                                 </div>

@@ -92,6 +92,28 @@
             </div>
         </div>
 
+        <!-- Top Products -->
+        <div class="card products-card">
+            <div class="card-header">
+                <h3>@(isArabic ? "الأكثر مبيعاً" : "Top Selling")</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="products-list">
+                    @foreach (var product in Model.TopProducts)
+                    {
+                        <div class="product-list-item">
+                            <img src="@(product.Image ?? "/images/placeholder.jpg")" alt="@product.Name" class="product-thumb" />
+                            <div class="product-info">
+                                <h4>@product.Name</h4>
+                                <p>@product.SalesCount @(isArabic ? "مبيعة" : "sold")</p>
+                            </div>
+                            <span class="product-revenue">@product.Revenue.ToString("N0")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
         <!-- Recent Orders -->
         <div class="card orders-card">
             <div class="card-header">
@@ -122,7 +144,7 @@
                                                                                            order.Status.ToLower() == "shipped" ? "background:#eff6ff; color:#1d4ed8;" :
                                                                                            order.Status.ToLower() == "delivered" ? "background:#f0fdf4; color:#15803d;" :
                                                                                            "background:#f1f5f9; color:#475569;"
-                                                                                )">
+                                                                                                        )">
                                         @order.Status
                                     </span>
                                 </td>
@@ -133,30 +155,134 @@
                 </div>
             </div>
         </div>
-
-        <!-- Top Products -->
-        <div class="card products-card">
-            <div class="card-header">
-                <h3>@(isArabic ? "الأكثر مبيعاً" : "Top Selling")</h3>
-            </div>
-            <div class="card-body">
-                <div class="products-list">
-                    @foreach (var product in Model.TopProducts)
-                    {
-                        <div class="product-list-item">
-                            <img src="@(product.Image ?? "/images/placeholder.jpg")" alt="@product.Name" class="product-thumb" />
-                            <div class="product-info">
-                                <h4>@product.Name</h4>
-                                <p>@product.SalesCount @(isArabic ? "مبيعة" : "sold")</p>
-                            </div>
-                            <span class="product-revenue">@product.Revenue.ToString("N0")</span>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+
+<style>
+    /* --- Dashboard Specific Styles --- */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .chart-card {
+        grid-column: 1 / 2;
+    }
+
+    .products-card {
+        grid-column: 2 / 3;
+    }
+
+    .orders-card {
+        grid-column: 1 / -1;
+    }
+
+    /* Card Header Enhancements */
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 40, 85, 0.05);
+        background: #fff;
+    }
+
+    .chart-filter {
+        padding: 0.5rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: #002855;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    /* --- Top Products Styles --- */
+    .products-list {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .product-list-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1.2rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: 0.3s;
+    }
+
+        .product-list-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .product-list-item:hover .product-thumb {
+            transform: scale(1.05);
+            border-color: #002855;
+        }
+
+    .product-thumb {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        padding: 2px;
+        transition: 0.3s;
+    }
+
+    .product-info {
+        flex: 1;
+    }
+
+        .product-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .product-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+    .product-revenue {
+        font-weight: 800;
+        color: #002855;
+        font-size: 1rem;
+        background: rgba(0, 40, 85, 0.05);
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+        .product-revenue::after {
+            content: " OMR";
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-inline-start: 4px;
+        }
+
+    /* Responsive */
+    @@media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card, .products-card {
+            grid-column: 1 / -1;
+        }
+    }
+</style>
 
 @section Scripts {
     <script>
@@ -174,7 +300,8 @@
                 labels: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => $"'{s.Date}'")))],
                 datasets: [{
                     label: '@(isArabic ? "المبيعات" : "Sales")',
-                    data: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => s.Sales)))],
+                    // الحل هنا: إجبار C# على طباعة الأرقام بالصيغة الإنجليزية لتفادي مشكلة الفاصلة العربية
+                    data: [@Html.Raw(string.Join(", ", Model.SalesChart.Select(s => s.Sales.ToString(System.Globalization.CultureInfo.InvariantCulture))))],
                     borderColor: '#002855', // Royal Blue
                     backgroundColor: gradient,
                     borderWidth: 2,
