@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PerfumeStore")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+024a03e7255cdfcc7f41cf0ed142e7da0a46f81f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a78266a0eb9170fcc008d1448531d5c7c93708b0")]
 [assembly: System.Reflection.AssemblyProductAttribute("PerfumeStore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PerfumeStore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

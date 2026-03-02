@@ -26,7 +26,7 @@ namespace PerfumeStore.Controllers
 
             try
             {
-                // جلب الدومين الخاص بالموقع (مثال: https://www.nourmakha.com)
+                // جلب الدومين الخاص بالموقع
                 string hostUrl = $"{Request.Scheme}://{Request.Host}";
 
                 // إنشاء جلسة الدفع في ثواني وجلب رابط صفحة الدفع
@@ -42,39 +42,54 @@ namespace PerfumeStore.Controllers
             }
         }
 
+        // هذا هو الرابط الذي تعود إليه ثواني بعد نجاح الدفع
         [Route("Payment/Success")]
         public async Task<IActionResult> Success(string session_id)
         {
             if (string.IsNullOrEmpty(session_id)) return RedirectToAction("Index", "Home");
 
-            // التحقق من حالة الدفع من خوادم ثواني
-            var verification = await _paymentService.VerifyPaymentAsync(session_id);
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == verification.OrderNumber);
-
-            if (order == null) return NotFound();
-
-            if (verification.IsPaid)
+            try
             {
-                order.Status = "Confirmed";
-                order.PaymentMethod = "Thawani Pay (Paid)";
-                order.UpdatedAt = DateTime.Now;
+                // التحقق من حالة الدفع من خوادم ثواني
+                var verification = await _paymentService.VerifyPaymentAsync(session_id);
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == verification.OrderNumber);
 
-                await _context.SaveChangesAsync();
-                await _emailService.SendOrderConfirmationAsync(order.ShippingEmail, order.Id, order.OrderNumber);
+                if (order == null) return NotFound();
 
-                return RedirectToAction("OrderConfirmation", "Cart", new { id = order.Id });
+                if (verification.IsPaid)
+                {
+                    // تحديث حالة الطلب إلى ناجح
+                    order.Status = "Confirmed";
+                    order.PaymentMethod = "Credit Card (Paid)";
+                    order.UpdatedAt = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+
+                    // إرسال إيميل التأكيد
+                    await _emailService.SendOrderConfirmationAsync(order.ShippingEmail, order.Id, order.OrderNumber);
+
+                    // توجيه العميل لصفحة نجاح الطلب
+                    return RedirectToAction("OrderConfirmation", "Cart", new { id = order.Id });
+                }
+                else
+                {
+                    TempData["Error"] = "عذراً، عملية الدفع لم تكتمل بنجاح.";
+                    return RedirectToAction("Checkout", "Cart");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Error"] = "عذراً، عملية الدفع لم تكتمل بنجاح.";
-                return RedirectToAction("Checkout", "Cart");
+                TempData["Error"] = "حدث خطأ أثناء التحقق من الدفع. يرجى التواصل مع الدعم الفني.";
+                // في حالة الخطأ يمكن توجيهه لصفحة الفاتورة ليرى أنها ما زالت معلقة
+                return RedirectToAction("Index", "Home");
             }
         }
 
+        // هذا الرابط إذا ألغى العميل الدفع من صفحة ثواني
         [Route("Payment/Cancel")]
         public IActionResult Cancel()
         {
-            TempData["Error"] = "تم إلغاء عملية الدفع من قبل العميل.";
+            TempData["Error"] = "تم إلغاء عملية الدفع.";
             return RedirectToAction("Checkout", "Cart");
         }
     }
