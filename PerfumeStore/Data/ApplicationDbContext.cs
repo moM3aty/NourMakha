@@ -138,7 +138,9 @@ namespace PerfumeStore.Data
 
             // تهيئة بيانات أولية للإعدادات
             modelBuilder.Entity<SiteSetting>().HasData(
-                new SiteSetting { Id = 1, Key = "AnnouncementBar", Value = "خصم 20% لفترة محدودة على جميع العطور!", IsEnabled = true }
+                new SiteSetting { Id = 1, Key = "AnnouncementBar_Ar", Value = "خصم 20% لفترة محدودة على جميع العطور!", IsEnabled = true },
+                new SiteSetting { Id = 2, Key = "AnnouncementBar_En", Value = "20% Discount for a limited time on all perfumes!", IsEnabled = true },
+                new SiteSetting { Id = 3, Key = "FreeShippingThreshold", Value = "20", IsEnabled = true }
             );
         }
     }

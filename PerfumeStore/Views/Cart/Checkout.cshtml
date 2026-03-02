@@ -8,14 +8,15 @@
     // جلب مناطق الشحن
     var shippingZones = _context.Set<PerfumeStore.Models.ShippingZone>().Where(z => z.IsActive).ToList();
 
-    // الكوبون المحفوظ إن وجد
     var savedCoupon = ViewBag.SavedCoupon as string;
     var cartSubtotal = (decimal)ViewBag.CartSubtotal;
+
+    // جلب حد الشحن المجاني المُمرر من الكنترولر (وإلا 20)
+    var freeShippingThreshold = ViewBag.FreeShippingThreshold != null ? (decimal)ViewBag.FreeShippingThreshold : 20m;
 }
 
 <div class="checkout-page-wrapper animate-fade-up">
     <div class="container">
-        <!-- Header -->
         <div class="checkout-header-centered">
             <h1>@ViewData["Title"]</h1>
             <div class="trust-badges">
@@ -27,20 +28,27 @@
         <form asp-action="Checkout" method="post" id="checkoutForm">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="UserId" />
-
-            <!-- هام: حقل مخفي للكوبون يتم تحديثه بالجافاسكريبت عند نجاح الخصم -->
             <input type="hidden" name="CouponCode" id="hiddenCouponCode" value="@savedCoupon" />
+
+            <!-- حقل مخفي لتخزين حد الشحن المجاني للجافاسكريبت -->
+            <input type="hidden" id="freeShippingThresholdVal" value="@freeShippingThreshold" />
 
             <div class="checkout-grid-premium">
                 <!-- Left Side: Information Form -->
                 <div class="checkout-main">
-                    <!-- 1. Shipping Details -->
                     <div class="checkout-card">
                         <div class="card-header-clean">
                             <span class="step-circle">1</span>
                             <h2>@(isArabic ? "بيانات التوصيل" : "Shipping Details")</h2>
                         </div>
                         <div class="card-body">
+
+                            <!-- رسالة الشحن المجاني الديناميكية -->
+                            <div class="free-shipping-alert" style="display: none;" id="freeShippingAlert">
+                                <i class="fas fa-truck-loading"></i>
+                                <span>@(isArabic ? $"تهانينا! لقد حصلت على شحن مجاني لأن طلبك تجاوز {freeShippingThreshold} ريال عماني." : $"Congratulations! You got free shipping because your order exceeds {freeShippingThreshold} OMR.")</span>
+                            </div>
+
                             <div class="form-grid-2">
                                 <div class="form-group-float">
                                     <input asp-for="FirstName" class="form-input" placeholder=" " required />
@@ -66,22 +74,9 @@
                                 <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
 
-                            <!-- Shipping Zone Selection -->
-                            <div class="form-group-float">
-                                <select asp-for="ShippingZoneId" id="shippingZoneSelector" class="form-input" onchange="calculateTotals()" required>
-                                    <option value="" data-cost="0">@(isArabic ? "-- اختر المنطقة --" : "-- Select Zone --")</option>
-                                    @foreach (var zone in shippingZones)
-                                    {
-                                        <option value="@zone.Id" data-cost="@zone.Cost">@(isArabic? zone.NameAr: zone.NameEn) (+@zone.Cost OMR)</option>
-                                    }
-                                </select>
-                                <label asp-for="ShippingZoneId">@(isArabic ? "منطقة الشحن" : "Shipping Zone")</label>
-                                <span asp-validation-for="ShippingZoneId" class="text-danger"></span>
-                            </div>
-
                             <div class="form-grid-2">
                                 <div class="form-group-float">
-                                    <select asp-for="Country" class="form-input" required>
+                                    <select asp-for="Country" class="form-input" required onchange="calculateTotals()">
                                         <optgroup label="@(isArabic ? "دول الخليج" : "GCC Countries")">
                                             <option value="Oman" selected>@(isArabic ? "سلطنة عمان" : "Sultanate of Oman")</option>
                                             <option value="Saudi Arabia">@(isArabic ? "المملكة العربية السعودية" : "Saudi Arabia")</option>
@@ -97,29 +92,32 @@
                                             <option value="Yemen">@(isArabic ? "اليمن" : "Yemen")</option>
                                             <option value="Syria">@(isArabic ? "سوريا" : "Syria")</option>
                                             <option value="Lebanon">@(isArabic ? "لبنان" : "Lebanon")</option>
-                                            <option value="Palestine">@(isArabic ? "فلسطين" : "Palestine")</option>
-                                            <option value="Libya">@(isArabic ? "ليبيا" : "Libya")</option>
-                                            <option value="Sudan">@(isArabic ? "السودان" : "Sudan")</option>
-                                            <option value="Morocco">@(isArabic ? "المغرب" : "Morocco")</option>
-                                            <option value="Algeria">@(isArabic ? "الجزائر" : "Algeria")</option>
-                                            <option value="Tunisia">@(isArabic ? "تونس" : "Tunisia")</option>
-                                            <option value="Mauritania">@(isArabic ? "موريتانيا" : "Mauritania")</option>
-                                            <option value="Somalia">@(isArabic ? "الصومال" : "Somalia")</option>
-                                            <option value="Djibouti">@(isArabic ? "جيبوتي" : "Djibouti")</option>
-                                            <option value="Comoros">@(isArabic ? "جزر القمر" : "Comoros")</option>
                                         </optgroup>
                                     </select>
                                     <label asp-for="Country">@(isArabic ? "الدولة" : "Country")</label>
                                 </div>
                                 <div class="form-group-float">
-                                    <input asp-for="City" class="form-input" placeholder=" " required />
-                                    <label asp-for="City">@(isArabic ? "المدينة / الولاية" : "City / Wilayat")</label>
+                                    <select asp-for="ShippingZoneId" id="shippingZoneSelector" class="form-input" onchange="calculateTotals()" required>
+                                        <option value="" data-cost="0">@(isArabic ? "-- اختر المنطقة/المحافظة --" : "-- Select Region --")</option>
+                                        @foreach (var zone in shippingZones)
+                                        {
+                                            <option value="@zone.Id" data-cost="@zone.Cost">@(isArabic? zone.NameAr: zone.NameEn) (+@zone.Cost OMR)</option>
+                                        }
+                                    </select>
+                                    <label asp-for="ShippingZoneId">@(isArabic ? "منطقة الشحن" : "Shipping Region")</label>
+                                    <span asp-validation-for="ShippingZoneId" class="text-danger"></span>
                                 </div>
                             </div>
 
-                            <div class="form-group-float">
-                                <input asp-for="Address" class="form-input" placeholder=" " required />
-                                <label asp-for="Address">@(isArabic ? "العنوان (الشارع، رقم المنزل)" : "Street Address")</label>
+                            <div class="form-grid-2">
+                                <div class="form-group-float">
+                                    <input asp-for="City" class="form-input" placeholder=" " required />
+                                    <label asp-for="City">@(isArabic ? "المدينة / الولاية" : "City / Wilayat")</label>
+                                </div>
+                                <div class="form-group-float">
+                                    <input asp-for="Address" class="form-input" placeholder=" " required />
+                                    <label asp-for="Address">@(isArabic ? "العنوان (الشارع، رقم المنزل)" : "Street Address")</label>
+                                </div>
                             </div>
 
                             <div class="form-group-float">
@@ -129,7 +127,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. Payment Method -->
+                    <!-- Payment Method Section -->
                     <div class="checkout-card mt-4">
                         <div class="card-header-clean">
                             <span class="step-circle">2</span>
@@ -157,15 +155,12 @@
                                         <div class="method-icon"><i class="far fa-credit-card"></i></div>
                                         <div class="method-details">
                                             <span class="title">@(isArabic ? "بطاقة ائتمان / خصم مباشر" : "Credit / Debit Card")</span>
-
-                                            <!-- أرقام وصور البطاقات المدعومة -->
                                             <div class="card-logos-wrapper">
                                                 <img src="https://www.logo.wine/a/logo/Visa_Inc./Visa_Inc.-Logo.wine.svg" alt="Visa" class="pay-logo" />
                                                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="pay-logo" />
                                                 <div class="omannet-badge-mini" title="OmanNet">OmanNet</div>
                                                 <img src="https://thawani.om/wp-content/uploads/2022/12/Outlook-A-green-an.png" alt="Thawani" class="pay-logo thawani" title="Powered by Thawani" />
                                             </div>
-
                                         </div>
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
                                     </div>
@@ -183,7 +178,6 @@
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
                                     </div>
 
-                                    <!-- تفاصيل الحساب البنكي تظهر فقط عند اختيار التحويل -->
                                     <div class="bank-details-box" style="display: none;">
                                         <div class="bank-alert">
                                             <i class="fas fa-info-circle"></i>
@@ -192,7 +186,7 @@
                                         <div class="bank-info-grid">
                                             <div class="b-row">
                                                 <span class="b-label">@(isArabic ? "اسم الحساب:" : "Account Name:")</span>
-                                                <strong class="b-val" dir="ltr">sohar international</strong>
+                                                <strong class="b-val" dir="ltr">Nour Makha International</strong>
                                             </div>
                                             <div class="b-row">
                                                 <span class="b-label">@(isArabic ? "رقم الحساب:" : "Account No:")</span>
@@ -225,7 +219,6 @@
                         <div class="coupon-section">
                             <label>@(isArabic ? "هل لديك كود خصم؟" : "Have a coupon?")</label>
                             <div class="coupon-input-wrapper">
-                                <!-- حقل ظاهري فقط -->
                                 <input id="couponInput" value="@savedCoupon" placeholder="@(isArabic ? "ادخل الكود" : "Enter Code")" />
                                 <button type="button" onclick="validateCoupon()">@(isArabic ? "تطبيق" : "Apply")</button>
                             </div>
@@ -236,7 +229,6 @@
                         <div class="totals-section">
                             <div class="total-row">
                                 <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                                <!-- تخزين القيمة الأساسية في data attribute للحساب -->
                                 <span id="subtotalDisplay" class="currency-price" data-base-price="@cartSubtotal">@cartSubtotal OMR</span>
                             </div>
 
@@ -262,10 +254,6 @@
                             <span>@(isArabic ? "تأكيد الطلب" : "Place Order")</span>
                             <i class="fas fa-lock"></i>
                         </button>
-
-                        <div class="security-footer">
-                            <i class="fas fa-shield-alt"></i> @(isArabic ? "جميع المعاملات مشفرة وآمنة" : "All transactions are secure and encrypted")
-                        </div>
                     </div>
                 </aside>
             </div>
@@ -281,6 +269,25 @@
         min-height: 100vh;
         margin-top: 80px;
     }
+
+    .free-shipping-alert {
+        background: #ecfdf5;
+        border: 1px solid #10b981;
+        color: #047857;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+        .free-shipping-alert i {
+            font-size: 1.2rem;
+        }
 
     .checkout-header-centered {
         text-align: center;
@@ -346,7 +353,6 @@
         padding: 2rem;
     }
 
-    /* Inputs */
     .form-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -394,7 +400,6 @@
         font-weight: 600;
     }
 
-    /* RTL Adjustments */
     body.rtl .form-group-float label {
         left: auto;
         right: 1rem;
@@ -405,7 +410,6 @@
         left: auto;
     }
 
-    /* Payment Cards */
     .payment-selection-grid {
         display: flex;
         flex-direction: column;
@@ -472,7 +476,6 @@
         font-size: 0.8rem;
     }
 
-    /* --- Bank Details Box Styles --- */
     .bank-details-box {
         background: #f8fafc;
         border-top: 1px dashed #cbd5e1;
@@ -575,7 +578,18 @@
         }
     }
 
-    /* --- Payment Logos CSS --- */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .card-logos-wrapper {
         display: flex;
         align-items: center;
@@ -617,14 +631,11 @@
         padding-inline-start: 8px;
     }
 
-    /* Colorize on select */
-    .payment-method-card input:checked + .card-content .pay-logo,
-    .payment-method-card input:checked + .card-content .omannet-badge-mini {
+    .payment-method-card input:checked + .card-content .pay-logo, .payment-method-card input:checked + .card-content .omannet-badge-mini {
         opacity: 1;
         filter: grayscale(0%);
     }
 
-    /* Sidebar Summary */
     .summary-card-premium {
         padding: 2rem;
         position: sticky;
@@ -727,14 +738,6 @@
             background: #003377;
         }
 
-    .security-footer {
-        text-align: center;
-        margin-top: 1.5rem;
-        font-size: 0.8rem;
-        color: #2ecc71;
-        font-weight: 600;
-    }
-
     .coupon-feedback {
         display: block;
         margin-top: 5px;
@@ -761,17 +764,13 @@
 </style>
 
 <script>
-    // متغير لتخزين قيمة الخصم الحالية في الجافاسكريبت للحساب
     let currentDiscountAmount = 0;
 
     document.addEventListener("DOMContentLoaded", function() {
-        // إذا كان هناك كوبون محفوظ، قم بالتحقق منه تلقائياً
         const savedCode = document.getElementById('couponInput').value;
-        if(savedCode) {
-            validateCoupon();
-        }
+        if(savedCode) { validateCoupon(); }
+        else { calculateTotals(); }
 
-        // تشغيل دالة تحديد الدفع الافتراضية
         const checkedRadio = document.querySelector('input[name="PaymentMethod"]:checked');
         if (checkedRadio) updatePaymentSelection(checkedRadio);
     });
@@ -779,7 +778,6 @@
     function updatePaymentSelection(radio) {
         document.querySelectorAll('.payment-method-card').forEach(el => {
             el.classList.remove('selected');
-            // إخفاء صندوق البنك من الجميع
             const bankBox = el.querySelector('.bank-details-box');
             if(bankBox) bankBox.style.display = 'none';
         });
@@ -787,53 +785,65 @@
         if(radio.checked) {
             const card = radio.closest('.payment-method-card');
             card.classList.add('selected');
-            // إظهار صندوق البنك إذا كان موجوداً في الكارد المحددة
             const bankBox = card.querySelector('.bank-details-box');
             if(bankBox) bankBox.style.display = 'block';
         }
     }
 
-    // دالة نسخ النص (رقم الحساب / الآيبان)
     function copyToClipboard(text, element) {
         navigator.clipboard.writeText(text).then(() => {
             const icon = element.querySelector('i');
             icon.className = 'fas fa-check';
             element.classList.add('copied');
-
-            setTimeout(() => {
-                icon.className = 'far fa-copy';
-                element.classList.remove('copied');
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
+            setTimeout(() => { icon.className = 'far fa-copy'; element.classList.remove('copied'); }, 2000);
         });
     }
 
-    // دالة الحساب الفوري
     function calculateTotals() {
-        // 1. المجموع الفرعي (ثابت)
         const subtotalEl = document.getElementById('subtotalDisplay');
         const subtotal = parseFloat(subtotalEl.getAttribute('data-base-price'));
 
-        // 2. تكلفة الشحن
         const shippingSelect = document.getElementById('shippingZoneSelector');
+        const countrySelect = document.getElementById('Country');
+
+        // جلب الحد الأدنى للشحن المجاني من الحقل المخفي
+        const thresholdInput = document.getElementById('freeShippingThresholdVal');
+        const freeShippingThreshold = thresholdInput ? parseFloat(thresholdInput.value) : 20;
+
+        let originalShippingCost = 0;
         let shippingCost = 0;
+
         if(shippingSelect && shippingSelect.selectedIndex > 0) {
             const option = shippingSelect.options[shippingSelect.selectedIndex];
-            shippingCost = parseFloat(option.getAttribute('data-cost')) || 0;
+            originalShippingCost = parseFloat(option.getAttribute('data-cost')) || 0;
+            shippingCost = originalShippingCost;
         }
 
-        // 3. الحساب النهائي
-        let total = subtotal + shippingCost - currentDiscountAmount;
-        if (total < 0) total = 0;
+        let totalBeforeShipping = subtotal - currentDiscountAmount;
+        if (totalBeforeShipping < 0) totalBeforeShipping = 0;
 
-        // 4. تحديث الواجهة
-        // الشحن
+        // تطبيق الشحن المجاني الديناميكي
+        let isFreeShipping = false;
+        if (totalBeforeShipping > freeShippingThreshold && countrySelect && countrySelect.value === 'Oman') {
+            shippingCost = 0;
+            isFreeShipping = true;
+            document.getElementById('freeShippingAlert').style.display = 'flex';
+        } else {
+            document.getElementById('freeShippingAlert').style.display = 'none';
+        }
+
+        let total = totalBeforeShipping + shippingCost;
+
         const shipEl = document.getElementById('shippingDisplay');
-        shipEl.innerText = shippingCost.toFixed(2) + " OMR";
-        shipEl.setAttribute('data-base-price', shippingCost);
+        if (isFreeShipping && originalShippingCost > 0) {
+            const isAr = document.documentElement.lang.startsWith('ar');
+            shipEl.innerHTML = `<span style="text-decoration: line-through; color: #94a3b8; font-size: 0.85rem; margin-inline-end: 8px;">${originalShippingCost.toFixed(2)} OMR</span> <span style="color: #10b981; font-weight: 700;">${isAr ? 'مجاني' : 'Free'}</span>`;
+            shipEl.setAttribute('data-base-price', 0);
+        } else {
+            shipEl.innerText = shippingCost.toFixed(2) + " OMR";
+            shipEl.setAttribute('data-base-price', shippingCost);
+        }
 
-        // الخصم
         const discRow = document.getElementById('discountRow');
         const discEl = document.getElementById('discountDisplay');
         if (currentDiscountAmount > 0) {
@@ -844,12 +854,10 @@
             discRow.style.display = 'none';
         }
 
-        // الإجمالي
         const totalEl = document.getElementById('totalDisplay');
         totalEl.innerText = total.toFixed(2) + " OMR";
         totalEl.setAttribute('data-base-price', total);
 
-        // تحديث العملة إذا لزم الأمر
         if(typeof changeCurrency === 'function') {
             const current = localStorage.getItem('selectedCurrency') || 'OMR';
             changeCurrency(current);
@@ -861,7 +869,6 @@
         const hiddenInput = document.getElementById('hiddenCouponCode');
         const feedback = document.getElementById('couponFeedback');
 
-        // إذا كان الحقل فارغاً، نلغي الكوبون
         if(!code) {
              hiddenInput.value = "";
              currentDiscountAmount = 0;
@@ -879,20 +886,14 @@
             if (result.valid) {
                 feedback.innerText = result.message;
                 feedback.className = 'coupon-feedback success';
-
-                // تحديث قيمة الخصم العالمية
                 currentDiscountAmount = parseFloat(result.discountAmount);
-
-                // **تحديث الحقل المخفي ليتم إرساله للسيرفر عند الحفظ**
                 hiddenInput.value = code;
-
                 calculateTotals();
             } else {
                 feedback.innerText = result.message;
                 feedback.className = 'coupon-feedback error';
-
                 currentDiscountAmount = 0;
-                hiddenInput.value = ""; // إلغاء الكود من الحقل المخفي
+                hiddenInput.value = "";
                 calculateTotals();
             }
         } catch (e) {

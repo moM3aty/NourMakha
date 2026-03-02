@@ -511,39 +511,64 @@ namespace PerfumeStore.Controllers
         // ==========================================
         //  Settings & Announcement
         // ==========================================
+        [HttpGet]
         public async Task<IActionResult> Settings()
         {
-            var arSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_Ar");
-            var enSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_En");
+            var settings = await _context.SiteSettings.ToListAsync();
 
-            // تأكد من وجود السجلات
-            if (arSetting == null) { arSetting = new SiteSetting { Key = "AnnouncementBar_Ar", Value = "", IsEnabled = false }; _context.SiteSettings.Add(arSetting); }
-            if (enSetting == null) { enSetting = new SiteSetting { Key = "AnnouncementBar_En", Value = "", IsEnabled = false }; _context.SiteSettings.Add(enSetting); }
+            var arSetting = settings.FirstOrDefault(s => s.Key == "AnnouncementBar_Ar");
+            var enSetting = settings.FirstOrDefault(s => s.Key == "AnnouncementBar_En");
+            var freeShipping = settings.FirstOrDefault(s => s.Key == "FreeShippingThreshold");
 
-            if (_context.ChangeTracker.HasChanges()) await _context.SaveChangesAsync();
+            ViewBag.AnnouncementAr = arSetting?.Value ?? "";
+            ViewBag.AnnouncementEn = enSetting?.Value ?? "";
+            ViewBag.IsEnabled = arSetting?.IsEnabled ?? false;
 
-            ViewBag.AnnouncementAr = arSetting.Value;
-            ViewBag.AnnouncementEn = enSetting.Value;
-            ViewBag.IsEnabled = arSetting.IsEnabled; // كلاهما يتشاركان حالة التفعيل
+            ViewBag.FreeShippingThreshold = freeShipping?.Value ?? "20";
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateAnnouncement(string announcementAr, string announcementEn, bool isEnabled)
+        // قم بتغيير اسم الأكشن من UpdateAnnouncement إلى UpdateSettings في الكنترولر ليتوافق مع الـ View
+        public async Task<IActionResult> UpdateSettings(string announcementAr, string announcementEn, bool isEnabled, string freeShippingThreshold)
         {
-            var arSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_Ar");
-            var enSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "AnnouncementBar_En");
+            var settings = await _context.SiteSettings.ToListAsync();
 
-            if (arSetting != null) { arSetting.Value = announcementAr; arSetting.IsEnabled = isEnabled; }
-            if (enSetting != null) { enSetting.Value = announcementEn; enSetting.IsEnabled = isEnabled; }
+            var arSetting = settings.FirstOrDefault(s => s.Key == "AnnouncementBar_Ar");
+            if (arSetting != null)
+            {
+                arSetting.Value = announcementAr;
+                arSetting.IsEnabled = isEnabled;
+            }
+
+            var enSetting = settings.FirstOrDefault(s => s.Key == "AnnouncementBar_En");
+            if (enSetting != null)
+            {
+                enSetting.Value = announcementEn;
+                enSetting.IsEnabled = isEnabled;
+            }
+
+            // حفظ حد الشحن المجاني
+            var shippingSetting = settings.FirstOrDefault(s => s.Key == "FreeShippingThreshold");
+            if (shippingSetting != null)
+            {
+                shippingSetting.Value = string.IsNullOrEmpty(freeShippingThreshold) ? "20" : freeShippingThreshold;
+            }
+            else
+            {
+                _context.SiteSettings.Add(new SiteSetting { Key = "FreeShippingThreshold", Value = freeShippingThreshold ?? "20", IsEnabled = true });
+            }
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = IsArabic ? "تم تحديث الإعدادات بنجاح" : "Settings updated successfully";
+            TempData["Success"] = CultureInfo.CurrentUICulture.Name.StartsWith("ar") ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully";
             return RedirectToAction(nameof(Settings));
         }
+
+
+        
         // ==========================================
         //  Shipping Zones
         // ==========================================

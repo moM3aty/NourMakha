@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PerfumeStore.Controllers
 {
-  
+    [Authorize]
     public class CartController : Controller
     {
         private readonly ICartService _cartService;
@@ -25,7 +25,7 @@ namespace PerfumeStore.Controllers
 
         private bool IsArabic => CultureInfo.CurrentUICulture.Name.StartsWith("ar");
         private string? GetUserId() => User.Identity?.IsAuthenticated ?? false ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null;
-        [Authorize]
+
         public async Task<IActionResult> Index()
         {
             var u = GetUserId();
@@ -34,6 +34,8 @@ namespace PerfumeStore.Controllers
             var t = await _cartService.GetCartTotalAsync(u, s);
             return View(new CartIndexViewModel { Cart = c, Subtotal = c.Subtotal, Total = t });
         }
+
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] CartAddRequest request)
         {
@@ -44,18 +46,15 @@ namespace PerfumeStore.Controllers
 
                 var userId = GetUserId();
 
-                // إضافة هذا الشرط: توجيه المستخدم لصفحة الدخول إذا لم يكن مسجلاً
                 if (string.IsNullOrEmpty(userId))
                 {
                     return Json(new { success = false, redirectUrl = "/Account/Login" });
                 }
 
-                // تثبيت الجلسة (مهم جداً لعدم تصفير السلة)
                 HttpContext.Session.SetString("SessionInitialized", "true");
 
                 var sessionId = HttpContext.Session.Id;
 
-                // الإضافة للسلة والحصول على العدد المحدث
                 var newCount = await _cartService.AddToCartAsync(userId, sessionId, request.ProductId, request.Quantity <= 0 ? 1 : request.Quantity);
 
                 return Json(new { success = true, count = newCount });
@@ -69,6 +68,7 @@ namespace PerfumeStore.Controllers
         [HttpPost] public async Task<IActionResult> Update(int cartItemId, int quantity) { await _cartService.UpdateCartItemAsync(GetUserId(), HttpContext.Session.Id, cartItemId, quantity); return RedirectToAction(nameof(Index)); }
         [HttpPost] public async Task<IActionResult> Remove(int cartItemId) { await _cartService.RemoveFromCartAsync(GetUserId(), HttpContext.Session.Id, cartItemId); return RedirectToAction(nameof(Index)); }
 
+        [AllowAnonymous]
         public async Task<IActionResult> GetCartCount()
         {
             return Json(new { count = await _cartService.GetCartItemCountAsync(GetUserId(), HttpContext.Session.Id) });
@@ -89,6 +89,11 @@ namespace PerfumeStore.Controllers
             var totals = await _cartService.CalculateCartTotalsAsync(userId, sessionId, sessionCoupon, null);
             ViewBag.CartSubtotal = totals.Subtotal;
             ViewBag.SavedCoupon = sessionCoupon;
+
+            // ---> جلب حد الشحن المجاني من الإعدادات
+            var freeShippingSetting = await _context.SiteSettings.FirstOrDefaultAsync(s => s.Key == "FreeShippingThreshold");
+            ViewBag.FreeShippingThreshold = freeShippingSetting != null ? decimal.Parse(freeShippingSetting.Value) : 20m;
+
             var model = new CheckoutViewModel();
             if (!string.IsNullOrEmpty(sessionCoupon)) model.CouponCode = sessionCoupon;
             if (!string.IsNullOrEmpty(userId))
@@ -111,22 +116,18 @@ namespace PerfumeStore.Controllers
             var userId = GetUserId();
             var sessionId = HttpContext.Session.Id;
 
-            // تحديد الكوبون النهائي
             var finalCoupon = !string.IsNullOrWhiteSpace(model.CouponCode) ? model.CouponCode : HttpContext.Session.GetString("AppliedCoupon");
 
             try
             {
-                // إنشاء الطلب والحصول على كائن النتيجة الذي يدعم التوجيه
                 var result = await _orderService.CreateOrderAsync(userId, sessionId, model, finalCoupon);
                 HttpContext.Session.Remove("AppliedCoupon");
 
-                // إذا كان الدفع بالفيزا، نتوجه لصفحة الـ Gateway
                 if (result.IsPaymentRequired && !string.IsNullOrEmpty(result.RedirectUrl))
                 {
                     return Redirect(result.RedirectUrl);
                 }
 
-                // إذا كان الدفع عند الاستلام، نتوجه لصفحة التأكيد مباشرة
                 return RedirectToAction("OrderConfirmation", new { id = result.Order.Id });
             }
             catch (Exception ex)
@@ -136,6 +137,7 @@ namespace PerfumeStore.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> ValidateCoupon(string code)
         {
