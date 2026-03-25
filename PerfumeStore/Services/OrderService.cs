@@ -44,8 +44,8 @@ namespace PerfumeStore.Services
             var totals = await _cartService.CalculateCartTotalsAsync(userId, sessionId, couponCode, model.ShippingZoneId);
             var orderNumber = $"NM-{DateTime.Now:yyMMdd}-{new Random().Next(1000, 9999)}";
 
-            // تحديد الحالة بناءً على نوع الدفع
-            string status = model.PaymentMethod == "CreditCard" ? "Awaiting Payment" : "Pending";
+            // تحديد الحالة بناءً على نوع الدفع (تم التعديل ليدعم باي موب)
+            string status = model.PaymentMethod.StartsWith("Paymob") ? "Awaiting Payment" : "Pending";
 
             var order = new Order
             {
@@ -106,8 +106,8 @@ namespace PerfumeStore.Services
 
             var result = new OrderCreationResult { Order = order };
 
-            // تفعيل رابط الدفع
-            if (model.PaymentMethod == "CreditCard")
+            // تفعيل رابط الدفع (التحقق من أنه باي موب)
+            if (model.PaymentMethod.StartsWith("Paymob"))
             {
                 result.IsPaymentRequired = true;
                 result.RedirectUrl = "/Payment/Gateway?orderId=" + order.Id;

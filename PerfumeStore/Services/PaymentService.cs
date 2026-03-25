@@ -7,13 +7,19 @@ namespace PerfumeStore.Services
     public interface IPaymentService
     {
         Task<string> CreateCheckoutSessionAsync(Order order, string returnUrlBase);
-        Task<(bool IsPaid, string OrderNumber)> VerifyPaymentAsync(string sessionId);
+        Task<(bool IsPaid, string OrderNumber)> VerifyPaymentAsync(string transactionId);
     }
 
     public class PaymentService : IPaymentService
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
+
+        // مفاتيح الجيل الجديد لسلطنة عمان
+
+
+        // الرابط الأساسي لسيرفرات سلطنة عمان
+        private readonly string _baseUrl = "https://oman.paymob.com";
 
         public PaymentService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
@@ -23,78 +29,81 @@ namespace PerfumeStore.Services
 
         public async Task<string> CreateCheckoutSessionAsync(Order order, string returnUrlBase)
         {
-            var settings = _configuration.GetSection("ThawaniSettings");
-            var secretKey = settings["SecretKey"];
-            var pubKey = settings["PublishableKey"];
-            var baseUrl = settings["BaseUrl"] ?? "https://checkout.thawani.om/api/v1";
-
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("thawani-api-key", secretKey);
 
-            // نظام ثواني يطلب المبلغ بالوحدة الأساسية (بيسة) 1 OMR = 1000 Baisa
-            long amountInBaisa = (long)Math.Round(order.GrandTotal * 1000);
+            // تحويل المبلغ إلى بيسات (1 ريال = 1000 بيسة)
+            int amountBaisas = (int)Math.Round(order.GrandTotal * 1000);
 
+            // تحديد الـ Integration ID بناءً على اختيار العميل (Apay, Omannet, International)
+            int integrationId = 48305; // الافتراضي International
+            if (order.PaymentMethod.StartsWith("Paymob_"))
+            {
+                int.TryParse(order.PaymentMethod.Split('_')[1], out integrationId);
+            }
+
+            // بناء الطلب حسب نظام Paymob الحديث (Intention API)
             var payload = new
             {
-                client_reference_id = order.OrderNumber,
-                mode = "payment",
-                products = new[]
+                amount = amountBaisas,
+                currency = "OMR",
+                payment_methods = new[] { integrationId },
+                special_reference = order.OrderNumber,
+                billing_data = new
                 {
-                    new
-                    {
-                        name = $"Order #{order.OrderNumber} - NourMakha",
-                        quantity = 1,
-                        unit_amount = amountInBaisa
-                    }
-                },
-                success_url = $"{returnUrlBase}/Payment/Success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url = $"{returnUrlBase}/Payment/Cancel",
-                metadata = new
-                {
-                    order_id = order.Id.ToString(),
-                    customer_name = order.CustomerName
+                    first_name = string.IsNullOrEmpty(order.ShippingFirstName) ? "Customer" : order.ShippingFirstName,
+                    last_name = string.IsNullOrEmpty(order.ShippingLastName) ? "Name" : order.ShippingLastName,
+                    email = string.IsNullOrEmpty(order.ShippingEmail) ? "info@nourmakha.com" : order.ShippingEmail,
+                    phone_number = string.IsNullOrEmpty(order.ShippingPhone) ? "+9680000000" : order.ShippingPhone,
+                    apartment = "NA",
+                    floor = "NA",
+                    street = string.IsNullOrEmpty(order.ShippingAddress) ? "NA" : order.ShippingAddress,
+                    building = "NA",
+                    city = string.IsNullOrEmpty(order.ShippingCity) ? "NA" : order.ShippingCity,
+                    country = "OM",
+                    state = "NA"
                 }
             };
 
-            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            var response = await client.PostAsync($"{baseUrl}/checkout/session", content);
-            var responseString = await response.Content.ReadAsStringAsync();
+            // الاتصال المباشر بسيرفر عمان عبر الـ Secret Key
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("Authorization", $"Token {_secretKey}");
 
-            if (response.IsSuccessStatusCode)
+            var response = await client.PostAsync($"{_baseUrl}/v1/intention/",
+                new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
             {
-                using var doc = JsonDocument.Parse(responseString);
-                var sessionId = doc.RootElement.GetProperty("data").GetProperty("session_id").GetString();
-
-                // استخراج الرابط الأساسي لصفحة الدفع بناءً على البيئة (Test or Prod)
-                string checkoutDomain = baseUrl.Replace("/api/v1", "");
-
-                // إعادة رابط صفحة الدفع الخاص بثواني لتوجيه العميل إليه
-                return $"{checkoutDomain}/pay/{sessionId}?key={pubKey}";
+                throw new Exception($"Paymob Oman API Error: {responseContent}");
             }
 
-            throw new Exception("Thawani API Error: " + responseString);
+            var jsonDoc = JsonDocument.Parse(responseContent);
+            var clientSecret = jsonDoc.RootElement.GetProperty("client_secret").GetString();
+
+            // توجيه العميل إلى صفحة الدفع الموحدة الآمنة على سيرفر عمان
+            return $"{_baseUrl}/unifiedcheckout/?publicKey={_publicKey}&clientSecret={clientSecret}";
         }
 
-        public async Task<(bool IsPaid, string OrderNumber)> VerifyPaymentAsync(string sessionId)
+        public async Task<(bool IsPaid, string OrderNumber)> VerifyPaymentAsync(string transactionId)
         {
-            var settings = _configuration.GetSection("ThawaniSettings");
-            var secretKey = settings["SecretKey"];
-            var baseUrl = settings["BaseUrl"] ?? "https://checkout.thawani.om/api/v1";
-
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("thawani-api-key", secretKey);
 
-            var response = await client.GetAsync($"{baseUrl}/checkout/session/{sessionId}");
-            if (response.IsSuccessStatusCode)
+            // الاستعلام عن حالة الطلب من Paymob Oman
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("Authorization", $"Token {_secretKey}");
+
+            var transResponse = await client.GetAsync($"{_baseUrl}/api/acceptance/transactions/{transactionId}");
+
+            if (transResponse.IsSuccessStatusCode)
             {
-                var responseString = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(responseString);
-                var data = doc.RootElement.GetProperty("data");
+                var transData = JsonDocument.Parse(await transResponse.Content.ReadAsStringAsync());
+                var root = transData.RootElement;
 
-                var status = data.GetProperty("payment_status").GetString();
-                var orderNumber = data.GetProperty("client_reference_id").GetString();
+                bool isSuccess = root.GetProperty("success").GetBoolean();
+                string orderNumber = root.GetProperty("order").GetProperty("merchant_order_id").GetString() ?? "";
 
-                return (status == "paid", orderNumber ?? "");
+                return (isSuccess, orderNumber);
             }
 
             return (false, string.Empty);

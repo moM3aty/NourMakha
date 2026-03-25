@@ -26,66 +26,72 @@ namespace PerfumeStore.Controllers
 
             try
             {
-                // جلب الدومين الخاص بالموقع
+                // جلب الدومين الخاص بالموقع لاستخدامه في الرد (Callback)
                 string hostUrl = $"{Request.Scheme}://{Request.Host}";
 
-                // إنشاء جلسة الدفع في ثواني وجلب رابط صفحة الدفع
+                // إنشاء جلسة الدفع في Paymob وجلب رابط صفحة الدفع (Iframe URL)
                 var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(order, hostUrl);
 
-                // توجيه العميل فوراً إلى صفحة الدفع الخاصة بثواني
+                // توجيه العميل فوراً إلى شاشة الدفع الخاصة بـ Paymob
                 return Redirect(checkoutUrl);
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "حدث خطأ أثناء الاتصال ببوابة الدفع (Thawani). " + ex.Message;
+                TempData["Error"] = "حدث خطأ أثناء الاتصال ببوابة الدفع (Paymob). " + ex.Message;
                 return RedirectToAction("Checkout", "Cart");
             }
         }
 
-        // هذا هو الرابط الذي تعود إليه ثواني بعد نجاح الدفع
+        // هذا هو الرابط الذي تعود إليه Paymob بعد انتهاء العميل من الدفع
         [Route("Payment/Success")]
-        public async Task<IActionResult> Success(string session_id)
+        public async Task<IActionResult> Success([FromQuery] string id, [FromQuery] string success, [FromQuery] string merchant_order_id)
         {
-            if (string.IsNullOrEmpty(session_id)) return RedirectToAction("Index", "Home");
+            // id = رقم المعاملة في باي موب
+            // merchant_order_id = رقم الطلب في متجرنا (OrderNumber)
+
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(merchant_order_id))
+                return RedirectToAction("Index", "Home");
 
             try
             {
-                // التحقق من حالة الدفع من خوادم ثواني
-                var verification = await _paymentService.VerifyPaymentAsync(session_id);
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == verification.OrderNumber);
-
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderNumber == merchant_order_id);
                 if (order == null) return NotFound();
 
-                if (verification.IsPaid)
+                // التحقق الآمن من حالة الدفع من خوادم باي موب مباشرة (لمنع التلاعب بالرابط)
+                var verification = await _paymentService.VerifyPaymentAsync(id);
+
+                // إذا كان الدفع ناجحاً
+                if (verification.IsPaid && success == "true")
                 {
                     // تحديث حالة الطلب إلى ناجح
                     order.Status = "Confirmed";
-                    order.PaymentMethod = "Credit Card (Paid)";
+
+                    // تنظيف اسم طريقة الدفع (مثلاً تحويل Paymob_48305 إلى Paymob (Paid))
+                    order.PaymentMethod = "Paymob (Paid)";
                     order.UpdatedAt = DateTime.Now;
 
                     await _context.SaveChangesAsync();
 
-                    // إرسال إيميل التأكيد
+                    // إرسال إيميل التأكيد للعميل
                     await _emailService.SendOrderConfirmationAsync(order.ShippingEmail, order.Id, order.OrderNumber);
 
-                    // توجيه العميل لصفحة نجاح الطلب
+                    // توجيه العميل لصفحة نجاح الطلب وإظهار الفاتورة
                     return RedirectToAction("OrderConfirmation", "Cart", new { id = order.Id });
                 }
                 else
                 {
-                    TempData["Error"] = "عذراً، عملية الدفع لم تكتمل بنجاح.";
+                    // الدفع فشل أو تم رفض البطاقة
+                    TempData["Error"] = "عذراً، عملية الدفع لم تكتمل بنجاح أو تم رفض البطاقة من قبل البنك.";
                     return RedirectToAction("Checkout", "Cart");
                 }
             }
             catch (Exception ex)
             {
                 TempData["Error"] = "حدث خطأ أثناء التحقق من الدفع. يرجى التواصل مع الدعم الفني.";
-                // في حالة الخطأ يمكن توجيهه لصفحة الفاتورة ليرى أنها ما زالت معلقة
                 return RedirectToAction("Index", "Home");
             }
         }
 
-        // هذا الرابط إذا ألغى العميل الدفع من صفحة ثواني
         [Route("Payment/Cancel")]
         public IActionResult Cancel()
         {

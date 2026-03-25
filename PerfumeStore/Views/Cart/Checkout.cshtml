@@ -135,7 +135,8 @@
                         </div>
                         <div class="card-body">
                             <div class="payment-selection-grid">
-                                <!-- Cash -->
+
+                                <!-- Cash On Delivery -->
                                 <label class="payment-method-card selected">
                                     <input type="radio" asp-for="PaymentMethod" value="CashOnDelivery" checked name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
@@ -148,18 +149,46 @@
                                     </div>
                                 </label>
 
-                                <!-- Credit Card / Thawani Pay -->
+                                <!-- Paymob: International (Visa/Mastercard) ID: 48305 -->
                                 <label class="payment-method-card">
-                                    <input type="radio" asp-for="PaymentMethod" value="CreditCard" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
+                                    <input type="radio" asp-for="PaymentMethod" value="Paymob_48305" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
                                         <div class="method-icon"><i class="far fa-credit-card"></i></div>
                                         <div class="method-details">
-                                            <span class="title">@(isArabic ? "بطاقة ائتمان / خصم مباشر" : "Credit / Debit Card")</span>
+                                            <span class="title">@(isArabic ? "بطاقة ائتمان (فيزا / ماستركارد)" : "Credit / Debit Card")</span>
                                             <div class="card-logos-wrapper">
                                                 <img src="https://www.logo.wine/a/logo/Visa_Inc./Visa_Inc.-Logo.wine.svg" alt="Visa" class="pay-logo" />
                                                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="pay-logo" />
+                                            </div>
+                                        </div>
+                                        <div class="check-circle"><i class="fas fa-check"></i></div>
+                                    </div>
+                                </label>
+
+                                <!-- Paymob: -->
+                                <label class="payment-method-card">
+                                    <input type="radio" asp-for="PaymentMethod" value="Paymob_48304" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
+                                    <div class="card-content">
+                                        <div class="method-icon"><i class="fas fa-credit-card"></i></div>
+                                        <div class="method-details">
+                                            <span class="title">@(isArabic ? "عُمان نت (OmanNet)" : "OmanNet Card")</span>
+                                            <div class="card-logos-wrapper">
                                                 <div class="omannet-badge-mini" title="OmanNet">OmanNet</div>
-                                                <img src="https://thawani.om/wp-content/uploads/2022/12/Outlook-A-green-an.png" alt="Thawani" class="pay-logo thawani" title="Powered by Thawani" />
+                                            </div>
+                                        </div>
+                                        <div class="check-circle"><i class="fas fa-check"></i></div>
+                                    </div>
+                                </label>
+
+                                <!-- Paymob: Apple Pay ID: 48306 -->
+                                <label class="payment-method-card">
+                                    <input type="radio" asp-for="PaymentMethod" value="Paymob_48306" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
+                                    <div class="card-content">
+                                        <div class="method-icon"><i class="fab fa-apple" style="color: #000;"></i></div>
+                                        <div class="method-details">
+                                            <span class="title">@(isArabic ? "أبل باي (Apple Pay)" : "Apple Pay")</span>
+                                            <div class="card-logos-wrapper">
+                                                <span style="font-weight: 600; font-size: 0.8rem; color: #000; letter-spacing: 1px;">Pay</span>
                                             </div>
                                         </div>
                                         <div class="check-circle"><i class="fas fa-check"></i></div>
@@ -203,6 +232,13 @@
                                         </div>
                                     </div>
                                 </label>
+
+                                <!-- Paymob Trust Badge -->
+                                <div class="paymob-trust-badge">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>@(isArabic ? "مدعوم ومحمي بواسطة" : "Secured by")</span>
+                                    <strong style="color: #2672ff; letter-spacing: 1px; font-weight: 800;">Paymob</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -429,7 +465,7 @@
         display: flex;
         align-items: center;
         gap: 1.5rem;
-        padding: 1.5rem;
+        padding: 1.2rem 1.5rem;
         border: 2px solid #f8f9fa;
         border-radius: 12px;
         transition: 0.2s;
@@ -451,6 +487,7 @@
         display: block;
         font-weight: 700;
         color: #1e293b;
+        margin-bottom: 2px;
     }
 
     .method-details .desc {
@@ -475,6 +512,24 @@
         color: #fff;
         font-size: 0.8rem;
     }
+
+    /* Paymob Trust Badge */
+    .paymob-trust-badge {
+        text-align: center;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        border-top: 1px dashed #e2e8f0;
+        font-size: 0.85rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+        .paymob-trust-badge i {
+            color: #10b981;
+        }
 
     .bank-details-box {
         background: #f8fafc;
@@ -594,12 +649,12 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-top: 8px;
+        margin-top: 5px;
         flex-wrap: wrap;
     }
 
     .pay-logo {
-        height: 16px;
+        height: 18px;
         width: auto;
         object-fit: contain;
         opacity: 0.5;
@@ -608,27 +663,20 @@
     }
 
     .omannet-badge-mini {
-        height: 16px;
+        height: 18px;
         background: #0076a8;
         color: #fff;
-        padding: 0 6px;
-        border-radius: 3px;
+        padding: 0 8px;
+        border-radius: 4px;
         display: flex;
         align-items: center;
         font-family: Arial, sans-serif;
         font-weight: bold;
-        font-size: 0.6rem;
+        font-size: 0.7rem;
         letter-spacing: 0.5px;
         opacity: 0.5;
         filter: grayscale(100%);
         transition: 0.3s;
-    }
-
-    .pay-logo.thawani {
-        height: 14px;
-        margin-inline-start: 5px;
-        border-inline-start: 1px solid #e2e8f0;
-        padding-inline-start: 8px;
     }
 
     .payment-method-card input:checked + .card-content .pay-logo, .payment-method-card input:checked + .card-content .omannet-badge-mini {
@@ -796,6 +844,8 @@
             icon.className = 'fas fa-check';
             element.classList.add('copied');
             setTimeout(() => { icon.className = 'far fa-copy'; element.classList.remove('copied'); }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
         });
     }
 
