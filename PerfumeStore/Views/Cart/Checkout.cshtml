@@ -157,7 +157,7 @@
                                         <div class="method-details">
                                             <span class="title">@(isArabic ? "بطاقة ائتمان (فيزا / ماستركارد)" : "Credit / Debit Card")</span>
                                             <div class="card-logos-wrapper">
-                                                <img src="https://www.logo.wine/a/logo/Visa_Inc./Visa_Inc.-Logo.wine.svg" alt="Visa" class="pay-logo" />
+                                                <i class="fab fa-cc-visa"></i>
                                                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="pay-logo" />
                                             </div>
                                         </div>
@@ -165,7 +165,7 @@
                                     </div>
                                 </label>
 
-                                <!-- Paymob: -->
+                                <!-- Paymob: OmanNet ID: 48304 -->
                                 <label class="payment-method-card">
                                     <input type="radio" asp-for="PaymentMethod" value="Paymob_48304" name="PaymentMethod" onchange="updatePaymentSelection(this)" />
                                     <div class="card-content">
@@ -263,30 +263,37 @@
 
                         <!-- Totals -->
                         <div class="totals-section">
+                            <!-- التعديل هنا: تم تغيير الكلاس من currency-price إلى checkout-price لفصلها عن سكربت تغيير العملات -->
                             <div class="total-row">
                                 <span>@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
-                                <span id="subtotalDisplay" class="currency-price" data-base-price="@cartSubtotal">@cartSubtotal OMR</span>
+                                <span id="subtotalDisplay" class="checkout-price" data-base-price="@cartSubtotal">@cartSubtotal.ToString("N2") OMR</span>
                             </div>
 
                             <div class="total-row">
                                 <span>@(isArabic ? "الشحن" : "Shipping")</span>
-                                <span id="shippingDisplay" class="currency-price" data-base-price="0">0.00 OMR</span>
+                                <span id="shippingDisplay" class="checkout-price" data-base-price="0">0.00 OMR</span>
                             </div>
 
                             <div class="total-row discount" id="discountRow" style="display:none;">
                                 <span>@(isArabic ? "الخصم" : "Discount")</span>
-                                <span id="discountDisplay" class="currency-price" data-base-price="0">-0.00 OMR</span>
+                                <span id="discountDisplay" class="checkout-price" data-base-price="0">-0.00 OMR</span>
                             </div>
 
                             <div class="total-divider"></div>
 
                             <div class="total-row grand-total">
                                 <span>@(isArabic ? "الإجمالي" : "Total")</span>
-                                <span id="totalDisplay" class="gold-text currency-price" data-base-price="@cartSubtotal">@cartSubtotal OMR</span>
+                                <span id="totalDisplay" class="gold-text checkout-price" data-base-price="@cartSubtotal">@cartSubtotal.ToString("N2") OMR</span>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-complete-order">
+                        <!-- رسالة توضيحية للعميل لعدم الارتباك -->
+                        <div class="omr-notice">
+                            <i class="fas fa-info-circle"></i>
+                            @(isArabic ? "ملاحظة: سيتم معالجة جميع المدفوعات بالريال العماني (OMR)." : "Note: All payments will be processed securely in Omani Rial (OMR).")
+                        </div>
+
+                        <button type="submit" class="btn-complete-order" id="btnSubmitOrder">
                             <span>@(isArabic ? "تأكيد الطلب" : "Place Order")</span>
                             <i class="fas fa-lock"></i>
                         </button>
@@ -762,6 +769,20 @@
         font-weight: 600;
     }
 
+    .omr-notice {
+        background: rgba(0, 40, 85, 0.05);
+        color: #002855;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        text-align: center;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
     .btn-complete-order {
         width: 100%;
         padding: 1rem;
@@ -771,7 +792,7 @@
         border-radius: 12px;
         font-size: 1.1rem;
         font-weight: 700;
-        margin-top: 2rem;
+        margin-top: 1rem;
         cursor: pointer;
         transition: 0.3s;
         display: flex;
@@ -821,6 +842,19 @@
 
         const checkedRadio = document.querySelector('input[name="PaymentMethod"]:checked');
         if (checkedRadio) updatePaymentSelection(checkedRadio);
+    });
+
+    // منع الضغط المزدوج لحماية السلة
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('btnSubmitOrder');
+        if (btn.classList.contains('processing')) {
+            e.preventDefault();
+            return;
+        }
+        btn.classList.add('processing');
+        btn.style.opacity = '0.7';
+        btn.style.pointerEvents = 'none';
+        btn.querySelector('span').innerText = document.documentElement.lang.startsWith('ar') ? 'جاري تحويلك بأمان...' : 'Redirecting securely...';
     });
 
     function updatePaymentSelection(radio) {
@@ -908,10 +942,7 @@
         totalEl.innerText = total.toFixed(2) + " OMR";
         totalEl.setAttribute('data-base-price', total);
 
-        if(typeof changeCurrency === 'function') {
-            const current = localStorage.getItem('selectedCurrency') || 'OMR';
-            changeCurrency(current);
-        }
+        // التعديل هنا: تم حذف استدعاء دالة changeCurrency(current) لضمان ثبات الأسعار بالريال العماني في صفحة إتمام الطلب فقط.
     }
 
     async function validateCoupon() {
